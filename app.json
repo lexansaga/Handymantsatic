@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Handymantsatic",
+    "slug": "Handymantsatic",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "assets/fonts/*"
+    ],
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,  
+      "fonts": [
+        {
+          "fontFamily": "CustomFontName",
+          "fontWeight": "normal",
+          "fontFile": "./assets/fonts/Satoshi-Regular.ttf"
+        }
+      ]
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "fonts": [
+        {
+          "fontFamily": "CustomFontName",
+          "fontWeight": "normal",
+          "fontFile": "./assets/fonts/Satoshi-Regular.ttf"
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
