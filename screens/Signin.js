@@ -47,7 +47,7 @@ export default function Signin({ navigation }) {
                 <PrimaryButton
                     title={"Sign In"}
                     onPress={() => {
-                        navigation.navigate("ClientHome", { key: "value" });
+                        navigation.navigate("HomeScreen", { type: "client" });
                     }}
                 />
                 <SecondaryButton
@@ -55,7 +55,6 @@ export default function Signin({ navigation }) {
                     onPress={() => {
                         navigation.navigate("Signup", { key: "value" });
                     }}
-                    asdasdasd
                 />
             </View>
         </View>

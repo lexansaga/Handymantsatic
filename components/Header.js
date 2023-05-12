@@ -3,13 +3,14 @@ import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Input from "./Input";
 import { Avatar } from "react-native-elements";
-
+import { useNavigation } from "@react-navigation/native";
 export default function Header() {
+    const navigation = useNavigation();
     const [search, setSearch] = useState("");
     const [hasNotif, hasMessage] = useState(false);
     return (
         <View style={styles.HeaderContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
                 <Feather
                     name="menu"
                     size={25}

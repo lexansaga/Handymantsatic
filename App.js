@@ -2,14 +2,16 @@ import * as React from "react";
 import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
 import ForgotPassword from "./screens/ForgotPassword";
-import ClientHome from "./screens/ClientHome";
+import ClientHome from "./screens/Client/ClientHome";
+import ClientServiceFeeds from "./screens/Client/ClientServiceFeeds";
+import HomeScreen from "./screens/HomeScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
     return (
-        <NavigationContainer>
+        <NavigationContainer independent={true}>
             <Stack.Navigator
                 screenOptions={{
                     headerShown: false,
@@ -18,7 +20,11 @@ export default function App() {
                     },
                 }}
             >
-                <Stack.Screen name="Signin" component={Signin} />
+                <Stack.Screen
+                    name="Signin"
+                    component={Signin}
+                    options={{ title: "Signin" }}
+                />
                 <Stack.Screen
                     name="Signup"
                     component={Signup}
@@ -29,10 +35,23 @@ export default function App() {
                     component={ForgotPassword}
                     options={{ title: "ForgotPassword" }}
                 />
+
+                <Stack.Screen
+                    name="HomeScreen"
+                    component={HomeScreen}
+                    options={{ title: "HomeScreen" }}
+                />
+
                 <Stack.Screen
                     name="ClientHome"
                     component={ClientHome}
                     options={{ title: "ClientHome" }}
+                />
+
+                <Stack.Screen
+                    name="ClientServiceFeed"
+                    component={ClientServiceFeeds}
+                    options={{ title: "ClientServiceFeed" }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

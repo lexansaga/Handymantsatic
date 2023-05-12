@@ -77,6 +77,19 @@ const styles = StyleSheet.create({
         left: 30,
         zIndex: 2,
     },
+    Section: {
+        display: "flex",
+        flexDirection: "column",
+        paddingTop: 28,
+        paddingHorizontal: 28,
+    },
+    SectionTitle: {
+        fontWeight: 700,
+        fontFamily: "Roboto",
+        fontSize: 18,
+        textTransform: "uppercase",
+        marginBottom: 10,
+    },
 });
 
 export default styles;
