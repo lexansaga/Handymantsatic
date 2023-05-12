@@ -47,7 +47,22 @@ export default function Signin({ navigation }) {
                 <PrimaryButton
                     title={"Sign In"}
                     onPress={() => {
-                        navigation.navigate("HomeScreen", { type: "client" });
+                        if (email == "client" || password == "client") {
+                            console.log("Client");
+                            //  ShowToast("Client");
+                            navigation.navigate("ClientHome", {
+                                id: "1001",
+                                type: "client",
+                            });
+                        } else {
+                            console.log("Service");
+                            //ShowToast("Service");
+
+                            navigation.navigate("ServiceProviderHome", {
+                                id: "1001",
+                                type: "service",
+                            });
+                        }
                     }}
                 />
                 <SecondaryButton
@@ -60,6 +75,25 @@ export default function Signin({ navigation }) {
         </View>
     );
 }
+const SigninWithPassword = ({ navigation, email, password }) => {
+    if (email == "service" || password == "service") {
+        console.log("Service");
+        ShowToast("Service");
+        () => {
+            navigation.navigate("ServiceProviderHome", {
+                id: "1001",
+                type: "service",
+            });
+        };
+    } else {
+        console.log("Client");
+        ShowToast("Client");
+        navigation.navigate("ClientHome", {
+            id: "1001",
+            type: "client",
+        });
+    }
+};
 
 const pageStyles = StyleSheet.create({
     forgotPass: {

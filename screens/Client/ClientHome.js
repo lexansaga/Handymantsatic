@@ -60,22 +60,47 @@ export default function ClientHome({ navigation }) {
                         <Category
                             image={require("../../assets/plumbing.png")}
                             name="Plumbing"
+                            onpress={() =>
+                                navigation.navigate("ClientServiceFeed", {
+                                    category: "plumbing",
+                                })
+                            }
                         />
                         <Category
                             image={require("../../assets/plumbing.png")}
                             name="Plumbing"
+                            onpress={() =>
+                                navigation.navigate("ClientServiceFeed", {
+                                    category: "plumbing",
+                                })
+                            }
                         />
                         <Category
                             image={require("../../assets/plumbing.png")}
                             name="Plumbing"
+                            onpress={() =>
+                                navigation.navigate("ClientServiceFeed", {
+                                    category: "plumbing",
+                                })
+                            }
                         />
                         <Category
                             image={require("../../assets/plumbing.png")}
                             name="Plumbing"
+                            onpress={() =>
+                                navigation.navigate("ClientServiceFeed", {
+                                    category: "plumbing",
+                                })
+                            }
                         />
                         <Category
                             image={require("../../assets/plumbing.png")}
                             name="Plumbing"
+                            onpress={() =>
+                                navigation.navigate("ClientServiceFeed", {
+                                    category: "plumbing",
+                                })
+                            }
                         />
                     </ScrollView>
                 </View>
@@ -92,6 +117,10 @@ export default function ClientHome({ navigation }) {
                             image={require("../../assets/profile.jpg")}
                             name="John Doe"
                             price="P1000"
+                            onpress={() => {
+                                navigation.navigate("ClientHireForm");
+                                console.log("click");
+                            }}
                         />
 
                         <ClientServiceFeed
@@ -99,6 +128,10 @@ export default function ClientHome({ navigation }) {
                             image={require("../../assets/profile.jpg")}
                             name="John Doe"
                             price="P10"
+                            onpress={() => {
+                                navigation.navigate("ClientHireForm");
+                                console.log("click");
+                            }}
                         />
 
                         <ClientServiceFeed
@@ -106,6 +139,10 @@ export default function ClientHome({ navigation }) {
                             image={require("../../assets/profile.jpg")}
                             name="John Doe"
                             price="P10"
+                            onpress={() => {
+                                navigation.navigate("ClientHireForm");
+                                console.log("click");
+                            }}
                         />
 
                         <ClientServiceFeed
@@ -113,6 +150,10 @@ export default function ClientHome({ navigation }) {
                             image={require("../../assets/profile.jpg")}
                             name="John Doe"
                             price="P10"
+                            onpress={() => {
+                                navigation.navigate("ClientHireForm");
+                                console.log("click");
+                            }}
                         />
 
                         <ClientServiceFeed
@@ -120,6 +161,10 @@ export default function ClientHome({ navigation }) {
                             image={require("../../assets/profile.jpg")}
                             name="John Doe"
                             price="P10"
+                            onpress={() => {
+                                navigation.navigate("ClientHireForm");
+                                console.log("click");
+                            }}
                         />
 
                         <ClientServiceFeed
@@ -127,6 +172,10 @@ export default function ClientHome({ navigation }) {
                             image={require("../../assets/profile.jpg")}
                             name="John Doe"
                             price="P10"
+                            onpress={() => {
+                                navigation.navigate("ClientHireForm");
+                                console.log("click");
+                            }}
                         />
                     </View>
                 </View>
@@ -135,9 +184,9 @@ export default function ClientHome({ navigation }) {
         </View>
     );
 }
-const Category = ({ image, name, onpress }) => {
+export const Category = ({ image, name, onpress }) => {
     return (
-        <TouchableOpacity onpress={onpress}>
+        <TouchableOpacity activeOpacity={0.7} onPress={onpress}>
             <View style={styles.CategoryWrap}>
                 <Image source={image} style={styles.CategoryImage} />
                 <Text style={styles.CategoryName}>{name}</Text>
@@ -146,9 +195,19 @@ const Category = ({ image, name, onpress }) => {
     );
 };
 
-export const ClientServiceFeed = ({ service, image, name, price }) => {
+export const ClientServiceFeed = ({ service, image, name, price, onpress }) => {
     return (
-        <View style={styles.ClientServiceFeedWrap}>
+        <TouchableOpacity
+            activeOpacity={0.7}
+            style={
+                image != null
+                    ? styles.ClientServiceFeedWrap
+                    : {
+                          backgroundColor: "#FF9D38",
+                      }
+            }
+            onPress={onpress}
+        >
             <Image
                 source={image}
                 style={
@@ -164,16 +223,71 @@ export const ClientServiceFeed = ({ service, image, name, price }) => {
                         : styles.ClientServiceInfoWrap
                 }
             >
-                <Text style={styles.ClientServiceTitle}>{service}</Text>
+                <Text
+                    style={
+                        image != null
+                            ? styles.ClientServiceTitle
+                            : [
+                                  styles.ClientServiceTitle,
+                                  {
+                                      color: "#fff",
+                                  },
+                              ]
+                    }
+                >
+                    {service}
+                </Text>
                 <Text style={styles.ClientServiceName}>
-                    by{" "}
-                    <Text style={{ fontWeight: 600, fontStyle: "italic" }}>
+                    <Text
+                        style={
+                            image != null
+                                ? {
+                                      fontWeight: 400,
+                                      marginRight: 8,
+                                  }
+                                : {
+                                      fontWeight: 400,
+                                      marginRight: 10,
+                                      color: "#fff",
+                                  }
+                        }
+                    >
+                        by{"  "}
+                    </Text>
+                    <Text
+                        style={
+                            image != null
+                                ? { fontWeight: 600, fontStyle: "italic" }
+                                : [
+                                      styles.ClientServiceTitle,
+                                      {
+                                          fontWeight: 600,
+                                          fontStyle: "italic",
+                                          color: "#fff",
+                                      },
+                                  ]
+                        }
+                    >
                         {name}
                     </Text>
                 </Text>
-                <Text style={styles.ClientServicePrice}>{price}</Text>
+                <Text
+                    style={
+                        image != null
+                            ? styles.ClientServicePrice
+                            : [
+                                  styles.ClientServicePrice,
+                                  {
+                                      color: "#fff",
+                                      fontSize: 22,
+                                  },
+                              ]
+                    }
+                >
+                    {price}
+                </Text>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 

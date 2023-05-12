@@ -5,12 +5,13 @@ import ClientHome, { ClientServiceFeed } from "./ClientHome";
 import style from "../../styles/style";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
+import PrimaryButton from "../../components/PrimaryButton";
 export default function ClientHire({ navigation, route }) {
     return (
         <View style={{ paddingBottom: 120 }}>
             <Header />
             <Image
-                source={require("../../assets/profile.jpg")}
+                source={require("../../assets/ClientServiceFeedProfile.png")}
                 style={styles.CoverImage}
             />
             <View style={styles.MainWrap}>
@@ -35,15 +36,15 @@ export default function ClientHire({ navigation, route }) {
                         <View style={styles.WorkImageWrap}>
                             <Image
                                 style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
+                                source={require("../../assets/sample_image_1.jpg")}
                             />
                             <Image
                                 style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
+                                source={require("../../assets/sample_image_2.jpg")}
                             />
                             <Image
                                 style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
+                                source={require("../../assets/sample_image_3.jpg")}
                             />
                             <Image
                                 style={styles.WorkImage}
@@ -58,6 +59,16 @@ export default function ClientHire({ navigation, route }) {
                                 source={require("../../assets/blank.jpg")}
                             />
                         </View>
+                    </View>
+                    <View style={style.Section}>
+                        <PrimaryButton
+                            title={"Hire John"}
+                            onPress={() => {
+                                navigation.navigate("Client Hire Form", {
+                                    key: "value",
+                                });
+                            }}
+                        />
                     </View>
                 </ScrollView>
             </View>

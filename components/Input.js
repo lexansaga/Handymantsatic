@@ -6,7 +6,9 @@ import styles from "../styles/style.js";
 const Input = ({
     placeholder,
     value,
+    multiline,
     onChangeText,
+    onPress,
     icon,
     keyboardType,
     isPassword,
@@ -29,6 +31,8 @@ const Input = ({
                 value={value}
                 onChangeText={onChangeText}
                 keyboardType={keyboardType}
+                onPress={onPress}
+                multiline={multiline}
             />
         </View>
     );
