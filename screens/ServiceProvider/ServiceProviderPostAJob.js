@@ -10,7 +10,16 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { AppTitle } from "../../components/General";
 
 export default function ServiceProviderPostAJob({ navigation, route }) {
-    const [type, description, price, location] = useState("");
+    const [
+        type,
+        setType,
+        description,
+        setDescription,
+        price,
+        setPrice,
+        location,
+        setLocation,
+    ] = useState("");
     const [dpOpen, dpSetOpen] = useState(false);
     const [dpDate, dpSetDate] = useState(new Date());
 
@@ -27,7 +36,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                                 style={styles.Input}
                                 placeholder={"Service Type"}
                                 value={type}
-                                onChangeText={type}
+                                onChangeText={setType}
                                 icon="target"
                                 isPassword={false}
                             />
@@ -36,7 +45,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                                 style={styles.Input}
                                 placeholder={"Service Description"}
                                 value={description}
-                                onChangeText={description}
+                                onChangeText={setDescription}
                                 icon="file-text"
                                 isPassword={false}
                             />
@@ -45,7 +54,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                                 style={styles.Input}
                                 placeholder={"Price"}
                                 value={price}
-                                onChangeText={price}
+                                onChangeText={setPrice}
                                 icon="tag"
                                 isPassword={false}
                             />
@@ -54,7 +63,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                                 style={styles.Input}
                                 placeholder={"Location"}
                                 value={location}
-                                onChangeText={location}
+                                onChangeText={setLocation}
                                 icon="map-pin"
                                 isPassword={false}
                                 onPress={() => dpSetOpen(true)}

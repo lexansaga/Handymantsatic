@@ -9,10 +9,7 @@ import ClientHireForm from "./Client/ClientHireForm";
 import ClientSuccessBook from "./Client/ClientSuccessBook";
 import ServiceProviderHome from "./ServiceProvider/ServiceProviderHome";
 
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 const Drawer = createDrawerNavigator();
-const Stack = createNativeStackNavigator();
 export default function HomeScreen({ navigation, route, props }) {
     const { type } = route.params;
 

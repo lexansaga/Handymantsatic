@@ -4,6 +4,7 @@ import HomeScreen from "./screens/HomeScreen";
 import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
 import ForgotPassword from "./screens/ForgotPassword";
+import Chat from "./screens/Chat";
 
 import ClientHome from "./screens/Client/ClientHome";
 import ClientServiceFeeds from "./screens/Client/ClientServiceFeeds";
@@ -28,6 +29,10 @@ export default function App() {
                     headerStyle: {
                         backgroundColor: "#ffffff",
                     },
+                    cardStyle: { backgroundColor: "#fff" },
+                    contentStyle: {
+                        backgroundColor: "#FFFFFF",
+                    },
                 }}
             >
                 <Stack.Screen
@@ -49,6 +54,12 @@ export default function App() {
                     name="HomeScreen"
                     component={HomeScreen}
                     options={{ title: "HomeScreen" }}
+                />
+
+                <Stack.Screen
+                    name="Chat"
+                    component={Chat}
+                    options={{ title: "chat" }}
                 />
 
                 {/* Client Screens */}

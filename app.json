@@ -15,7 +15,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,  
+      "supportsTablet": true,
       "fonts": [
         {
           "fontFamily": "CustomFontName",
@@ -25,6 +25,7 @@
       ]
     },
     "android": {
+      "package":"com.android.Handymantsatic",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -35,10 +36,20 @@
           "fontWeight": "normal",
           "fontFile": "./assets/fonts/Satoshi-Regular.ttf"
         }
-      ]
+      ],
+      "package": "com.anonymous.Handymantsatic"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+    ]
+  
   }
 }

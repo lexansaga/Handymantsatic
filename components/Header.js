@@ -4,13 +4,14 @@ import { Feather } from "@expo/vector-icons";
 import Input from "./Input";
 import { Avatar } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
-export default function Header() {
-    const navigation = useNavigation();
+export default function Header({ navigation, route }) {
+    const sideNavigation = useNavigation();
     const [search, setSearch] = useState("");
-    const [hasNotif, hasMessage] = useState(false);
+    const [hasNotif] = useState(false);
+    const [hasMessage] = useState(false);
     return (
         <View style={styles.HeaderContainer}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+            <TouchableOpacity onPress={() => sideNavigation.openDrawer()}>
                 <Feather
                     name="menu"
                     size={25}
@@ -19,7 +20,11 @@ export default function Header() {
                 />
             </TouchableOpacity>
             <Input
-                style={{ borderRadius: 18, padding: 0 }}
+                style={{
+                    borderRadius: 18,
+                    padding: 0,
+                    backgroundColor: "red",
+                }}
                 placeholder="Search"
                 value={search}
                 onChangeText={setSearch}
@@ -34,6 +39,9 @@ export default function Header() {
                         size={23}
                         color={hasMessage ? "#7EB58D" : "#000"}
                         style={styles.Navbutton}
+                        onPress={() => {
+                            sideNavigation.navigate("Chat", { key: "value" });
+                        }}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity>

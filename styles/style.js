@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignContent: "center",
         justifyContent: "center",
-        backgroundColor: "#F4F4F4",
     },
     input: {
         width: "100%",
