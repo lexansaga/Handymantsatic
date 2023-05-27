@@ -57,6 +57,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                                 onChangeText={setPrice}
                                 icon="tag"
                                 isPassword={false}
+                                keyboardType={"numeric"}
                             />
                             <Input
                                 multiline={true}

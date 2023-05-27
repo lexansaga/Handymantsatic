@@ -1,18 +1,19 @@
 import "react-native-gesture-handler";
-import React from "react";
+
+import * as React from "react";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import ClientHome from "./Client/ClientHome";
-import ClientServiceFeeds from "./Client/ClientServiceFeeds";
-import ClientHire from "./Client/ClientHire";
-import ClientHireForm from "./Client/ClientHireForm";
-import ClientSuccessBook from "./Client/ClientSuccessBook";
-import ServiceProviderHome from "./ServiceProvider/ServiceProviderHome";
+
+import ClientHome from "../Client/ClientHome";
+import ClientServiceFeeds from "../Client/ClientServiceFeeds";
+import ClientHire from "../Client/ClientHire";
+import ClientHireForm from "../Client/ClientHireForm";
+import ClientSuccessBook from "../Client/ClientSuccessBook";
+import ServiceProviderHome from "../ServiceProvider/ServiceProviderHome";
 
 const Drawer = createDrawerNavigator();
-export default function HomeScreen({ navigation, route, props }) {
-    const { type } = route.params;
-
+export default function Client({ navigation, route, props }) {
     return (
         <Drawer.Navigator
             screenOptions={{
@@ -20,12 +21,7 @@ export default function HomeScreen({ navigation, route, props }) {
                 overlayColor: "rgba(0,0,0,0.8)",
             }}
         >
-            <Drawer.Screen
-                name="Home"
-                component={
-                    type.includes("client") ? ClientHome : ServiceProviderHome
-                }
-            ></Drawer.Screen>
+            <Drawer.Screen name="Home" component={ClientHome}></Drawer.Screen>
 
             <Drawer.Screen
                 name="Client Service Feed"

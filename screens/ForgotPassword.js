@@ -6,10 +6,32 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
-
+import { IsTextEmpty } from "../Utils";
+import app from "../config/firebase.config";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 export default function ForgotPassword({ navigation }) {
     const [email, setEmail] = useState("");
-
+    const auth = getAuth();
+    const IsNull = (text) => {
+        return !text || text.trim().length === 0;
+    };
+    function ResetPassword() {
+        if (IsTextEmpty(email)) {
+            ShowToast("Fill up all the information!");
+            return;
+        }
+        sendPasswordResetEmail(auth, email)
+            .then(() => {
+                navigation.navigate("Signin", { key: "value" });
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                ShowToast("There's an error resetting your password!");
+                console.log(`${errorCode} : ${errorMessage}`);
+                // ..
+            });
+    }
     return (
         <View style={styles.container}>
             <StatusBar style="auto" />
@@ -28,7 +50,12 @@ export default function ForgotPassword({ navigation }) {
             />
 
             <View style={pageStyles.buttonWrapper}>
-                <PrimaryButton title={"Reset Password"} />
+                <PrimaryButton
+                    title={"Reset Password"}
+                    onPress={() => {
+                        ResetPassword();
+                    }}
+                />
                 <SecondaryButton
                     title={"Back to Signin"}
                     onPress={() => {

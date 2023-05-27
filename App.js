@@ -1,10 +1,13 @@
 import * as React from "react";
 
-import HomeScreen from "./screens/HomeScreen";
+import Home from "./screens/Home";
 import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
 import ForgotPassword from "./screens/ForgotPassword";
 import Chat from "./screens/Chat";
+
+import Client from "./screens/Navigator/Client";
+import ServiceProvider from "./screens/Navigator/ServiceProvider";
 
 import ClientHome from "./screens/Client/ClientHome";
 import ClientServiceFeeds from "./screens/Client/ClientServiceFeeds";
@@ -51,9 +54,19 @@ export default function App() {
                     options={{ title: "ForgotPassword" }}
                 />
                 <Stack.Screen
-                    name="HomeScreen"
-                    component={HomeScreen}
-                    options={{ title: "HomeScreen" }}
+                    name="Home"
+                    component={Home}
+                    options={{ title: "Home" }}
+                />
+                <Stack.Screen
+                    name="Client"
+                    component={Client}
+                    options={{ title: "Client" }}
+                />
+                <Stack.Screen
+                    name="ServiceProvider"
+                    component={ServiceProvider}
+                    options={{ title: "ServiceProvider" }}
                 />
 
                 <Stack.Screen

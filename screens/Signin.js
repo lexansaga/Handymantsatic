@@ -6,10 +6,50 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
-
+import { IsTextEmpty } from "../Utils";
+import app from "../config/firebase.config";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 export default function Signin({ navigation }) {
-    const [email, setEmail, password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const auth = getAuth(app);
+    const firestore = getFirestore(app);
+    function Login() {
+        if (IsTextEmpty(email) || IsTextEmpty(password)) {
+            ShowToast("Fill up all the information!");
+            return;
+        }
 
+        signInWithEmailAndPassword(auth, email, password)
+            .then(async (userCredential) => {
+                // Signed in
+                const user = userCredential.user;
+                ShowToast("Login Success!");
+
+                setEmail("");
+                setPassword("");
+                var uid = user.uid;
+                console.log(uid);
+
+                const docRef = doc(firestore, "User", `${uid}`);
+                const querySnapshot = await getDoc(docRef);
+                var userType = String(querySnapshot.get("Type"));
+                if (userType.includes("Client")) {
+                    navigation.navigate("Client", { key: "value" });
+                } else {
+                    navigation.navigate("ServiceProvider", {
+                        key: "value",
+                    });
+                }
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                ShowToast("Login Failed!");
+                console.log(`${errorCode} : ${errorMessage}`);
+            });
+    }
     return (
         <View style={styles.container}>
             <StatusBar style="auto" />
@@ -47,22 +87,7 @@ export default function Signin({ navigation }) {
                 <PrimaryButton
                     title={"Sign In"}
                     onPress={() => {
-                        if (email == "client" || password == "client") {
-                            console.log("Client");
-                            //  ShowToast("Client");
-                            navigation.navigate("ClientHome", {
-                                id: "1001",
-                                type: "client",
-                            });
-                        } else {
-                            console.log("Service");
-                            //ShowToast("Service");
-
-                            navigation.navigate("ServiceProviderHome", {
-                                id: "1001",
-                                type: "service",
-                            });
-                        }
+                        Login();
                     }}
                 />
                 <SecondaryButton

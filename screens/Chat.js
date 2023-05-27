@@ -27,10 +27,10 @@ import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 export default function Chat({ navigation, route }) {
     const [message, setMessage] = useState("");
 
-    const [selectedImage, setSelectedImage] = useState(null);
+    var [selectedImage, setSelectedImage] = useState(null);
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
+            allowsMultipleSelection: true,
             quality: 1,
         });
 
@@ -87,18 +87,13 @@ export default function Chat({ navigation, route }) {
                             styles.messageImage,
                         ]}
                     >
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.chatImage}
-                        />
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={{
-                                height: 100,
-                                width: 100,
-                                resizeMode: "cover",
-                            }}
-                        />
+                        {selectedImage != null ? (
+                            <Image
+                                source={{ uri: selectedImage }}
+                                style={styles.chatImage}
+                            />
+                        ) : null}
+                        {(selectedImage = useState(null))}
                     </View>
                 </ScrollView>
                 <View style={styles.chatCTA}>

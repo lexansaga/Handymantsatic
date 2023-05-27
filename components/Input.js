@@ -13,6 +13,7 @@ const Input = ({
     keyboardType,
     isPassword,
     isSearch,
+    isNumberOnly,
 }) => {
     return (
         <View style={styles.inputContainer}>
@@ -29,7 +30,11 @@ const Input = ({
                 secureTextEntry={isPassword}
                 placeholder={placeholder}
                 value={value}
-                onChangeText={onChangeText}
+                onChangeText={
+                    isNumberOnly
+                        ? (text) => setMyNumber(text?.replace(/[^0-9]/g, ""))
+                        : onChangeText
+                }
                 keyboardType={keyboardType}
                 onPress={onPress}
                 multiline={multiline}
