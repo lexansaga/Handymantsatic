@@ -8,11 +8,20 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import DropDownPicker from "react-native-dropdown-picker";
 import { IsTextEmpty } from "../Utils";
-import app from "../config/firebase.config";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+    app,
+    auth,
+    createUserWithEmailAndPassword,
+    firestore,
+    database,
+    ref,
+    set,
+} from "../config/firebase.config";
+import {} from "firebase/auth";
 
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 export default function Signup({ navigation }) {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,13 +33,13 @@ export default function Signup({ navigation }) {
         { label: "Service Provider", value: "ServiceProvider" },
     ]);
 
-    const firestore = getFirestore(app);
-
-    const auth = getAuth(app);
+    // const firestore = getFirestore(app);
+    // const auth = getAuth(app);
 
     function SignIn() {
         if (
             IsTextEmpty(value) ||
+            IsTextEmpty(name) ||
             IsTextEmpty(email) ||
             IsTextEmpty(password) ||
             IsTextEmpty(confirmPassword)
@@ -53,16 +62,24 @@ export default function Signup({ navigation }) {
                 console.log(uid);
 
                 // Add a new document in collection "cities"
-                await setDoc(
-                    doc(firestore, "User", `${uid}`),
-                    {
-                        UID: uid,
-                        Email: email,
-                        Password: password,
-                        Type: value,
-                    },
-                    { merge: true }
-                );
+                // await setDoc(
+                //     doc(firestore, "User", `${uid}`),
+                //     {
+                //         UID: uid,
+                //         Email: email,
+                //         Password: password,
+                //         Type: value,
+                //     },
+                //     { merge: true }
+                // );
+
+                set(ref(database, `Users/${uid}`), {
+                    UID: uid,
+                    Name: name,
+                    Email: email,
+                    Password: password,
+                    Type: value,
+                });
 
                 // ...
             })
@@ -105,11 +122,19 @@ export default function Signup({ navigation }) {
                         marginLeft: 10,
                     }}
                 />
+
+                <Input
+                    placeholder={"Nickname"}
+                    value={name}
+                    onChangeText={setName}
+                    icon="user"
+                    keyboardType="text"
+                />
                 <Input
                     placeholder={"Email"}
                     value={email}
                     onChangeText={setEmail}
-                    icon="user"
+                    icon="at-sign"
                     keyboardType="email-address"
                 />
                 <Input

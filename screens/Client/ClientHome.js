@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
     StyleSheet,
@@ -10,10 +10,45 @@ import {
 } from "react-native";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import Header from "../../components/Header";
+import {
+    auth,
+    onAuthStateChanged,
+    app,
+    database,
+    databaseRef,
+    ref,
+    child,
+    get,
+} from "../../config/firebase.config";
 
-export default function ClientHome({ navigation }) {
+export default function ClientHome({ navigation, route, props }) {
     const [email, setEmail, password, setPassword] = useState("");
+    const [currentUserName, setCurrentUserName] = useState("");
+    const [category, setCategory] = useState({});
+    console.log("Params");
+    console.log(route.params);
+    const { UID, Name, Email } = route.params;
 
+    useEffect(() => {
+        const getCategory = async () => {
+            // var categoryData = [];
+            await get(child(databaseRef, `Category/`))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // console.log(snapshot.val());
+
+                        setCategory(snapshot.val());
+                    } else {
+                        console.log("No data available");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        };
+
+        getCategory();
+    }, []);
     return (
         <View style={{ paddingBottom: 120 }}>
             <StatusBar style="auto" />
@@ -22,7 +57,7 @@ export default function ClientHome({ navigation }) {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.LandingContainer}>
                     <Text style={styles.SubHeader}>
-                        Hi! <Text style={styles.Name}>Alex</Text>
+                        Hi! <Text style={styles.Name}>{Name}</Text>
                     </Text>
                     <Text style={styles.Header}>What service do you need?</Text>
                     <Image
@@ -39,69 +74,35 @@ export default function ClientHome({ navigation }) {
                         showsHorizontalScrollIndicator={false}
                         style={styles.ScrollViewHoriizontal}
                     >
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ClientServiceFeed", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
+                        {Object.values(category).map((categoryItem) => {
+                            return (
+                                <Category
+                                    image={{ uri: categoryItem.Image }}
+                                    name={`${categoryItem.Name}`}
+                                    onpress={() =>
+                                        navigation.navigate(
+                                            "ClientServiceFeed",
+                                            {
+                                                category: `${categoryItem.ID}`,
+                                            }
+                                        )
+                                    }
+                                />
+                            );
+                        })}
+
+                        {/* <Category
+                                    image={{ uri: category.Image }}
+                                    name={`${category.Name}`}
+                                    onpress={() =>
+                                        navigation.navigate(
+                                            "ClientServiceFeed",
+                                            {
+                                                category: `${category.ID}`,
+                                            }
+                                        )
+                                    }
+                                /> */}
                     </ScrollView>
                 </View>
                 {/* Category - End */}

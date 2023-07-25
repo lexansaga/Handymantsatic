@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, Image, View } from "react-native";
 import PrimaryButton from "../components/PrimaryButton";
@@ -7,14 +7,65 @@ import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
 import { IsTextEmpty } from "../Utils";
-import app from "../config/firebase.config";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+    app,
+    firestore,
+    doc,
+    getDoc,
+    setDoc,
+    database,
+    databaseRef,
+    get,
+    set,
+    child,
+    auth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+} from "../config/firebase.config";
+
+// import { } from "firebase/firestore";
 export default function Signin({ navigation }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const auth = getAuth(app);
-    const firestore = getFirestore(app);
+    // const auth = getAuth(app);
+
+    // const firestore = getFirestore(app);
+    useEffect(() => {
+        const hasUser = () => {
+            onAuthStateChanged(auth, async (user) => {
+                // console.log(user);
+                if (user) {
+                    const uid = user.uid;
+                    await get(child(databaseRef, `Users/${uid}/Type`))
+                        .then((snapshot) => {
+                            if (snapshot.exists()) {
+                                var user = snapshot.val();
+                                console.log(user);
+                                // if (user.includes("Client")) {
+                                //     navigation.replace("Client", {
+                                //         key: "value",
+                                //     });
+                                // } else {
+                                //     navigation.replace("ServiceProvider", {
+                                //         key: "value",
+                                //     });
+                                // }
+                            } else {
+                                console.log("No data available");
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                        });
+                } else {
+                    // User is signed out
+                    // ...
+                }
+            });
+        };
+
+        // hasUser();
+    }, []);
     function Login() {
         if (IsTextEmpty(email) || IsTextEmpty(password)) {
             ShowToast("Fill up all the information!");
@@ -32,16 +83,39 @@ export default function Signin({ navigation }) {
                 var uid = user.uid;
                 console.log(uid);
 
-                const docRef = doc(firestore, "User", `${uid}`);
-                const querySnapshot = await getDoc(docRef);
-                var userType = String(querySnapshot.get("Type"));
-                if (userType.includes("Client")) {
-                    navigation.navigate("Client", { key: "value" });
-                } else {
-                    navigation.navigate("ServiceProvider", {
-                        key: "value",
+                // const docRef = doc(firestore, "User", `${uid}`);
+                // const querySnapshot = await getDoc(docRef);
+                // var userType = String(querySnapshot.get("Type"));
+
+                await get(child(databaseRef, `Users/${uid}/`))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            var snap = snapshot.val();
+                            var email = snap.Email;
+                            var name = snap.Name;
+                            var type = String(snap.Type);
+
+                            console.log(email);
+                            if (type.includes("Client")) {
+                                navigation.replace("Client", {
+                                    UID: uid,
+                                    Email: email,
+                                    Name: name,
+                                });
+                            } else {
+                                navigation.replace("Client", {
+                                    UID: uid,
+                                    Email: email,
+                                    Name: name,
+                                });
+                            }
+                        } else {
+                            console.log("No data available");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
                     });
-                }
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -50,6 +124,7 @@ export default function Signin({ navigation }) {
                 console.log(`${errorCode} : ${errorMessage}`);
             });
     }
+
     return (
         <View style={styles.container}>
             <StatusBar style="auto" />

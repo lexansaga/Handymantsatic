@@ -3,26 +3,117 @@ import { View, ScrollView, Text, Image, StyleSheet } from "react-native";
 import Header from "../../components/Header";
 import Input from "../../components/Input";
 import style from "../../styles/style";
-
+import { IsTextEmpty } from "../../Utils";
+import ShowToast from "../../components/Toast";
 import DatePicker from "react-native-date-picker";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
 import { AppTitle } from "../../components/General";
-
+import DropDownPicker from "react-native-dropdown-picker";
+import {
+    app,
+    auth,
+    onAuthStateChanged,
+    database,
+    set,
+    update,
+    ref,
+    push,
+    get,
+    child,
+    databaseRef,
+} from "../../config/firebase.config";
+import { useEffect } from "react";
 export default function ServiceProviderPostAJob({ navigation, route }) {
-    const [
-        type,
-        setType,
-        description,
-        setDescription,
-        price,
-        setPrice,
-        location,
-        setLocation,
-    ] = useState("");
+    const [serviceNeed, setServiceNeed] = useState("");
+    const [description, setDescription] = useState("");
+    const [price, setPrice] = useState("");
+    const [location, setLocation] = useState("");
+
     const [dpOpen, dpSetOpen] = useState(false);
     const [dpDate, dpSetDate] = useState(new Date());
 
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState([]);
+    useEffect(() => {
+        const getCategory = async () => {
+            var categoryData = [];
+            await get(child(databaseRef, `Category`))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        var items = snapshot.val();
+                        Object.values(items).map((item) => {
+                            categoryData.push({
+                                label: item.Name,
+                                value: item.Name,
+                            });
+                        });
+
+                        // console.log(categoryData);
+                        setItems(categoryData);
+                    } else {
+                        console.log("No data available");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        };
+
+        getCategory();
+    }, []);
+
+    function PostAJob() {
+        if (
+            // IsTextEmpty(serviceNeed) ||
+            IsTextEmpty(description) ||
+            IsTextEmpty(price) ||
+            IsTextEmpty(location) ||
+            IsTextEmpty(value)
+        ) {
+            ShowToast("Fill up all the information!");
+            return;
+        }
+        onAuthStateChanged(auth, async (user) => {
+            // console.log(user);
+            if (user) {
+                const uid = user.uid;
+                await get(child(databaseRef, `Users/${uid}/Name`))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            var name = snapshot.val();
+                            var save = push(ref(database, `Jobs`), {
+                                Name: name,
+                                ServiceNeed: value,
+                                Description: description,
+                                Price: price,
+                                Location: location,
+                                Category: value,
+                                Active: true,
+                            });
+                            var saveKey = save.key;
+                            update(ref(database, `Jobs/${saveKey}`), {
+                                ID: saveKey,
+                            });
+                            console.log(saveKey);
+                        } else {
+                            ShowToast("Please sign in first!");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            } else {
+                // User is signed out
+                // ...
+            }
+        });
+
+        navigation.replace("ServiceProviderHome", {
+            key: "value",
+        });
+    }
     return (
         <View style={{ paddingBottom: 120 }}>
             <Header />
@@ -32,14 +123,36 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                     <View style={style.Section}>
                         <Text style={style.SectionTitle}>Book Now!</Text>
                         <View style={styles.InputGroup}>
-                            <Input
+                            <DropDownPicker
+                                open={open}
+                                value={value}
+                                items={items}
+                                setOpen={setOpen}
+                                setValue={setValue}
+                                setItems={setItems}
+                                showArrowIcon={true}
+                                listMode="MODAL"
+                                placeholder="Select Need"
+                                modalProps={{
+                                    animationType: "slide",
+                                    width: "50%",
+                                }}
+                                modalTitle="Select Type"
+                                style={{
+                                    borderColor: "transparent",
+                                    borderRadius: 0,
+                                    backgroundColor: "#ededed",
+                                    marginLeft: 10,
+                                }}
+                            />
+                            {/* <Input
                                 style={styles.Input}
-                                placeholder={"Service Type"}
-                                value={type}
-                                onChangeText={setType}
+                                placeholder={"Service Need"}
+                                value={serviceNeed}
+                                onChangeText={setServiceNeed}
                                 icon="target"
                                 isPassword={false}
-                            />
+                            /> */}
 
                             <Input
                                 style={styles.Input}
@@ -76,9 +189,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
                         <PrimaryButton
                             title={"Post Now!"}
                             onPress={() => {
-                                navigation.navigate("ServiceProviderHome", {
-                                    key: "value",
-                                });
+                                PostAJob();
                             }}
                         />
                     </View>

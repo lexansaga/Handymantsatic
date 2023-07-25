@@ -7,11 +7,10 @@ import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
 import { IsTextEmpty } from "../Utils";
-import app from "../config/firebase.config";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { app, auth } from "../config/firebase.config";
 export default function ForgotPassword({ navigation }) {
     const [email, setEmail] = useState("");
-    const auth = getAuth();
+    // const auth = getAuth();
     const IsNull = (text) => {
         return !text || text.trim().length === 0;
     };

@@ -10,7 +10,7 @@ import ClientHire from "../Client/ClientHire";
 import ClientHireForm from "../Client/ClientHireForm";
 import ClientSuccessBook from "../Client/ClientSuccessBook";
 import ServiceProviderHome from "../ServiceProvider/ServiceProviderHome";
-
+import Logout from "./Logout";
 const Drawer = createDrawerNavigator();
 export default function ServiceProvider({ navigation, route, props }) {
     const { type } = route.params;
@@ -31,6 +31,7 @@ export default function ServiceProvider({ navigation, route, props }) {
                 name="Feed"
                 component={ClientServiceFeeds}
             ></Drawer.Screen>
+            <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
     );
 }

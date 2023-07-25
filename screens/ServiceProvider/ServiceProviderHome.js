@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
     StyleSheet,
@@ -7,16 +7,103 @@ import {
     View,
     ScrollView,
     TouchableOpacity,
+    TouchableWithoutFeedback,
 } from "react-native";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import Header from "../../components/Header";
 import { Category } from "../Client/ClientHome";
 import PrimaryButton from "../../components/PrimaryButton";
 import { Feather } from "@expo/vector-icons";
-
+import {
+    auth,
+    onAuthStateChanged,
+    app,
+    database,
+    databaseRef,
+    ref,
+    child,
+    get,
+} from "../../config/firebase.config";
 export default function ServiceProviderHome({ navigation }) {
     const [email, setEmail, password, setPassword] = useState("");
+    const [currentUserName, setCurrentUserName] = useState("");
+    const [category, setCategory] = useState({});
+    const [jobs, setJobs] = useState({});
 
+    useEffect(() => {
+        const getCategory = async () => {
+            // var categoryData = [];
+            await get(child(databaseRef, `Category/`))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // console.log(snapshot.val());
+
+                        setCategory(snapshot.val());
+                    } else {
+                        console.log("No data available");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        };
+
+        const getJobs = async () => {
+            // var categoryData = [];
+            await get(child(databaseRef, `Jobs/`))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // console.log(snapshot.val());
+
+                        setJobs(snapshot.val());
+                    } else {
+                        console.log("No data available");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        };
+
+        const getCurrentUsername = async () => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in, see docs for a list of available properties
+                    // https://firebase.google.com/docs/reference/js/auth.user
+                    const uid = user.uid;
+                    console.log(uid);
+                    get(child(databaseRef, `Users/${uid}/Name`))
+                        .then((snapshot) => {
+                            if (snapshot.exists()) {
+                                console.log(snapshot.val());
+                                setCurrentUserName(snapshot.val());
+                            } else {
+                                console.log("No data available");
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                        });
+                } else {
+                    // User is signed out
+                    // ...
+                }
+            });
+        };
+
+        // console.log(category);
+        getCurrentUsername();
+        getJobs();
+        getCategory();
+
+        // const interval = setInterval(() => {
+        //     getJobs();
+        //     getCategory();
+        //     console.log("Refresh");
+        // }, 10000);
+
+        // return () => clearInterval(interval);
+    }, []);
     return (
         <View style={{ paddingBottom: 120 }}>
             <StatusBar style="auto" />
@@ -25,7 +112,7 @@ export default function ServiceProviderHome({ navigation }) {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.LandingContainer}>
                     <Text style={styles.SubHeader}>
-                        Hi! <Text style={styles.Name}>Alex</Text>
+                        Hi! <Text style={styles.Name}>{currentUserName}</Text>
                     </Text>
                     <Text style={styles.Header}>Welcome Back!</Text>
                     <Image
@@ -58,44 +145,22 @@ export default function ServiceProviderHome({ navigation }) {
                         showsHorizontalScrollIndicator={false}
                         style={styles.ScrollViewHoriizontal}
                     >
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ServiceProviderFeeds", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                            onpress={() =>
-                                navigation.navigate("ServiceProviderFeeds", {
-                                    category: "plumbing",
-                                })
-                            }
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                        />
-                        <Category
-                            image={require("../../assets/plumbing.png")}
-                            name="Plumbing"
-                        />
+                        {Object.values(category).map((categoryItem) => {
+                            return (
+                                <Category
+                                    image={{ uri: categoryItem.Image }}
+                                    name={`${categoryItem.Name}`}
+                                    onpress={() =>
+                                        navigation.navigate(
+                                            "ClientServiceFeed",
+                                            {
+                                                category: `${categoryItem.ID}`,
+                                            }
+                                        )
+                                    }
+                                />
+                            );
+                        })}
                     </ScrollView>
                 </View>
                 {/* Category - End */}
@@ -104,43 +169,23 @@ export default function ServiceProviderHome({ navigation }) {
                 <View style={styles.Section}>
                     <Text style={styles.SectionTitle}>Feed</Text>
                     <View style={styles.ServiceFeedWrap}>
-                        <ClientFeed
-                            name={"John Does"}
-                            whatlooking={"Plumber"}
-                            description={
-                                "Lorem ipsum sit amet Lorem ipsum sit amet Lorem ipsum sit amet..."
-                            }
-                            onpress={() => {
-                                navigation.navigate("ServiceProviderPostView", {
-                                    key: "value",
-                                });
-                            }}
-                        />
-                        <ClientFeed
-                            name={"John Doe"}
-                            whatlooking={"Plumber"}
-                            description={"Lorem ipsum sit amet..."}
-                        />
-                        <ClientFeed
-                            name={"John Doe"}
-                            whatlooking={"Plumber"}
-                            description={"Lorem ipsum sit amet..."}
-                        />
-                        <ClientFeed
-                            name={"John Doe"}
-                            whatlooking={"Plumber"}
-                            description={"Lorem ipsum sit amet..."}
-                        />
-                        <ClientFeed
-                            name={"John Doe"}
-                            whatlooking={"Plumber"}
-                            description={"Lorem ipsum sit amet..."}
-                        />
-                        <ClientFeed
-                            name={"John Doe"}
-                            whatlooking={"Plumber"}
-                            description={"Lorem ipsum sit amet..."}
-                        />
+                        {Object.values(jobs).map((job) => {
+                            return (
+                                <ClientFeed
+                                    name={job.Name}
+                                    whatlooking={job.ServiceNeed}
+                                    description={job.Description}
+                                    onpress={() => {
+                                        navigation.navigate(
+                                            "ServiceProviderPostView",
+                                            {
+                                                key: job.ID,
+                                            }
+                                        );
+                                    }}
+                                />
+                            );
+                        })}
                     </View>
                 </View>
                 {/* ClientServiceFeed - End */}
@@ -180,10 +225,12 @@ export const ClientFeed = ({ name, whatlooking, description, onpress }) => {
             <Text style={styles.ClientName}>{name}</Text>
             <Text style={styles.ClientWhatLooking}>{whatlooking}</Text>
             <Text style={styles.ClientDescription}>{description}</Text>
+
             <TouchableOpacity
                 style={styles.FavoriteButton}
                 onpress={() => {
                     console.log("Favorite!");
+                    setFavorite(!favorite);
                 }}
             >
                 <Feather
@@ -303,5 +350,6 @@ const styles = StyleSheet.create({
         right: 20,
         top: "50%",
         alignItems: "flex-end",
+        zIndex: 99,
     },
 });

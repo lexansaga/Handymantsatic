@@ -11,6 +11,7 @@ import ClientHire from "../Client/ClientHire";
 import ClientHireForm from "../Client/ClientHireForm";
 import ClientSuccessBook from "../Client/ClientSuccessBook";
 import ServiceProviderHome from "../ServiceProvider/ServiceProviderHome";
+import Logout from "./Logout";
 
 const Drawer = createDrawerNavigator();
 export default function Client({ navigation, route, props }) {
@@ -42,6 +43,7 @@ export default function Client({ navigation, route, props }) {
                 name="Client Success Book"
                 component={ClientSuccessBook}
             ></Drawer.Screen>
+            <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
     );
 }
