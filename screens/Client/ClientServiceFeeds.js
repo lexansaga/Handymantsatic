@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../../components/Header";
 import {
     StyleSheet,
@@ -6,80 +6,149 @@ import {
     View,
     Text,
     TouchableOpacity,
+    RefreshControl,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ClientServiceFeed } from "./ClientHome";
-
+import {
+    auth,
+    onAuthStateChanged,
+    app,
+    database,
+    databaseRef,
+    ref,
+    child,
+    get,
+    onValue,
+    getDataOnce,
+    UserInfo,
+} from "../../config/firebase.config";
+import { DefaultProfile, IsNullOrEmpty } from "../Utils";
+import { PriceFormat } from "../Utils";
 export default function ClientServiceFeeds({ navigation, route }) {
+    const [userInfo, setUserInfo] = useState({});
+    const { Category } = route.params;
+    console.log(Category);
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+    const [jobs, setJobs] = useState([]);
+    const [refreshing, setRefreshing] = React.useState(false);
+    // const [profile, setProfile] = useState("");
+    const getJobs = async () => {
+        let profiles = {};
+        await get(child(databaseRef, `Jobs/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const snap = snapshot.val();
+                    // console.log(snap);
+                    Object.values(snap).map(async (job) => {
+                        var uid = job.UserID;
+                        // console.log(uid);
+                        await get(child(databaseRef, `Users/${uid}`)).then(
+                            (Profile) => {
+                                profiles[`${job.ID}`] = {
+                                    ...job,
+                                    Profile,
+                                };
+                                const mergedDataString = JSON.stringify(
+                                    profiles,
+                                    null,
+                                    2
+                                );
+                                // console.log(mergedDataString);
+
+                                setJobs(JSON.parse(mergedDataString));
+                            }
+                        );
+                    });
+
+                    // setJobs(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    useEffect(() => {
+        // setJobs(JSON.stringify(jobs));
+        getJobs();
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
+        // console.log(jobs);
+    }, []);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        getJobs();
+        console.log("Refresh");
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
     return (
         <View style={{ paddingBottom: 120 }}>
             <Header />
             <ScrollView
                 style={styles.CSFMainContainer}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
             >
-                <Feed
-                    service={"Plumbing"}
-                    image={require("../../assets/profile.jpg")}
-                    name={"John Doe"}
-                    price={"P10"}
-                    cover={
-                        "With over a decade of experience in diagnosing and fixing plumbing issues, I am confident in my ability to provide comprehensive plumbing services that meet the needs of any residential or commercial client."
+                {Object.values(jobs).map((job) => {
+                    // console.log(jobs);
+                    // console.log(getProfile(job.UserID));
+                    // console.log(
+                    //     `${job.Category.toLowerCase().trim()} :  ${Category.toLowerCase().trim()}`
+                    // );
+                    console.log(IsNullOrEmpty(job));
+                    if (!IsNullOrEmpty(job));
+                    {
+                        if (
+                            job.PostedBy.includes(Email) ||
+                            !job.Category.toLowerCase().includes(
+                                Category.toLowerCase()
+                            )
+                        ) {
+                            return;
+                        }
+                        return (
+                            <Feed
+                                service={job.Category}
+                                image={{
+                                    uri: job.Profile.Profile,
+                                }}
+                                name={job.Name}
+                                price={PriceFormat(job.Price)}
+                                cover={job.Description}
+                                onpress={() => {
+                                    navigation.navigate("Client Hire Form", {
+                                        ...route.params,
+                                        JobInfo: {
+                                            Active: job.Active,
+                                            Category: job.Category,
+                                            Description: job.Description,
+                                            ID: job.ID,
+                                            Location: job.Location,
+                                            ClientName: job.Name,
+                                            PostedBy: job.PostedBy,
+                                            Price: job.Price,
+                                            ServiceNeed: job.ServiceNeed,
+                                            UserID: job.UserID,
+                                            Profile: job.Profile.Profile,
+                                        },
+                                    });
+                                    // console.log("click");
+                                }}
+                            />
+                        );
                     }
-                    onpress={() => {
-                        navigation.navigate();
-                    }}
-                />
-
-                <Feed
-                    service={"Plumbing"}
-                    image={require("../../assets/profile.jpg")}
-                    name={"John Doe"}
-                    price={"P10"}
-                    cover={
-                        "With over a decade of experience in diagnosing and fixing plumbing issues, I am confident in my ability to provide comprehensive plumbing services that meet the needs of any residential or commercial client."
-                    }
-                />
-
-                <Feed
-                    service={"Plumbing"}
-                    image={require("../../assets/profile.jpg")}
-                    name={"John Doe"}
-                    price={"P10"}
-                    cover={
-                        "With over a decade of experience in diagnosing and fixing plumbing issues, I am confident in my ability to provide comprehensive plumbing services that meet the needs of any residential or commercial client."
-                    }
-                />
-
-                <Feed
-                    service={"Plumbing"}
-                    image={require("../../assets/profile.jpg")}
-                    name={"John Doe"}
-                    price={"P10"}
-                    cover={
-                        "With over a decade of experience in diagnosing and fixing plumbing issues, I am confident in my ability to provide comprehensive plumbing services that meet the needs of any residential or commercial client."
-                    }
-                />
-
-                <Feed
-                    service={"Plumbing"}
-                    image={require("../../assets/profile.jpg")}
-                    name={"John Doe"}
-                    price={"P10"}
-                    cover={
-                        "With over a decade of experience in diagnosing and fixing plumbing issues, I am confident in my ability to provide comprehensive plumbing services that meet the needs of any residential or commercial client."
-                    }
-                />
-
-                <Feed
-                    service={"Plumbing"}
-                    image={require("../../assets/profile.jpg")}
-                    name={"John Doe"}
-                    price={"P10"}
-                    cover={
-                        "With over a decade of experience in diagnosing and fixing plumbing issues, I am confident in my ability to provide comprehensive plumbing services that meet the needs of any residential or commercial client."
-                    }
-                />
+                })}
             </ScrollView>
         </View>
     );
@@ -131,6 +200,8 @@ const styles = StyleSheet.create({
     CoverLetter: {
         paddingHorizontal: 16,
         paddingVertical: 18,
+        textAlign: "left",
+        width: "100%",
     },
     FeedButton: {
         display: "flex",

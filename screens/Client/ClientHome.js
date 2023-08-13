@@ -6,8 +6,11 @@ import {
     Image,
     View,
     ScrollView,
+    RefreshControl,
     TouchableOpacity,
 } from "react-native";
+
+import { Feather } from "@expo/vector-icons";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import Header from "../../components/Header";
 import {
@@ -19,42 +22,104 @@ import {
     ref,
     child,
     get,
+    UserInfo,
 } from "../../config/firebase.config";
-
+import { PriceFormat } from "../Utils";
+import { useNavigation } from "@react-navigation/native";
 export default function ClientHome({ navigation, route, props }) {
+    const useNav = useNavigation();
     const [email, setEmail, password, setPassword] = useState("");
     const [currentUserName, setCurrentUserName] = useState("");
     const [category, setCategory] = useState({});
-    console.log("Params");
-    console.log(route.params);
-    const { UID, Name, Email } = route.params;
+    const [refreshing, setRefreshing] = React.useState(false);
+    // console.log(route.params.params);const [userInfo, setUserInfo] = useState({});
+
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+    // console.log(Name);
+    const [jobs, setJobs] = useState([]);
+    const getCategory = async () => {
+        await get(child(databaseRef, `Category/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    setCategory(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    const getJobs = async () => {
+        let profiles = {};
+        await get(child(databaseRef, `Jobs/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const snap = snapshot.val();
+                    // console.log(snap);
+                    Object.values(snap).map(async (job) => {
+                        var uid = job.UserID;
+                        // console.log(uid);
+                        await get(child(databaseRef, `Users/${uid}`)).then(
+                            (Profile) => {
+                                profiles[`${job.ID}`] = {
+                                    ...job,
+                                    Profile,
+                                };
+                                const mergedDataString = JSON.stringify(
+                                    profiles,
+                                    null,
+                                    2
+                                );
+                                // console.log(mergedDataString);
+
+                                setJobs(JSON.parse(mergedDataString));
+                            }
+                        );
+                    });
+
+                    // setJobs(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
     useEffect(() => {
-        const getCategory = async () => {
-            // var categoryData = [];
-            await get(child(databaseRef, `Category/`))
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        // console.log(snapshot.val());
-
-                        setCategory(snapshot.val());
-                    } else {
-                        console.log("No data available");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        };
-
+        getJobs();
         getCategory();
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
+    }, []);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        getJobs();
+        getCategory();
+        console.log("Refresh");
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
     }, []);
     return (
         <View style={{ paddingBottom: 120 }}>
             <StatusBar style="auto" />
-            <Header />
+            <Header profile={Profile} />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <View style={styles.LandingContainer}>
                     <Text style={styles.SubHeader}>
                         Hi! <Text style={styles.Name}>{Name}</Text>
@@ -68,6 +133,23 @@ export default function ClientHome({ navigation, route, props }) {
 
                 {/* Category - Start */}
                 <View style={styles.Section}>
+                    <TouchableOpacity
+                        style={styles.btnPostAJob}
+                        activeOpacity={0.7}
+                        onPress={() => {
+                            navigation.navigate(
+                                "ServiceProviderPostAJob",
+                                route
+                            );
+                        }}
+                    >
+                        <Feather
+                            style={styles.btnPostAJobIcon}
+                            name={"plus"}
+                            size={20}
+                        />
+                        <Text style={styles.btnPostAJobText}>Post A Job</Text>
+                    </TouchableOpacity>
                     <Text style={styles.SectionTitle}>Category</Text>
                     <ScrollView
                         horizontal={true}
@@ -80,104 +162,58 @@ export default function ClientHome({ navigation, route, props }) {
                                     image={{ uri: categoryItem.Image }}
                                     name={`${categoryItem.Name}`}
                                     onpress={() =>
-                                        navigation.navigate(
-                                            "ClientServiceFeed",
-                                            {
-                                                category: `${categoryItem.ID}`,
-                                            }
-                                        )
+                                        navigation.navigate("Feed", {
+                                            Category: `${categoryItem.ID}`,
+                                            ...route.params,
+                                        })
                                     }
                                 />
                             );
                         })}
-
-                        {/* <Category
-                                    image={{ uri: category.Image }}
-                                    name={`${category.Name}`}
-                                    onpress={() =>
-                                        navigation.navigate(
-                                            "ClientServiceFeed",
-                                            {
-                                                category: `${category.ID}`,
-                                            }
-                                        )
-                                    }
-                                /> */}
                     </ScrollView>
                 </View>
                 {/* Category - End */}
-
                 {/* ClientServiceFeed - Start */}
                 <View style={styles.Section}>
                     <Text style={styles.SectionTitle}>
                         You are looking for?
                     </Text>
                     <View style={styles.ServiceFeedWrap}>
-                        <ClientServiceFeed
-                            service={"Plumbing"}
-                            image={require("../../assets/profile.jpg")}
-                            name="John Doe"
-                            price="P1000"
-                            onpress={() => {
-                                navigation.navigate("ClientHireForm");
-                                console.log("click");
-                            }}
-                        />
-
-                        <ClientServiceFeed
-                            service={"Plumbing"}
-                            image={require("../../assets/profile.jpg")}
-                            name="John Doe"
-                            price="P10"
-                            onpress={() => {
-                                navigation.navigate("ClientHireForm");
-                                console.log("click");
-                            }}
-                        />
-
-                        <ClientServiceFeed
-                            service={"Plumbing"}
-                            image={require("../../assets/profile.jpg")}
-                            name="John Doe"
-                            price="P10"
-                            onpress={() => {
-                                navigation.navigate("ClientHireForm");
-                                console.log("click");
-                            }}
-                        />
-
-                        <ClientServiceFeed
-                            service={"Plumbing"}
-                            image={require("../../assets/profile.jpg")}
-                            name="John Doe"
-                            price="P10"
-                            onpress={() => {
-                                navigation.navigate("ClientHireForm");
-                                console.log("click");
-                            }}
-                        />
-
-                        <ClientServiceFeed
-                            service={"Plumbing"}
-                            image={require("../../assets/profile.jpg")}
-                            name="John Doe"
-                            price="P10"
-                            onpress={() => {
-                                navigation.navigate("ClientHireForm");
-                                console.log("click");
-                            }}
-                        />
-
-                        <ClientServiceFeed
-                            service={"Plumbing"}
-                            image={require("../../assets/profile.jpg")}
-                            name="John Doe"
-                            price="P10"
-                            onpress={() => {
-                                navigation.navigate("ClientHireForm");
-                                console.log("click");
-                            }}
-                        />
+                        {Object.values(jobs).map((job) => {
+                            return (
+                                <ClientServiceFeed
+                                    service={job.ServiceNeed}
+                                    image={{ uri: job.Profile.Profile }}
+                                    name={job.Name}
+                                    price={PriceFormat(job.Price)}
+                                    onpress={() => {
+                                        navigation.navigate(
+                                            "Client Hire Form",
+                                            {
+                                                ...route.params,
+                                                JobInfo: {
+                                                    Active: job.Active,
+                                                    Category: job.Category,
+                                                    Description:
+                                                        job.Description,
+                                                    ID: job.ID,
+                                                    Location: job.Location,
+                                                    ClientName: job.Name,
+                                                    PostedBy: job.PostedBy,
+                                                    Price: job.Price,
+                                                    ServiceNeed:
+                                                        job.ServiceNeed,
+                                                    UserID: job.UserID,
+                                                    Profile:
+                                                        job.Profile.Profile,
+                                                },
+                                            }
+                                        );
+                                        console.log("click");
+                                    }}
+                                />
+                            );
+                        })}
                     </View>
                 </View>
                 {/* ClientServiceFeed - End */}
@@ -187,7 +223,7 @@ export default function ClientHome({ navigation, route, props }) {
 }
 export const Category = ({ image, name, onpress }) => {
     return (
-        <TouchableOpacity activeOpacity={0.7} onPress={onpress}>
+        <TouchableOpacity activeOpacity={0.7} onPress={onpress} key={name}>
             <View style={styles.CategoryWrap}>
                 <Image source={image} style={styles.CategoryImage} />
                 <Text style={styles.CategoryName}>{name}</Text>
@@ -197,14 +233,32 @@ export const Category = ({ image, name, onpress }) => {
 };
 
 export const ClientServiceFeed = ({ service, image, name, price, onpress }) => {
+    const colors = [
+        "#FF9D38",
+        "#7EB58D",
+        "#3DB6D0",
+        "#FF9D38",
+        "#7EB58D",
+        "#3DB6D0",
+        "#FF9D38",
+        "#7EB58D",
+        "#3DB6D0",
+    ];
+    const color = colors[Math.floor(Math.random() * colors.length)];
     return (
         <TouchableOpacity
+            key={service}
             activeOpacity={0.7}
             style={
                 image != null
-                    ? styles.ClientServiceFeedWrap
+                    ? [
+                          styles.ClientServiceFeedWrap,
+                          {
+                              backgroundColor: `${color}33`,
+                          },
+                      ]
                     : {
-                          backgroundColor: "#FF9D38",
+                          backgroundColor: `${color}`,
                       }
             }
             onPress={onpress}
@@ -438,5 +492,26 @@ const styles = StyleSheet.create({
         fontFamily: "Roboto",
         textAlign: "left",
         marginTop: 4,
+    },
+    btnPostAJob: {
+        display: "flex",
+        flexDirection: "row",
+        backgroundColor: "#7EB58D",
+        alignItems: "center",
+        alignSelf: "flex-start",
+        gap: 8,
+        paddingVertical: 20,
+        paddingHorizontal: 16,
+        paddingRight: 20,
+        marginBottom: 18,
+        borderRadius: 5,
+    },
+    btnPostAJobIcon: {
+        color: "#fff",
+    },
+    btnPostAJobText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: 600,
     },
 });

@@ -22,9 +22,13 @@ import {
     get,
     child,
     databaseRef,
+    UserInfo,
 } from "../../config/firebase.config";
 import { useEffect } from "react";
 export default function ServiceProviderPostAJob({ navigation, route }) {
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+    console.log(UID);
     const [serviceNeed, setServiceNeed] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
@@ -62,6 +66,10 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
         };
 
         getCategory();
+
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
     }, []);
 
     function PostAJob() {
@@ -75,43 +83,27 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
             ShowToast("Fill up all the information!");
             return;
         }
-        onAuthStateChanged(auth, async (user) => {
-            // console.log(user);
-            if (user) {
-                const uid = user.uid;
-                await get(child(databaseRef, `Users/${uid}/Name`))
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            var name = snapshot.val();
-                            var save = push(ref(database, `Jobs`), {
-                                Name: name,
-                                ServiceNeed: value,
-                                Description: description,
-                                Price: price,
-                                Location: location,
-                                Category: value,
-                                Active: true,
-                            });
-                            var saveKey = save.key;
-                            update(ref(database, `Jobs/${saveKey}`), {
-                                ID: saveKey,
-                            });
-                            console.log(saveKey);
-                        } else {
-                            ShowToast("Please sign in first!");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
-            } else {
-                // User is signed out
-                // ...
-            }
-        });
 
-        navigation.replace("ServiceProviderHome", {
-            key: "value",
+        // var name = snap.Name;
+        var save = push(ref(database, `Jobs`), {
+            UserID: UID,
+            Name: Name,
+            ServiceNeed: value,
+            Description: description,
+            Price: price,
+            Location: location,
+            Category: value,
+            Active: true,
+            PostedBy: Email,
+        });
+        var saveKey = save.key;
+        update(ref(database, `Jobs/${saveKey}`), {
+            ID: saveKey,
+        });
+        console.log(saveKey);
+
+        navigation.replace("Home", {
+            route: route.params.params,
         });
     }
     return (

@@ -8,26 +8,46 @@ import style from "../../styles/style";
 import DatePicker from "react-native-date-picker";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
-
+import { useNavigation } from "@react-navigation/native";
+import { PriceFormat } from "../Utils";
 export default function ClientHireForm({ navigation, route }) {
-    const [name, contact, date, time, location] = useState("");
+    // const [name, contact, date, time, location] = useState("");
+    const [name, setName] = useState("");
+    const [contact, setContact] = useState("");
+    const [date, setDate] = useState("");
+    const [time, setTime] = useState("");
+    const [location, setLocation] = useState("");
     const [dpOpen, dpSetOpen] = useState(false);
     const [dpDate, dpSetDate] = useState(new Date());
-
+    const { UID, Name, Email, Type } = route.params;
+    const {
+        Active,
+        Category,
+        Description,
+        ID,
+        Location,
+        ClientName,
+        PostedBy,
+        Price,
+        ServiceNeed,
+        UserID,
+        Profile,
+    } = route.params.JobInfo;
+    // console.log(route.params);
+    const sideNavigation = useNavigation();
+    // setName(Name)
     return (
         <View style={{ paddingBottom: 120 }}>
             <Header />
             <ScrollView automaticallyAdjustContentInsets={true}>
-                <Image
-                    source={require("../../assets/ClientServiceFeedProfile.png")}
-                    style={styles.CoverImage}
-                />
+                <Image source={{ uri: Profile }} style={styles.CoverImage} />
                 <View style={styles.MainWrap}>
                     <ClientServiceFeed
+                        image={null}
                         style={style.Info}
-                        service={"Plumbing"}
-                        name="John Doe"
-                        price="P1000"
+                        service={Category}
+                        name={ClientName}
+                        price={PriceFormat(Price)}
                     />
 
                     <View style={style.Section}>
@@ -131,5 +151,6 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         gap: 8,
         marginTop: 12,
+        marginLeft: -12,
     },
 });

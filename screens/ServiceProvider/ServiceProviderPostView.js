@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
     StyleSheet,
@@ -7,6 +7,7 @@ import {
     View,
     ScrollView,
     TouchableOpacity,
+    RefreshControl,
 } from "react-native";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import Header from "../../components/Header";
@@ -14,18 +15,70 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { Feather } from "@expo/vector-icons";
 import styles from "../../styles/style";
 import { AppTitle } from "../../components/General";
-
-export default function ServiceProviderPostView({ navigation }) {
+import {
+    auth,
+    onAuthStateChanged,
+    app,
+    database,
+    databaseRef,
+    ref,
+    child,
+    get,
+} from "../../config/firebase.config";
+import { PriceFormat } from "../Utils";
+export default function ServiceProviderPostView({ navigation, route }) {
     const [email, setEmail, password, setPassword] = useState("");
+    const [refreshing, setRefreshing] = React.useState(false);
 
+    const [job, setJob] = useState([]);
+
+    const { JobID } = route.params;
+    console.log(route.params);
+    const getJobs = async () => {
+        await get(child(databaseRef, `Jobs/${JobID}`))
+            .then((snapshot) => {
+                console.log(snapshot.val());
+                if (snapshot.exists()) {
+                    console.log(snapshot.val());
+                    setJob(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    console.log(job);
+
+    useEffect(() => {
+        getJobs();
+        console.log(job);
+    }, []);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        console.log("Refresh");
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
     return (
         <View style={{ paddingBottom: 120 }}>
             <StatusBar style="auto" />
             <Header />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <AppTitle
-                    title={"Jane Mitchell"}
+                    title={job.Name}
                     hasContact={true}
                     dialNo={12345678901}
                 />
@@ -33,27 +86,23 @@ export default function ServiceProviderPostView({ navigation }) {
                 <View style={styles.Section}>
                     <View style={style.Infogroup}>
                         <Text style={styles.SectionTitle}>Is Looking For?</Text>
-                        <Text style={style.Answer}>PLUMBER</Text>
+                        <Text style={style.Answer}>{job.ServiceNeed}</Text>
                     </View>
                     <View style={style.Infogroup}>
                         <Text style={styles.SectionTitle}>TASK</Text>
-                        <Text style={style.Answer}>
-                            I need help to unclogged my pipe and clean my
-                            toilet.
-                        </Text>
+                        <Text style={style.Answer}>{job.Description}</Text>
                     </View>
 
                     <View style={style.Infogroup}>
                         <Text style={styles.SectionTitle}>Est. Budget</Text>
-                        <Text style={style.Answer}>500PHP - 2000PHP</Text>
+                        <Text style={style.Answer}>
+                            {PriceFormat(job.Price)}
+                        </Text>
                     </View>
 
                     <View style={style.Infogroup}>
                         <Text style={styles.SectionTitle}>Location</Text>
-                        <Text style={style.Answer}>
-                            Robert Robertson, 1234 NW Bobcat Lane, St. Robert,
-                            MO 65584-5678
-                        </Text>
+                        <Text style={style.Answer}>{job.Location}</Text>
                     </View>
 
                     <PrimaryButton

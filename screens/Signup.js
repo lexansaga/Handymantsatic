@@ -86,7 +86,7 @@ export default function Signup({ navigation }) {
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.log();
+                // console.log();
                 console.log(`${errorCode} : ${errorMessage}`);
                 // ..
             });

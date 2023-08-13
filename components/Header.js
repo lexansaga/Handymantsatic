@@ -4,14 +4,49 @@ import { Feather } from "@expo/vector-icons";
 import Input from "./Input";
 import { Avatar } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
-export default function Header({ navigation, route }) {
+import {
+    app,
+    auth,
+    onAuthStateChanged,
+    get,
+    databaseRef,
+    child,
+    UserInfo,
+} from "../config/firebase.config";
+import { useEffect } from "react";
+import { DefaultProfile } from "../screens/Utils";
+export default function Header({ navigation, nav, route, onPress }) {
+    // console.log(route);
     const sideNavigation = useNavigation();
     const [search, setSearch] = useState("");
-    const [hasNotif] = useState(false);
-    const [hasMessage] = useState(false);
+    const [hasNotif, setHasNotif] = useState(false);
+    const [hasMessage, setHasMessage] = useState(false);
+    const [profile, setProfile] = useState("");
+    const [uid, setUID] = useState("");
+
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+
+    useEffect(() => {
+        // getUser();
+
+        setProfile(DefaultProfile);
+        UserInfo().then((user) => {
+            setUserInfo(user);
+            setProfile(user.Profile);
+            setUID(use.UID);
+        });
+    }, []);
+    // console.log(profileImage);
     return (
         <View style={styles.HeaderContainer}>
-            <TouchableOpacity onPress={() => sideNavigation.openDrawer()}>
+            <TouchableOpacity
+                onPress={
+                    onPress != null
+                        ? onPress
+                        : () => sideNavigation.openDrawer()
+                }
+            >
                 <Feather
                     name="menu"
                     size={25}
@@ -55,9 +90,7 @@ export default function Header({ navigation, route }) {
                 <Avatar
                     rounded
                     title="Profile"
-                    source={{
-                        uri: "https://www.mecgale.com/wp-content/uploads/2017/08/dummy-profile.png",
-                    }}
+                    source={{ uri: profile }}
                     containerStyle={{ height: 30, width: 30 }}
                 />
             </View>

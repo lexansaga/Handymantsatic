@@ -7,6 +7,7 @@ import {
     View,
     ScrollView,
     TouchableOpacity,
+    RefreshControl,
     TouchableWithoutFeedback,
 } from "react-native";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
@@ -23,96 +24,109 @@ import {
     ref,
     child,
     get,
+    UserInfo,
+    update,
+    set,
 } from "../../config/firebase.config";
-export default function ServiceProviderHome({ navigation }) {
+import { User } from "../UserInfo";
+export default function ServiceProviderHome({ navigation, route }) {
     const [email, setEmail, password, setPassword] = useState("");
     const [currentUserName, setCurrentUserName] = useState("");
     const [category, setCategory] = useState({});
     const [jobs, setJobs] = useState({});
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+
+    const getCategory = async () => {
+        // var categoryData = [];
+        await get(child(databaseRef, `Category/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    // console.log(snapshot.val());
+
+                    setCategory(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    const getJobs = async () => {
+        let profiles = {};
+        await get(child(databaseRef, `Jobs/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const snap = snapshot.val();
+                    // console.log(snap);
+                    Object.values(snap).map(async (job) => {
+                        var uid = job.UserID;
+                        // console.log(uid);
+                        await get(child(databaseRef, `Users/${uid}`)).then(
+                            (Profile) => {
+                                profiles[`${job.ID}`] = {
+                                    ...job,
+                                    Profile,
+                                };
+                                const mergedDataString = JSON.stringify(
+                                    profiles,
+                                    null,
+                                    2
+                                );
+                                // console.log(mergedDataString);
+
+                                setJobs(JSON.parse(mergedDataString));
+                            }
+                        );
+                    });
+
+                    // setJobs(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
     useEffect(() => {
-        const getCategory = async () => {
-            // var categoryData = [];
-            await get(child(databaseRef, `Category/`))
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        // console.log(snapshot.val());
-
-                        setCategory(snapshot.val());
-                    } else {
-                        console.log("No data available");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        };
-
-        const getJobs = async () => {
-            // var categoryData = [];
-            await get(child(databaseRef, `Jobs/`))
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        // console.log(snapshot.val());
-
-                        setJobs(snapshot.val());
-                    } else {
-                        console.log("No data available");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        };
-
-        const getCurrentUsername = async () => {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // User is signed in, see docs for a list of available properties
-                    // https://firebase.google.com/docs/reference/js/auth.user
-                    const uid = user.uid;
-                    console.log(uid);
-                    get(child(databaseRef, `Users/${uid}/Name`))
-                        .then((snapshot) => {
-                            if (snapshot.exists()) {
-                                console.log(snapshot.val());
-                                setCurrentUserName(snapshot.val());
-                            } else {
-                                console.log("No data available");
-                            }
-                        })
-                        .catch((error) => {
-                            console.error(error);
-                        });
-                } else {
-                    // User is signed out
-                    // ...
-                }
-            });
-        };
-
-        // console.log(category);
-        getCurrentUsername();
         getJobs();
         getCategory();
-
-        // const interval = setInterval(() => {
-        //     getJobs();
-        //     getCategory();
-        //     console.log("Refresh");
-        // }, 10000);
-
-        // return () => clearInterval(interval);
+        console.log(userInfo);
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
     }, []);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        getJobs();
+        getCategory();
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
+
     return (
         <View style={{ paddingBottom: 120 }}>
             <StatusBar style="auto" />
-            <Header />
+            <Header profile={Profile} />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+            >
                 <View style={styles.LandingContainer}>
                     <Text style={styles.SubHeader}>
-                        Hi! <Text style={styles.Name}>{currentUserName}</Text>
+                        Hi! <Text style={styles.Name}>{Name}</Text>
                     </Text>
                     <Text style={styles.Header}>Welcome Back!</Text>
                     <Image
@@ -127,9 +141,10 @@ export default function ServiceProviderHome({ navigation }) {
                         style={styles.btnPostAJob}
                         activeOpacity={0.7}
                         onPress={() => {
-                            navigation.navigate("ServiceProviderPostAJob", {
-                                key: "value",
-                            });
+                            navigation.navigate(
+                                "ServiceProviderPostAJob",
+                                route
+                            );
                         }}
                     >
                         <Feather
@@ -151,12 +166,10 @@ export default function ServiceProviderHome({ navigation }) {
                                     image={{ uri: categoryItem.Image }}
                                     name={`${categoryItem.Name}`}
                                     onpress={() =>
-                                        navigation.navigate(
-                                            "ClientServiceFeed",
-                                            {
-                                                category: `${categoryItem.ID}`,
-                                            }
-                                        )
+                                        navigation.navigate("Feed", {
+                                            Category: `${categoryItem.ID}`,
+                                            params: route.params,
+                                        })
                                     }
                                 />
                             );
@@ -170,16 +183,27 @@ export default function ServiceProviderHome({ navigation }) {
                     <Text style={styles.SectionTitle}>Feed</Text>
                     <View style={styles.ServiceFeedWrap}>
                         {Object.values(jobs).map((job) => {
+                            // console.log(job.Profile.Profile);
+                            if (job.PostedBy.includes(Email)) {
+                                // Prevent the current User see his / her own name at the feed.
+                                return;
+                            }
                             return (
                                 <ClientFeed
+                                    ClientID={UID}
+                                    JobID={job.ID}
                                     name={job.Name}
+                                    image={{
+                                        uri: job.Profile.Profile,
+                                    }}
                                     whatlooking={job.ServiceNeed}
                                     description={job.Description}
                                     onpress={() => {
+                                        console.log(`From feed:${job.ID}`);
                                         navigation.navigate(
                                             "ServiceProviderPostView",
                                             {
-                                                key: job.ID,
+                                                JobID: job.ID,
                                             }
                                         );
                                     }}
@@ -194,7 +218,15 @@ export default function ServiceProviderHome({ navigation }) {
     );
 }
 
-export const ClientFeed = ({ name, whatlooking, description, onpress }) => {
+export const ClientFeed = ({
+    ClientID,
+    JobID,
+    name,
+    image,
+    whatlooking,
+    description,
+    onpress,
+}) => {
     const [favorite, setFavorite] = useState(false);
 
     const colors = [
@@ -210,7 +242,7 @@ export const ClientFeed = ({ name, whatlooking, description, onpress }) => {
     ];
     const color = colors[Math.floor(Math.random() * colors.length)];
     //  console.log(favorite);
-    // console.log(color);
+    // console.log(image);
     return (
         <TouchableOpacity
             activeOpacity={0.7}
@@ -222,23 +254,37 @@ export const ClientFeed = ({ name, whatlooking, description, onpress }) => {
             ]}
             onPress={onpress}
         >
-            <Text style={styles.ClientName}>{name}</Text>
-            <Text style={styles.ClientWhatLooking}>{whatlooking}</Text>
-            <Text style={styles.ClientDescription}>{description}</Text>
+            <View style={styles.ClientImageWrap}>
+                <View style={styles.ClientInfoWrap}>
+                    <Image source={image} style={styles.ClientImage} />
+                    <View>
+                        <Text style={styles.ClientName}>{name}</Text>
+                        <Text style={styles.ClientWhatLooking}>
+                            {whatlooking}
+                        </Text>
+                    </View>
+                </View>
 
-            <TouchableOpacity
-                style={styles.FavoriteButton}
-                onpress={() => {
-                    console.log("Favorite!");
-                    setFavorite(!favorite);
-                }}
-            >
-                <Feather
-                    name={"heart"}
-                    size={20}
-                    color={favorite ? `${"#FF9D38"}` : `${"#000"}`}
-                />
-            </TouchableOpacity>
+                <Text style={styles.ClientDescription}>{description}</Text>
+                <TouchableWithoutFeedback>
+                    <TouchableOpacity
+                        style={styles.FavoriteButton}
+                        onPress={() => {
+                            console.log("Favorite!");
+                            setFavorite(!favorite);
+                            set(databaseRef, `Favorites/${ClientID}/`, {
+                                JobID: favorite,
+                            });
+                        }}
+                    >
+                        <Feather
+                            name={"heart"}
+                            size={20}
+                            color={favorite ? `${"#FF9D38"}` : `${"#000"}`}
+                        />
+                    </TouchableOpacity>
+                </TouchableWithoutFeedback>
+            </View>
         </TouchableOpacity>
     );
 };
@@ -276,7 +322,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     btnPostAJob: {
-        display: "flex",
+        display: "none",
         flexDirection: "row",
         backgroundColor: "#7EB58D",
         alignItems: "center",
@@ -325,9 +371,29 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "column",
         gap: 0,
-        paddingVertical: 16,
-        paddingHorizontal: 24,
+        paddingVertical: 0,
+        paddingHorizontal: 0,
         borderRadius: 12,
+        overflow: "hidden",
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+    },
+    ClientImageWrap: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+    },
+    ClientImage: {
+        height: 80,
+        width: 80,
+        borderRadius: 8,
+    },
+    ClientInfoWrap: {
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "nowrap",
+        alignItems: "center",
+        gap: 15,
     },
     ClientName: {
         fontSize: 20,
@@ -341,15 +407,14 @@ const styles = StyleSheet.create({
     ClientDescription: {
         fontSize: 16,
         fontWeight: 400,
-        maxWidth: "85%",
-        marginTop: 8,
+        maxWidth: "100%",
+        marginTop: 0,
     },
     FavoriteButton: {
         position: "absolute",
-        left: 0,
-        right: 20,
-        top: "50%",
+        right: 0,
+        top: 0,
         alignItems: "flex-end",
-        zIndex: 99,
+        zIndex: 999999,
     },
 });

@@ -8,7 +8,13 @@ import {
     sendPasswordResetEmail,
     signOut,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    snapshotEqual,
+} from "firebase/firestore";
 import {
     getDatabase,
     ref,
@@ -17,7 +23,9 @@ import {
     set,
     push,
     update,
+    onValue,
 } from "firebase/database";
+import { useState } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -36,9 +44,36 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
-const auth = getAuth(app);
+const auth = getAuth();
 const database = getDatabase();
 const databaseRef = ref(database);
+
+async function getDataOnce(path) {
+    var data = {};
+    onValue(
+        ref(database, path),
+        (snapshot) => {
+            data = { ...snapshot.val() };
+            // console.log(data);
+        },
+        {
+            onlyOnce: true,
+        }
+    );
+    return data;
+}
+async function UserInfo() {
+    const currentUserUID = auth.currentUser.uid;
+    // console.error(currentUserUID);
+    return await get(child(databaseRef, `Users/${currentUserUID}/`)).then(
+        (snapshot) => {
+            // console.log(snapshot.val());
+            // setUserInfo(snapshot.val());
+            return snapshot.val();
+        }
+    );
+}
+
 export {
     app,
     auth,
@@ -54,9 +89,12 @@ export {
     database,
     databaseRef,
     child,
+    onValue,
     ref,
     get,
     set,
     push,
     update,
+    getDataOnce,
+    UserInfo,
 };

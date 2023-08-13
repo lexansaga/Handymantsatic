@@ -93,20 +93,25 @@ export default function Signin({ navigation }) {
                             var snap = snapshot.val();
                             var email = snap.Email;
                             var name = snap.Name;
+                            var profile = snap.Profile;
                             var type = String(snap.Type);
 
-                            console.log(email);
+                            console.log(type);
                             if (type.includes("Client")) {
-                                navigation.replace("Client", {
+                                navigation.replace("Home", {
                                     UID: uid,
                                     Email: email,
                                     Name: name,
+                                    Type: type,
+                                    Profile: profile,
                                 });
                             } else {
-                                navigation.replace("Client", {
+                                navigation.replace("Home", {
                                     UID: uid,
                                     Email: email,
                                     Name: name,
+                                    Type: type,
+                                    Profile: profile,
                                 });
                             }
                         } else {

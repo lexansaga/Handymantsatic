@@ -108,7 +108,7 @@ export default function ClientSuccessBook({ navigation, route }) {
     );
 }
 
-dialCall = (number) => {
+const dialCall = (number) => {
     let phoneNumber = "";
     if (Platform.OS === "android") {
         phoneNumber = `tel:${number}`;
