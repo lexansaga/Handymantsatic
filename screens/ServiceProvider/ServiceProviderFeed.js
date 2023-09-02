@@ -22,16 +22,18 @@ import {
     get,
     UserInfo,
 } from "../../config/firebase.config";
-import { IsNullOrEmpty } from "../Utils";
+import { IsNullOrEmpty, PriceFormat, DefaultProfile } from "../Utils";
+import { useIsFocused } from "@react-navigation/native";
 export default function ServiceProviderFeeds({ navigation, route }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [jobs, setJobs] = useState({});
     const [refreshing, setRefreshing] = React.useState(false);
     const [userInfo, setUserInfo] = useState({});
-    const { Category } = route.params;
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
-    // console.log(Category);
+    const { Category } = route.params;
+    let jobCount = 0;
+    // console.log(`Category : ${Category}`);
     const getJobs = async () => {
         let profiles = {};
         await get(child(databaseRef, `Jobs/`))
@@ -69,13 +71,19 @@ export default function ServiceProviderFeeds({ navigation, route }) {
                 console.error(error);
             });
     };
+    const isFocused = useIsFocused();
+    // console.log(job);
     useEffect(() => {
-        // console.log(category);
-        getJobs();
-        UserInfo().then((user) => {
-            setUserInfo(user);
-        });
-    }, []);
+        if (isFocused == true) {
+            onRefresh();
+            UserInfo().then((user) => {
+                setUserInfo(user);
+            });
+        } else {
+            navigation.setParams({ Category: null });
+        }
+    }, [isFocused]);
+
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         getJobs();
@@ -99,27 +107,37 @@ export default function ServiceProviderFeeds({ navigation, route }) {
             >
                 <View style={style.ServiceFeedWrap}>
                     {Object.values(jobs).map((job) => {
-                        // console.log(job.Category.toLowerCase());
-                        if (
-                            !IsNullOrEmpty(job.Category) &&
-                            (job.PostedBy.includes(Email) ||
-                                !job.Category.toLowerCase().includes(Category))
-                        ) {
-                            // Prevent the current User see his / her own name at the feed and Only see specified Category.
-                            return;
+                        // console.log(IsNullOrEmpty(Category) + ":" + Category);
+                        // console.log(
+                        //     !job.Category.toLowerCase().includes(Category)
+                        // );
+
+                        if (IsNullOrEmpty(Category) === false) {
+                            if (
+                                job.PostedBy.includes(Email) ||
+                                !job.Category.toLowerCase().includes(
+                                    Category.toLowerCase()
+                                ) ||
+                                job.Active == false
+                            ) {
+                                // Prevent the current User see his / her own name at the feed and Only see specified Category.
+                                return;
+                            }
                         }
 
-                        // console.log(job.ID);
-
-                        console.log(`From Feed:`);
-                        // console.log(job);
                         return (
                             <ClientFeed
                                 name={job.Name}
                                 whatlooking={job.ServiceNeed}
                                 description={job.Description}
-                                image={{ uri: job.Profile.Profile }}
+                                price={PriceFormat(job.Price)}
+                                image={{
+                                    uri: job.Profile.Profile
+                                        ? job.Profile.Profile
+                                        : DefaultProfile,
+                                }}
                                 onpress={() => {
+                                    console.log(`From feed:${job.ID}`);
                                     navigation.navigate(
                                         "ServiceProviderPostView",
                                         {

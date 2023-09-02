@@ -36,20 +36,32 @@ export default function Signin({ navigation }) {
                 // console.log(user);
                 if (user) {
                     const uid = user.uid;
-                    await get(child(databaseRef, `Users/${uid}/Type`))
+                    await get(child(databaseRef, `Users/${uid}/`))
                         .then((snapshot) => {
                             if (snapshot.exists()) {
-                                var user = snapshot.val();
+                                var snap = snapshot.val();
+                                var email = snap.Email;
+                                var name = snap.Name;
+                                var profile = snap.Profile;
+                                var type = String(snap.Type);
                                 console.log(user);
-                                // if (user.includes("Client")) {
-                                //     navigation.replace("Client", {
-                                //         key: "value",
-                                //     });
-                                // } else {
-                                //     navigation.replace("ServiceProvider", {
-                                //         key: "value",
-                                //     });
-                                // }
+                                if (type.includes("Client")) {
+                                    navigation.replace("Home", {
+                                        UID: uid,
+                                        Email: email,
+                                        Name: name,
+                                        Type: type,
+                                        Profile: profile,
+                                    });
+                                } else {
+                                    navigation.replace("Home", {
+                                        UID: uid,
+                                        Email: email,
+                                        Name: name,
+                                        Type: type,
+                                        Profile: profile,
+                                    });
+                                }
                             } else {
                                 console.log("No data available");
                             }
@@ -64,7 +76,7 @@ export default function Signin({ navigation }) {
             });
         };
 
-        // hasUser();
+        hasUser();
     }, []);
     function Login() {
         if (IsTextEmpty(email) || IsTextEmpty(password)) {
@@ -81,7 +93,7 @@ export default function Signin({ navigation }) {
                 setEmail("");
                 setPassword("");
                 var uid = user.uid;
-                console.log(uid);
+                // console.log(uid);
 
                 // const docRef = doc(firestore, "User", `${uid}`);
                 // const querySnapshot = await getDoc(docRef);
@@ -96,7 +108,7 @@ export default function Signin({ navigation }) {
                             var profile = snap.Profile;
                             var type = String(snap.Type);
 
-                            console.log(type);
+                            // console.log(type);
                             if (type.includes("Client")) {
                                 navigation.replace("Home", {
                                     UID: uid,

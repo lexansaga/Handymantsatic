@@ -19,6 +19,7 @@ import {
     app,
     database,
     databaseRef,
+    orderBy,
     ref,
     child,
     get,
@@ -428,7 +429,7 @@ const styles = StyleSheet.create({
     },
     CategoryName: {
         textTransform: "uppercase",
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 600,
         fontFamily: "Roboto",
         textAlign: "center",

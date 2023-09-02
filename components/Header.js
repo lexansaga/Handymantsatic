@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Input from "./Input";
 import { Avatar } from "react-native-elements";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
     app,
     auth,
@@ -14,8 +14,14 @@ import {
     UserInfo,
 } from "../config/firebase.config";
 import { useEffect } from "react";
-import { DefaultProfile } from "../screens/Utils";
-export default function Header({ navigation, nav, route, onPress }) {
+import { DefaultProfile, IsNullOrEmpty } from "../screens/Utils";
+export default function Header({
+    navigation,
+    nav,
+    route,
+    onPress,
+    userProfile,
+}) {
     // console.log(route);
     const sideNavigation = useNavigation();
     const [search, setSearch] = useState("");
@@ -33,7 +39,7 @@ export default function Header({ navigation, nav, route, onPress }) {
         setProfile(DefaultProfile);
         UserInfo().then((user) => {
             setUserInfo(user);
-            setProfile(user.Profile);
+            setProfile(user.Profile ? user.Profile : DefaultProfile);
             setUID(use.UID);
         });
     }, []);
@@ -87,12 +93,22 @@ export default function Header({ navigation, nav, route, onPress }) {
                         style={styles.Navbutton}
                     />
                 </TouchableOpacity>
-                <Avatar
-                    rounded
-                    title="Profile"
-                    source={{ uri: profile }}
-                    containerStyle={{ height: 30, width: 30 }}
-                />
+                <TouchableOpacity
+                    onPress={() => {
+                        sideNavigation.navigate("ClientHire");
+                    }}
+                >
+                    <Avatar
+                        rounded
+                        title="Profile"
+                        source={{
+                            uri: IsNullOrEmpty(userProfile)
+                                ? profile
+                                : userProfile,
+                        }}
+                        containerStyle={{ height: 30, width: 30 }}
+                    />
+                </TouchableOpacity>
             </View>
         </View>
     );

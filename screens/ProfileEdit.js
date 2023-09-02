@@ -10,10 +10,11 @@ import {
     PermissionsAndroid,
     TouchableOpacity,
 } from "react-native";
-import Header from "../../components/Header";
-import ClientHome, { ClientServiceFeed } from "./ClientHome";
-import style from "../../styles/style";
+import Header from "../components/Header";
+import ClientHome, { ClientServiceFeed } from "./Client/ClientHome";
+import style from "../styles/style";
 import {
+    auth,
     database,
     databaseRef,
     ref,
@@ -23,25 +24,36 @@ import {
     push,
     update,
     storage,
-} from "../../config/firebase.config";
+    sendPasswordResetEmail,
+} from "../config/firebase.config";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
-import PrimaryButton from "../../components/PrimaryButton";
+import PrimaryButton from "../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile } from "../Utils";
-
+import { DefaultProfile } from "./Utils";
+import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from "expo-image-picker";
 import {
     uploadBytesResumable,
     ref as strRef,
     getDownloadURL,
 } from "firebase/storage";
-import ShowToast from "../../components/Toast";
-import Spinner from "../../components/Spinner";
-export default function ClientHire({ navigation, route }) {
+import ShowToast from "../components/Toast";
+import Spinner from "../components/Spinner";
+import { Input } from "react-native-elements";
+import SecondaryButton from "../components/SecondaryButton";
+export default function ProfileEdit({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
-    const { Email, Name, Password, Profile, Type, UID, JobDescription } =
-        userInfo;
+    const {
+        Email,
+        Name,
+        Password,
+        Profile,
+        Type,
+        UID,
+        JobDescription,
+        ServiceOffered,
+    } = userInfo;
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
     const [profileLink, setProfileLink] = useState("");
@@ -50,6 +62,41 @@ export default function ClientHire({ navigation, route }) {
     const [isSpinnerShow, setSpinnerShow] = useState(false);
 
     const [image, setImage] = useState(null);
+
+    const [dpOpen, dpSetOpen] = useState(false);
+    const [dpDate, dpSetDate] = useState(new Date());
+
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState([]);
+
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+
+    const getCategory = async () => {
+        var categoryData = [];
+        await get(child(databaseRef, `Category`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    var items = snapshot.val();
+                    Object.values(items).map((item) => {
+                        categoryData.push({
+                            label: item.Name,
+                            value: item.Name,
+                        });
+                    });
+
+                    // console.log(categoryData);
+                    setItems(categoryData);
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
     const uriToBlob = (uri) => {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -143,6 +190,7 @@ export default function ClientHire({ navigation, route }) {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
+        getCategory();
         UserInfo().then((user) => {
             setUserInfo(user);
         });
@@ -185,52 +233,93 @@ export default function ClientHire({ navigation, route }) {
                     <ClientServiceFeed
                         style={style.Info}
                         service={Name}
-                        name={"Plumber"}
+                        name={ServiceOffered}
                         price=""
                     />
+
                     <View style={style.Section}>
-                        <Text style={style.SectionTitle}>Job Description</Text>
-                        <Text style={styles.Verbiage}>{JobDescription}</Text>
-                    </View>
-                    <View style={style.Section}>
-                        <Text style={style.SectionTitle}>Work Profile</Text>
-                        <View style={styles.WorkImageWrap}>
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/sample_image_1.jpg")}
+                        <Text style={style.SectionTitle}>
+                            Profile Information
+                        </Text>
+                        <Input
+                            style={styles.input}
+                            placeholder={"Name"}
+                            value={name}
+                            onChangeText={setName}
+                            icon="lock"
+                            isPassword={false}
+                        />
+                        <DropDownPicker
+                            open={open}
+                            value={value}
+                            items={items}
+                            setOpen={setOpen}
+                            setValue={setValue}
+                            setItems={setItems}
+                            showArrowIcon={true}
+                            listMode="MODAL"
+                            placeholder="Service  Offered"
+                            modalProps={{
+                                animationType: "slide",
+                                width: "50%",
+                            }}
+                            modalTitle="Select Type"
+                            style={{
+                                borderColor: "transparent",
+                                borderRadius: 0,
+                                backgroundColor: "#ededed",
+                                marginLeft: 10,
+                            }}
+                        />
+                        <Input
+                            style={styles.input}
+                            placeholder={"Description"}
+                            value={description}
+                            onChangeText={setDescription}
+                            icon="lock"
+                            numberOfLines={4}
+                            isPassword={false}
+                            multiline={true}
+                        />
+                        <View style={styles.btnWrap}>
+                            <PrimaryButton
+                                title={"Save"}
+                                onPress={() => {
+                                    update(ref(database, `Users/${UID}/`), {
+                                        Name: name,
+                                        ServiceOffered: value,
+                                        JobDescription: description,
+                                    });
+                                    ShowToast("Data updated successfully!");
+                                    setName("");
+                                    setDescription("");
+                                    setValue("");
+                                }}
                             />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/sample_image_2.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/sample_image_3.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
+                            <SecondaryButton
+                                title={"Reset Password"}
+                                onPress={() => {
+                                    sendPasswordResetEmail(auth, Email)
+                                        .then(() => {
+                                            // Password reset email sent!
+                                            // ..
+                                            ShowToast(
+                                                "Please check mail to reset password!   "
+                                            );
+                                        })
+                                        .catch((error) => {
+                                            const errorCode = error.code;
+                                            const errorMessage = error.message;
+                                            console.log(error);
+                                            ShowToast(
+                                                "An error occured while resseting password!"
+                                            );
+                                            // ..
+                                        });
+                                }}
                             />
                         </View>
                     </View>
-                    {/* <View style={style.Section}>
-                        <PrimaryButton
-                            title={"Hire John"}
-                            onPress={() => {
-                                navigation.navigate("Client Hire Form", {
-                                    key: "value",
-                                });
-                            }}
-                        />
-                    </View> */}
                 </ScrollView>
             </View>
         </View>
@@ -266,5 +355,10 @@ const styles = StyleSheet.create({
         width: vw(25),
         height: vw(25),
         resizeMode: "contain",
+    },
+    btnWrap: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
     },
 });

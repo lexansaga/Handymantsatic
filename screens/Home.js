@@ -19,13 +19,19 @@ import Signup from "./Signup";
 import ForgotPassword from "./ForgotPassword";
 import Logout from "./Navigator/Logout";
 import Chat from "./Chat";
+import ProfileEdit from "./ProfileEdit";
+
+import TaskScreen from "./Task/TaskScreen";
+import TaskActive from "./Task/TaskActive";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
-
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Feather } from "@expo/vector-icons";
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
 var globalRoute = null;
 export default function Home({ navigation, route, props }) {
     //  console.log(route);
@@ -33,68 +39,45 @@ export default function Home({ navigation, route, props }) {
     const { Type } = route.params;
     const ClientType = Type.includes("Client");
     return (
-        <NavigationContainer independent={true}>
-            <Stack.Navigator
-                screenOptions={{
-                    headerShown: false,
-                    headerStyle: {
-                        backgroundColor: "#ffffff",
-                    },
-                    cardStyle: { backgroundColor: "#fff" },
-                    contentStyle: {
-                        backgroundColor: "#FFFFFF",
-                    },
-                }}
-            >
-                {ClientType ? (
-                    <Stack.Screen
-                        name="Client"
-                        component={ClientStack}
-                        initialParams={route.params}
-                        options={{ header: () => null }}
-                    ></Stack.Screen>
-                ) : (
-                    <Stack.Screen
-                        name="ServiceProvider"
-                        component={ServiceProviderStack}
-                        initialParams={route.params}
-                        options={{ header: () => null }}
-                    ></Stack.Screen>
-                )}
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false,
+                headerStyle: {
+                    backgroundColor: "#ffffff",
+                },
+                cardStyle: { backgroundColor: "#fff" },
+                contentStyle: {
+                    backgroundColor: "#FFFFFF",
+                },
+            }}
+        >
+            {ClientType ? (
+                <Stack.Screen
+                    name="Client"
+                    component={ClientStack}
+                    initialParams={route.params}
+                    options={{ header: () => null }}
+                ></Stack.Screen>
+            ) : (
+                <Stack.Screen
+                    name="ServiceProvider"
+                    component={ServiceProviderStack}
+                    initialParams={route.params}
+                    options={{ header: () => null }}
+                ></Stack.Screen>
+            )}
 
-                <Stack.Screen
-                    name="Signin"
-                    component={Signin}
-                    // options={{ title: "Signin", header: () => <Header /> }}
-                    options={{
-                        title: "Signin",
-                        header: () => {
-                            null;
-                        },
-                    }}
-                />
-                <Stack.Screen
-                    name="Signup"
-                    component={Signup}
-                    options={{ title: "Signup" }}
-                />
-                <Stack.Screen
-                    name="ForgotPassword"
-                    component={ForgotPassword}
-                    options={{ title: "ForgotPassword" }}
-                />
-                <Stack.Screen
-                    name="Home"
-                    component={Home}
-                    options={{ title: "Home" }}
-                />
-                <Stack.Screen
-                    name="Chat"
-                    component={Chat}
-                    options={{ title: "Chat" }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
+            <Stack.Screen
+                name="Home"
+                component={Home}
+                options={{ title: "Home" }}
+            />
+            <Stack.Screen
+                name="Chat"
+                component={Chat}
+                options={{ title: "Chat" }}
+            />
+        </Stack.Navigator>
     );
 }
 
@@ -188,9 +171,14 @@ const ServiceProviderStack = () => {
                 initialParams={globalRoute.params}
                 component={ServiceProviderFeeds}
             ></Drawer.Screen>
+
+            <Drawer.Screen
+                name="Task"
+                initialParams={globalRoute.params}
+                component={TaskTabbedNav}
+            ></Drawer.Screen>
             <Drawer.Screen
                 name="ServiceProviderPostView"
-                initialParams={globalRoute.params}
                 component={ServiceProviderPostView}
                 options={{
                     drawerItemStyle: {
@@ -220,55 +208,69 @@ const ServiceProviderStack = () => {
                     },
                 }}
             ></Drawer.Screen>
+            <Drawer.Screen
+                name="ClientHire"
+                initialParams={globalRoute.params}
+                component={ClientHire}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="ProfileEdit"
+                initialParams={globalRoute.params}
+                component={ProfileEdit}
+                // options={{
+                //     drawerItemStyle: {
+                //         display: "none",
+                //     },
+                // }}
+            ></Drawer.Screen>
             <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
     );
 };
 
-const MainStack = () => {
+const TaskTabbedNav = () => {
     return (
-        <>
-            <Stack.Screen
-                name="Signin"
-                component={Signin}
-                // options={{ title: "Signin", header: () => <Header /> }}
-                options={{
-                    title: "Signin",
-                    header: () => {
-                        null;
-                    },
-                }}
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+
+                    if (route.name === "Active") {
+                        iconName = focused ? "activity" : "activity";
+                    } else if (route.name === "Completed") {
+                        iconName = focused ? "check-circle" : "check-circle";
+                    } else if (route.name === "Cancelled") {
+                        iconName = focused ? "x-square" : "x-square";
+                    }
+
+                    // You can return any component that you like here!
+                    return <Feather name={iconName} size={18} color={color} />;
+                },
+                tabBarActiveTintColor: "#FF9D38",
+                tabBarInactiveTintColor: "gray",
+                headerShown: false,
+            })}
+        >
+            <Tab.Screen
+                name="Active"
+                initialParams={{ status: "Active" }}
+                component={TaskActive}
             />
-            <Stack.Screen
-                name="Signup"
-                component={Signup}
-                options={{ title: "Signup" }}
+            <Tab.Screen
+                name="Completed"
+                initialParams={{ status: "Completed" }}
+                component={TaskActive}
             />
-            <Stack.Screen
-                name="ForgotPassword"
-                component={ForgotPassword}
-                options={{ title: "ForgotPassword" }}
+            <Tab.Screen
+                name="Cancelled"
+                initialParams={{ status: "Cancelled" }}
+                component={TaskActive}
             />
-            <Stack.Screen
-                name="Home"
-                component={Home}
-                options={{ title: "Home" }}
-            />
-            <Stack.Screen
-                name="Client"
-                component={Client}
-                options={{ title: "Client" }}
-            />
-            <Stack.Screen
-                name="ServiceProvider"
-                component={ServiceProvider}
-                options={{ title: "ServiceProvider" }}
-            />
-            <Stack.Screen
-                name="Chat"
-                component={Chat}
-                options={{ title: "chat" }}
-            />
-        </>
+        </Tab.Navigator>
     );
 };

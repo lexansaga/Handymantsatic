@@ -24,13 +24,16 @@ import {
     push,
     update,
     onValue,
+    orderBy,
 } from "firebase/database";
+import { getStorage, uploadBytes } from "firebase/storage";
 import { useState } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
 const firebaseConfig = {
     apiKey: "AIzaSyAxLA8mZ8qkgkbcC0UosT178xLKGvTGwBA",
     authDomain: "handymantastic-80f66.firebaseapp.com",
@@ -47,6 +50,7 @@ const firestore = getFirestore(app);
 const auth = getAuth();
 const database = getDatabase();
 const databaseRef = ref(database);
+const storage = getStorage();
 
 async function getDataOnce(path) {
     var data = {};
@@ -95,6 +99,8 @@ export {
     set,
     push,
     update,
+    orderBy,
     getDataOnce,
     UserInfo,
+    storage,
 };

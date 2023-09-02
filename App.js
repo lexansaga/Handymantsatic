@@ -91,11 +91,6 @@ const MainStack = () => {
                 options={{ title: "Client" }}
             />
             <Stack.Screen
-                name="ServiceProvider"
-                component={ServiceProvider}
-                options={{ title: "ServiceProvider" }}
-            />
-            <Stack.Screen
                 name="Chat"
                 component={Chat}
                 options={{ title: "chat" }}

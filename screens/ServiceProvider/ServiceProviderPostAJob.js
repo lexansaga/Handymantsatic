@@ -103,7 +103,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
         console.log(saveKey);
 
         navigation.replace("Home", {
-            route: route.params.params,
+            Type: [`${Type}`],
         });
     }
     return (

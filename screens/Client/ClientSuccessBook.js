@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Linking,
     View,
@@ -17,11 +17,81 @@ import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
-
+import {
+    auth,
+    onAuthStateChanged,
+    app,
+    database,
+    databaseRef,
+    ref,
+    child,
+    get,
+    push,
+    update,
+    UserInfo,
+} from "../../config/firebase.config";
+import { useIsFocused } from "@react-navigation/native";
+import { DefaultProfile, PriceFormat, IDFormat } from "../Utils";
 export default function ClientSuccessBook({ navigation, route }) {
     const [name, contact, date, time, location] = useState("");
     const [dpOpen, dpSetOpen] = useState(false);
     const [dpDate, dpSetDate] = useState(new Date());
+
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+
+    const { OrderID } = route.params;
+    const [JobOrder, setJobOrder] = useState({});
+    // .replace(/[^a-zA-Z]/g, "")
+    var JobOrderIDFormatted = IDFormat(OrderID);
+    const getJobOrder = async () => {
+        await get(child(databaseRef, `JobOrder/${OrderID}`))
+            .then(async (snapshot) => {
+                console.log(snapshot.val());
+                if (snapshot.exists()) {
+                    // console.log(snapshot.val());
+                    const snap = snapshot.val();
+                    const jobID = snap.JobID;
+                    const userID = snap.UserID;
+                    const status = snap.Status;
+                    //     console.log(jobID);
+                    await get(child(databaseRef, `Jobs/${jobID}`)).then(
+                        async (job) => {
+                            const snapJob = job.val();
+                            const jobUserID = snapJob.UserID;
+                            console.log(jobUserID);
+                            await get(
+                                child(databaseRef, `Users/${jobUserID}/`)
+                            ).then(async (user) => {
+                                const snapUser = user.val();
+
+                                //   console.log(snap);
+                                setJobOrder({
+                                    status,
+                                    ...snapUser,
+                                    ...snapJob,
+                                });
+                            });
+                        }
+                    );
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+    const isFocused = useIsFocused();
+    useEffect(() => {
+        if (isFocused == true) {
+            getJobOrder();
+            UserInfo().then((user) => {
+                setUserInfo(user);
+            });
+            // console.log(JobOrder);
+        }
+    }, [isFocused]);
 
     return (
         <View
@@ -34,15 +104,19 @@ export default function ClientSuccessBook({ navigation, route }) {
 
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Image
-                    source={require("../../assets/ClientServiceFeedProfile.png")}
+                    source={{
+                        uri: JobOrder.Profile
+                            ? JobOrder.Profile
+                            : DefaultProfile,
+                    }}
                     style={styles.CoverImage}
                 />
                 <View style={styles.MainWrap}>
                     <ClientServiceFeed
                         style={style.Info}
-                        service={"Plumbing"}
-                        name="John Doe"
-                        price="P1000"
+                        service={JobOrder.Category}
+                        name={JobOrder.Name}
+                        price={PriceFormat(JobOrder.Price)}
                     />
 
                     <View style={[style.Section, styles.SBWrap]}>
@@ -50,11 +124,16 @@ export default function ClientSuccessBook({ navigation, route }) {
                             source={require("../../assets/success_book.png")}
                         />
                         <Text style={styles.Title}>Booking Success</Text>
+                        <Text style={styles.Content}>
+                            {JobOrder.Description}
+                        </Text>
                         <View style={styles.TransactionWrap}>
                             <Text style={styles.TransactIDTitle}>
                                 Transaction ID
                             </Text>
-                            <Text style={styles.TransactID}>#ABC123</Text>
+                            <Text style={styles.TransactID}>
+                                {JobOrderIDFormatted}
+                            </Text>
                         </View>
 
                         <View style={styles.KeepInTouch}>
@@ -149,6 +228,11 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
         fontWeight: 600,
         marginTop: 6,
+    },
+    Content: {
+        textAlign: "center",
+        maxHeight: vw(90),
+        fontSize: 16,
     },
     TransactionWrap: {
         backgroundColor: "#3DB6D0",

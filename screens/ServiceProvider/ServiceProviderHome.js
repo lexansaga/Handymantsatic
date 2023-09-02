@@ -28,7 +28,9 @@ import {
     update,
     set,
 } from "../../config/firebase.config";
-import { User } from "../UserInfo";
+import { PriceFormat, DefaultProfile } from "../Utils";
+import ShowToast from "../../components/Toast";
+import { useIsFocused } from "@react-navigation/native";
 export default function ServiceProviderHome({ navigation, route }) {
     const [email, setEmail, password, setPassword] = useState("");
     const [currentUserName, setCurrentUserName] = useState("");
@@ -92,15 +94,18 @@ export default function ServiceProviderHome({ navigation, route }) {
                 console.error(error);
             });
     };
-
+    const isFocused = useIsFocused();
     useEffect(() => {
-        getJobs();
-        getCategory();
-        console.log(userInfo);
+        if (isFocused) {
+            onRefresh();
+        }
+        // getJobs();
+        // getCategory();
+        // console.log(userInfo);
         UserInfo().then((user) => {
             setUserInfo(user);
         });
-    }, []);
+    }, [isFocused]);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         getJobs();
@@ -167,7 +172,7 @@ export default function ServiceProviderHome({ navigation, route }) {
                                     name={`${categoryItem.Name}`}
                                     onpress={() =>
                                         navigation.navigate("Feed", {
-                                            Category: `${categoryItem.ID}`,
+                                            Category: `${categoryItem.Name}`,
                                             params: route.params,
                                         })
                                     }
@@ -184,7 +189,10 @@ export default function ServiceProviderHome({ navigation, route }) {
                     <View style={styles.ServiceFeedWrap}>
                         {Object.values(jobs).map((job) => {
                             // console.log(job.Profile.Profile);
-                            if (job.PostedBy.includes(Email)) {
+                            if (
+                                job.PostedBy.includes(Email) ||
+                                job.Active == false
+                            ) {
                                 // Prevent the current User see his / her own name at the feed.
                                 return;
                             }
@@ -194,8 +202,11 @@ export default function ServiceProviderHome({ navigation, route }) {
                                     JobID={job.ID}
                                     name={job.Name}
                                     image={{
-                                        uri: job.Profile.Profile,
+                                        uri: job.Profile.Profile
+                                            ? job.Profile.Profile
+                                            : DefaultProfile,
                                     }}
+                                    price={PriceFormat(job.Price)}
                                     whatlooking={job.ServiceNeed}
                                     description={job.Description}
                                     onpress={() => {
@@ -224,6 +235,7 @@ export const ClientFeed = ({
     name,
     image,
     whatlooking,
+    price,
     description,
     onpress,
 }) => {
@@ -262,6 +274,7 @@ export const ClientFeed = ({
                         <Text style={styles.ClientWhatLooking}>
                             {whatlooking}
                         </Text>
+                        <Text style={styles.ClientDescription}>{price}</Text>
                     </View>
                 </View>
 
@@ -271,10 +284,11 @@ export const ClientFeed = ({
                         style={styles.FavoriteButton}
                         onPress={() => {
                             console.log("Favorite!");
-                            setFavorite(!favorite);
-                            set(databaseRef, `Favorites/${ClientID}/`, {
-                                JobID: favorite,
+                            update(ref(database, `Favorites/${ClientID}/`), {
+                                [`${JobID}`]: !favorite,
                             });
+
+                            setFavorite(!favorite);
                         }}
                     >
                         <Feather

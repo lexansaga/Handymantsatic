@@ -24,16 +24,25 @@ import {
     ref,
     child,
     get,
+    push,
+    update,
+    UserInfo,
 } from "../../config/firebase.config";
 import { PriceFormat } from "../Utils";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { render } from "react-native-web";
+import ShowToast from "../../components/Toast";
 export default function ServiceProviderPostView({ navigation, route }) {
     const [email, setEmail, password, setPassword] = useState("");
     const [refreshing, setRefreshing] = React.useState(false);
 
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+
     const [job, setJob] = useState([]);
 
     const { JobID } = route.params;
-    console.log(route.params);
+    console.log(`${JobID} Loaded`);
     const getJobs = async () => {
         await get(child(databaseRef, `Jobs/${JobID}`))
             .then((snapshot) => {
@@ -49,13 +58,18 @@ export default function ServiceProviderPostView({ navigation, route }) {
                 console.error(error);
             });
     };
-
-    console.log(job);
-
+    const isFocused = useIsFocused();
+    // console.log(job);
     useEffect(() => {
-        getJobs();
-        console.log(job);
-    }, []);
+        if (isFocused == true) {
+            getJobs();
+            UserInfo().then((user) => {
+                setUserInfo(user);
+            });
+            console.log("Job");
+            console.log(job);
+        }
+    }, [isFocused]);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         console.log("Refresh");
@@ -109,16 +123,37 @@ export default function ServiceProviderPostView({ navigation, route }) {
                         title={"Take Job"}
                         style={style.BtnTakeJob}
                         onPress={() => {
-                            navigation.navigate("ClientSuccessBook"),
-                                {
-                                    key: "value",
-                                };
+                            TakeJob(JobID, UID, navigation, job.Active);
                         }}
                     />
                 </View>
             </ScrollView>
         </View>
     );
+}
+function TakeJob(JobID, UserID, Navigation, isActive) {
+    if (isActive == false) {
+        ShowToast("This is now taken");
+        return;
+    }
+    // var name = snap.Name;
+    var save = push(ref(database, `JobOrder`), {
+        JobID: `${JobID}`,
+        UserID: `${UserID}`,
+        Status: `Active`,
+    });
+    var saveKey = save.key;
+    update(ref(database, `JobOrder/${saveKey}`), {
+        ID: saveKey,
+    });
+    update(ref(database, `Jobs/${JobID}`), {
+        Active: false,
+    });
+    console.log(saveKey);
+
+    Navigation.navigate("ClientSuccessBook", {
+        OrderID: saveKey,
+    });
 }
 
 const style = StyleSheet.create({

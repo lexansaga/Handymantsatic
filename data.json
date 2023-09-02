@@ -1,0 +1,117 @@
+{
+  "Category": {
+    "AirconService": {
+      "ID": "airconservice",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Faircon.png?alt=media&token=999e2b5e-49e4-4bc7-be41-5f2bb6af1a29",
+      "Name": "Aircon",
+      "OrderID": 7
+    },
+    "Carpenter": {
+      "ID": "carpenter",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Fcarpentry.png?alt=media&token=dae760c1-519a-41ff-8522-594382e42036",
+      "Name": "Carpenter",
+      "OrderID": 1
+    },
+    "Electrician": {
+      "ID": "electrician",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Felectrician.png?alt=media&token=33e70723-7ec3-45e1-9e1e-d510c53e524d",
+      "Name": "Electrician",
+      "OrderID": 4
+    },
+    "Gardener": {
+      "ID": "gardener",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Fgardener.png?alt=media&token=5757c54e-a643-4876-b1cb-2549ad3577ed",
+      "Name": "Gardener",
+      "OrderID": 6
+    },
+    "Painter": {
+      "ID": "painter",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Fpainter.png?alt=media&token=af666b74-b293-4146-b9b1-e70e09736e0c",
+      "Name": "Painter",
+      "OrderID": 5
+    },
+    "Plumber": {
+      "ID": "Plumber",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Fplumbing.png?alt=media&token=8ccb3b2c-ad4e-4499-8079-79652ceff7f8",
+      "Name": "Plumber",
+      "OrderID": 2
+    },
+    "Washer": {
+      "ID": "washer",
+      "Image": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FCategory%2Fwashing.png?alt=media&token=d674f24d-9b70-44ff-9eba-fe638e0896e2",
+      "Name": "Washer",
+      "OrderID": 3
+    }
+  },
+  "Favorites": {
+    "Im0inJb8uZb0MQbvoNXySh4medx2": {
+      "-NbsvyKvovSZogPUreII": false,
+      "-Nbt4r1webP-ivLgkiG5": false,
+      "-Nbt5E-Fy2xtb1NskrCf": false
+    }
+  },
+  "Jobs": {
+    "-NbsvyKvovSZogPUreII": {
+      "Active": true,
+      "Category": "Electrician",
+      "Description": "Work with lines, setup house electrical wirings",
+      "ID": "-NbsvyKvovSZogPUreII",
+      "Location": "Laguna",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "1500",
+      "ServiceNeed": "Electrician",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    },
+    "-Nbt4r1webP-ivLgkiG5": {
+      "Active": true,
+      "Category": "Aircon",
+      "Description": "Please repair my Aircon it's not working",
+      "ID": "-Nbt4r1webP-ivLgkiG5",
+      "Location": "Santa Rosa Laguna",
+      "Name": "Xander",
+      "PostedBy": "naxeldragneel07@gmail.com",
+      "Price": "500",
+      "ServiceNeed": "Aircon",
+      "UserID": "w38gsPMzYJVXpgadDqaTwYAOCJJ2"
+    },
+    "-Nbt5E-Fy2xtb1NskrCf": {
+      "Active": true,
+      "Category": "Plumber",
+      "Description": "Fix my faucet,, water pressure low",
+      "ID": "-Nbt5E-Fy2xtb1NskrCf",
+      "Location": "Binan",
+      "Name": "Xander",
+      "PostedBy": "naxeldragneel07@gmail.com",
+      "Price": "1200",
+      "ServiceNeed": "Plumber",
+      "UserID": "w38gsPMzYJVXpgadDqaTwYAOCJJ2"
+    }
+  },
+  "Users": {
+    "GJgwS7H65WOGk8u57OC2vznEUJL2": {
+      "Email": "lexansaga72@gmail.com",
+      "Name": "Lexan",
+      "Password": "123456",
+      "Profile": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FProfile%2Fprofile-3.jpg?alt=media&token=1bcc411a-595b-47f4-a820-03c421fedbd4",
+      "Type": "Client",
+      "UID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    },
+    "Im0inJb8uZb0MQbvoNXySh4medx2": {
+      "Email": "alexsaga72@gmail.com",
+      "JobDescription": "LoremIpsum",
+      "Name": "Alex",
+      "Password": "123456",
+      "Profile": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FProfile%2Fprofile-2.jpg?alt=media&token=2149676c-9371-4536-89c0-1e9c57557874",
+      "Type": "ServiceProvider",
+      "UID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "w38gsPMzYJVXpgadDqaTwYAOCJJ2": {
+      "Email": "naxeldragneel07@gmail.com",
+      "Name": "Xander",
+      "Password": "123456",
+      "Type": "Client",
+      "UID": "w38gsPMzYJVXpgadDqaTwYAOCJJ2"
+    }
+  }
+}
