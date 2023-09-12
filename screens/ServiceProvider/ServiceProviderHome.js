@@ -238,6 +238,7 @@ export const ClientFeed = ({
     price,
     description,
     onpress,
+    hasFavorite,
 }) => {
     const [favorite, setFavorite] = useState(false);
 
@@ -281,7 +282,11 @@ export const ClientFeed = ({
                 <Text style={styles.ClientDescription}>{description}</Text>
                 <TouchableWithoutFeedback>
                     <TouchableOpacity
-                        style={styles.FavoriteButton}
+                        style={
+                            hasFavorite === false
+                                ? { display: "none" }
+                                : styles.FavoriteButton
+                        }
                         onPress={() => {
                             console.log("Favorite!");
                             update(ref(database, `Favorites/${ClientID}/`), {

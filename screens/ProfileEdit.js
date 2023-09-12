@@ -30,7 +30,7 @@ import {
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile } from "./Utils";
+import { DefaultProfile, IsNullOrEmpty, NumberFormat } from "./Utils";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -40,7 +40,7 @@ import {
 } from "firebase/storage";
 import ShowToast from "../components/Toast";
 import Spinner from "../components/Spinner";
-import { Input } from "react-native-elements";
+import Input from "../components/Input";
 import SecondaryButton from "../components/SecondaryButton";
 export default function ProfileEdit({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
@@ -53,6 +53,7 @@ export default function ProfileEdit({ navigation, route }) {
         UID,
         JobDescription,
         ServiceOffered,
+        Rate,
     } = userInfo;
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
@@ -71,6 +72,8 @@ export default function ProfileEdit({ navigation, route }) {
     const [items, setItems] = useState([]);
 
     const [name, setName] = useState("");
+    const [rate, setRate] = useState("");
+    const [contact, setContact] = useState("");
     const [description, setDescription] = useState("");
 
     const getCategory = async () => {
@@ -185,70 +188,73 @@ export default function ProfileEdit({ navigation, route }) {
         if (isFocused) {
             onRefresh();
             console.log("Focused");
+        } else {
+            setName("");
+            setRate("");
+            setDescription("");
+            setValue("");
         }
     }, [isFocused]);
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        getCategory();
+
         UserInfo().then((user) => {
             setUserInfo(user);
         });
+        getCategory();
+        setName(Name);
+        setRate(Rate);
+        setDescription(JobDescription);
+        setValue(ServiceOffered);
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
     }, []);
     return (
-        <View style={{ paddingBottom: 120 }}>
+        <View style={{ paddingBottom: 92 }}>
             <Spinner
                 title={spinnerTitle}
                 description={"Please wait while uploading image..."}
                 isOpen={isSpinnerShow}
             />
             <Header userProfile={profileLink} />
-            <TouchableOpacity
-                onPress={() => {
-                    pickImage();
-                    console.log("Select photo");
-                }}
+
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
             >
-                <Image
-                    source={{
-                        uri: Profile ? Profile : DefaultProfile,
+                <TouchableOpacity
+                    onPress={() => {
+                        pickImage();
+                        console.log("Select photo");
                     }}
-                    style={styles.CoverImage}
-                />
-            </TouchableOpacity>
-            <View style={styles.MainWrap}>
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                        />
-                    }
                 >
+                    <Image
+                        source={{
+                            uri: Profile ? Profile : DefaultProfile,
+                        }}
+                        style={styles.CoverImage}
+                    />
+                </TouchableOpacity>
+                <View style={styles.MainWrap}>
                     <ClientServiceFeed
                         style={style.Info}
-                        service={Name}
-                        name={ServiceOffered}
+                        service={""}
+                        name={""}
                         price=""
                     />
-
-                    <View style={style.Section}>
+                    <View style={styles.PageSection}>
                         <Text style={style.SectionTitle}>
                             Profile Information
                         </Text>
-                        <Input
-                            style={styles.input}
-                            placeholder={"Name"}
-                            value={name}
-                            onChangeText={setName}
-                            icon="lock"
-                            isPassword={false}
-                        />
+
                         <DropDownPicker
                             open={open}
                             value={value}
@@ -273,10 +279,35 @@ export default function ProfileEdit({ navigation, route }) {
                         />
                         <Input
                             style={styles.input}
+                            placeholder={"Name"}
+                            value={name}
+                            onChangeText={setName}
+                            icon="user"
+                            isPassword={false}
+                        />
+                        <Input
+                            style={styles.input}
+                            placeholder={"Contact (9123456789)"}
+                            value={contact}
+                            onChangeText={setContact}
+                            icon="phone"
+                            isPassword={false}
+                        />
+
+                        <Input
+                            style={styles.input}
+                            placeholder={"Rate"}
+                            value={rate}
+                            onChangeText={setRate}
+                            icon="trello"
+                            isPassword={false}
+                        />
+                        <Input
+                            style={styles.input}
                             placeholder={"Description"}
                             value={description}
                             onChangeText={setDescription}
-                            icon="lock"
+                            icon="book-open"
                             numberOfLines={4}
                             isPassword={false}
                             multiline={true}
@@ -286,14 +317,25 @@ export default function ProfileEdit({ navigation, route }) {
                                 title={"Save"}
                                 onPress={() => {
                                     update(ref(database, `Users/${UID}/`), {
-                                        Name: name,
-                                        ServiceOffered: value,
-                                        JobDescription: description,
+                                        Name: IsNullOrEmpty(name) ? name : Name,
+                                        ServiceOffered: IsNullOrEmpty(value)
+                                            ? ""
+                                            : value,
+                                        JobDescription: IsNullOrEmpty(
+                                            description
+                                        )
+                                            ? ""
+                                            : description,
+                                        Rate: IsNullOrEmpty(rate) ? "" : rate,
+                                        Contact: IsNullOrEmpty(
+                                            NumberFormat(contact)
+                                        )
+                                            ? ""
+                                            : NumberFormat(contact),
                                     });
                                     ShowToast("Data updated successfully!");
-                                    setName("");
-                                    setDescription("");
-                                    setValue("");
+                                    navigation.navigate("ClientHire");
+                                    onRefresh();
                                 }}
                             />
                             <SecondaryButton
@@ -310,7 +352,7 @@ export default function ProfileEdit({ navigation, route }) {
                                         .catch((error) => {
                                             const errorCode = error.code;
                                             const errorMessage = error.message;
-                                            console.log(error);
+                                            console.log(errorMessage);
                                             ShowToast(
                                                 "An error occured while resseting password!"
                                             );
@@ -320,13 +362,21 @@ export default function ProfileEdit({ navigation, route }) {
                             />
                         </View>
                     </View>
-                </ScrollView>
-            </View>
+                </View>
+            </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    PageSection: {
+        display: "flex",
+        flexDirection: "column",
+        paddingHorizontal: 18,
+        paddingVertical: 28,
+        paddingRight: 36,
+        gap: 8,
+    },
     CoverImage: {
         width: "100%",
         resizeMode: "cover",
@@ -337,8 +387,9 @@ const styles = StyleSheet.create({
         borderTopEndRadius: 30,
         overflow: "hidden",
         marginTop: "-10%",
+        height: "110%",
         zIndex: 2,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#fff",
     },
     Verbiage: {
         fontSize: 16,
@@ -359,6 +410,10 @@ const styles = StyleSheet.create({
     btnWrap: {
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
         gap: 8,
+        width: "100%",
+        marginTop: 72,
+        left: 8,
     },
 });

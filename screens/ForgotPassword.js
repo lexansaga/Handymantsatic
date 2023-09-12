@@ -6,7 +6,7 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
-import { IsTextEmpty } from "../Utils";
+import { IsTextEmpty } from "./Utils";
 import { app, auth } from "../config/firebase.config";
 export default function ForgotPassword({ navigation }) {
     const [email, setEmail] = useState("");

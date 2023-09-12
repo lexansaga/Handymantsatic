@@ -25,7 +25,7 @@ import {
     get,
     UserInfo,
 } from "../../config/firebase.config";
-import { PriceFormat } from "../Utils";
+import { DefaultProfile, IsNullOrEmpty, PriceFormat } from "../Utils";
 import { useNavigation } from "@react-navigation/native";
 export default function ClientHome({ navigation, route, props }) {
     const useNav = useNavigation();
@@ -52,56 +52,24 @@ export default function ClientHome({ navigation, route, props }) {
                 console.error(error);
             });
     };
-
-    const getJobs = async () => {
-        let profiles = {};
-        await get(child(databaseRef, `Jobs/`))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const snap = snapshot.val();
-                    // console.log(snap);
-                    Object.values(snap).map(async (job) => {
-                        var uid = job.UserID;
-                        // console.log(uid);
-                        await get(child(databaseRef, `Users/${uid}`)).then(
-                            (Profile) => {
-                                profiles[`${job.ID}`] = {
-                                    ...job,
-                                    Profile,
-                                };
-                                const mergedDataString = JSON.stringify(
-                                    profiles,
-                                    null,
-                                    2
-                                );
-                                // console.log(mergedDataString);
-
-                                setJobs(JSON.parse(mergedDataString));
-                            }
-                        );
-                    });
-
-                    // setJobs(snapshot.val());
-                } else {
-                    console.log("No data available");
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+    const [workers, setWorkers] = useState([]);
+    const getWorkers = async () => {
+        await get(child(databaseRef, "Users/")).then((worker) => {
+            let workerSnap = worker.val();
+            setWorkers(workerSnap);
+        });
     };
-
     useEffect(() => {
-        getJobs();
+        onRefresh();
+    }, []);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        // getJobs();
+        getWorkers();
         getCategory();
         UserInfo().then((user) => {
             setUserInfo(user);
         });
-    }, []);
-    const onRefresh = React.useCallback(() => {
-        setRefreshing(true);
-        getJobs();
-        getCategory();
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -180,33 +148,41 @@ export default function ClientHome({ navigation, route, props }) {
                         You are looking for?
                     </Text>
                     <View style={styles.ServiceFeedWrap}>
-                        {Object.values(jobs).map((job) => {
+                        {Object.values(workers).map((worker) => {
+                            console.log(IsNullOrEmpty(worker.ServiceOffered));
+                            if (
+                                IsNullOrEmpty(workers) ||
+                                IsNullOrEmpty(worker.ServiceOffered) ||
+                                worker.Type.includes("Client")
+                            ) {
+                                return;
+                            }
                             return (
                                 <ClientServiceFeed
-                                    service={job.ServiceNeed}
-                                    image={{ uri: job.Profile.Profile }}
-                                    name={job.Name}
-                                    price={PriceFormat(job.Price)}
+                                    service={
+                                        IsNullOrEmpty(worker.ServiceOffered)
+                                            ? "General Worker"
+                                            : worker.ServiceOffered
+                                    }
+                                    image={{
+                                        uri: IsNullOrEmpty(worker.Profile)
+                                            ? DefaultProfile
+                                            : worker.Profile,
+                                    }}
+                                    name={worker.Name}
+                                    price={PriceFormat(
+                                        IsNullOrEmpty(worker.Rate)
+                                            ? 0
+                                            : worker.Rate
+                                    )}
                                     onpress={() => {
                                         navigation.navigate(
                                             "Client Hire Form",
                                             {
                                                 ...route.params,
-                                                JobInfo: {
-                                                    Active: job.Active,
-                                                    Category: job.Category,
-                                                    Description:
-                                                        job.Description,
-                                                    ID: job.ID,
-                                                    Location: job.Location,
-                                                    ClientName: job.Name,
-                                                    PostedBy: job.PostedBy,
-                                                    Price: job.Price,
-                                                    ServiceNeed:
-                                                        job.ServiceNeed,
-                                                    UserID: job.UserID,
-                                                    Profile:
-                                                        job.Profile.Profile,
+                                                ServiceProviderInfo: {
+                                                    SPI_Email: worker.Email,
+                                                    SPI_UID: worker.UID,
                                                 },
                                             }
                                         );
@@ -307,9 +283,7 @@ export const ClientServiceFeed = ({ service, image, name, price, onpress }) => {
                                       color: "#fff",
                                   }
                         }
-                    >
-                        by{"  "}
-                    </Text>
+                    ></Text>
                     <Text
                         style={
                             image != null

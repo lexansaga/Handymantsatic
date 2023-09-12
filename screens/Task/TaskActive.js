@@ -133,19 +133,29 @@ export default function TaskActive({ navigation, route }) {
                                                 ? data.Profile
                                                 : DefaultProfile,
                                         }}
+                                        hasFavorite={false}
                                         onpress={() => {}}
                                     />
                                     <View
                                         style={
                                             status
                                                 .toLowerCase()
-                                                .includes("active")
+                                                .includes("active") ||
+                                            status
+                                                .toLowerCase()
+                                                .includes("proposed")
                                                 ? style.btnActionWrap
                                                 : style.forViewBtnActionWrap
                                         }
                                     >
                                         <PrimaryButton
-                                            title={"Finish Contract"}
+                                            title={
+                                                status
+                                                    .toLowerCase()
+                                                    .includes("active")
+                                                    ? "Finish Contract"
+                                                    : "Accept Contract"
+                                            }
                                             onPress={() => {
                                                 update(
                                                     ref(
@@ -153,7 +163,11 @@ export default function TaskActive({ navigation, route }) {
                                                         `JobOrder/${data.JobOrderID}/`
                                                     ),
                                                     {
-                                                        Status: `Completed`,
+                                                        Status: status
+                                                            .toLowerCase()
+                                                            .includes("active")
+                                                            ? `Completed`
+                                                            : `Active`,
                                                     }
                                                 );
                                                 onRefresh();
@@ -193,13 +207,6 @@ export default function TaskActive({ navigation, route }) {
         </View>
     );
 }
-// // let Count = 0;
-// function TaskItem({ data, forView, refresh }) {
-//     //     console.log(data);
-//     return (
-
-//     );
-// }
 
 const style = StyleSheet.create({
     LandingContainer: {

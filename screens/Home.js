@@ -38,6 +38,7 @@ export default function Home({ navigation, route, props }) {
     globalRoute = route;
     const { Type } = route.params;
     const ClientType = Type.includes("Client");
+    console.log(Type);
     return (
         <Stack.Navigator
             screenOptions={{
@@ -147,6 +148,16 @@ const ClientStack = () => {
                     },
                 }}
             ></Drawer.Screen>
+            <Drawer.Screen
+                name="ClientSuccessBook"
+                initialParams={globalRoute.params}
+                component={ClientSuccessBook}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
+            ></Drawer.Screen>
             <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
     );
@@ -222,11 +233,11 @@ const ServiceProviderStack = () => {
                 name="ProfileEdit"
                 initialParams={globalRoute.params}
                 component={ProfileEdit}
-                // options={{
-                //     drawerItemStyle: {
-                //         display: "none",
-                //     },
-                // }}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
             ></Drawer.Screen>
             <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
@@ -246,6 +257,8 @@ const TaskTabbedNav = () => {
                         iconName = focused ? "check-circle" : "check-circle";
                     } else if (route.name === "Cancelled") {
                         iconName = focused ? "x-square" : "x-square";
+                    } else if (route.name === "Proposed") {
+                        iconName = focused ? "coffee" : "coffee";
                     }
 
                     // You can return any component that you like here!
@@ -269,6 +282,11 @@ const TaskTabbedNav = () => {
             <Tab.Screen
                 name="Cancelled"
                 initialParams={{ status: "Cancelled" }}
+                component={TaskActive}
+            />
+            <Tab.Screen
+                name="Proposed"
+                initialParams={{ status: "Proposed" }}
                 component={TaskActive}
             />
         </Tab.Navigator>

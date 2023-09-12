@@ -3,7 +3,6 @@ import { View, ScrollView, Text, Image, StyleSheet } from "react-native";
 import Header from "../../components/Header";
 import Input from "../../components/Input";
 import style from "../../styles/style";
-import { IsTextEmpty } from "../../Utils";
 import ShowToast from "../../components/Toast";
 import DatePicker from "react-native-date-picker";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
@@ -25,6 +24,7 @@ import {
     UserInfo,
 } from "../../config/firebase.config";
 import { useEffect } from "react";
+import { IsTextEmpty } from "../Utils";
 export default function ServiceProviderPostAJob({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Password, Profile, Type, UID } = userInfo;

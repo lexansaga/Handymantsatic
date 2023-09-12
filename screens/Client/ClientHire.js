@@ -28,7 +28,8 @@ import {
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile } from "../Utils";
+import { DefaultProfile, IsNullOrEmpty, PriceFormat } from "../Utils";
+import { Feather } from "@expo/vector-icons";
 
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -40,8 +41,17 @@ import ShowToast from "../../components/Toast";
 import Spinner from "../../components/Spinner";
 export default function ClientHire({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
-    const { Email, Name, Password, Profile, Type, UID, JobDescription } =
-        userInfo;
+    const {
+        Email,
+        Name,
+        Contact,
+        Rate,
+        Password,
+        Profile,
+        Type,
+        UID,
+        JobDescription,
+    } = userInfo;
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
     const [profileLink, setProfileLink] = useState("");
@@ -159,19 +169,13 @@ export default function ClientHire({ navigation, route }) {
                 isOpen={isSpinnerShow}
             />
             <Header userProfile={profileLink} />
-            <TouchableOpacity
-                onPress={() => {
-                    pickImage();
-                    console.log("Select photo");
+
+            <Image
+                source={{
+                    uri: Profile ? Profile : DefaultProfile,
                 }}
-            >
-                <Image
-                    source={{
-                        uri: Profile ? Profile : DefaultProfile,
-                    }}
-                    style={styles.CoverImage}
-                />
-            </TouchableOpacity>
+                style={styles.CoverImage}
+            />
             <View style={styles.MainWrap}>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -189,12 +193,48 @@ export default function ClientHire({ navigation, route }) {
                         price=""
                     />
                     <View style={style.Section}>
-                        <Text style={style.SectionTitle}>Job Description</Text>
-                        <Text style={styles.Verbiage}>{JobDescription}</Text>
-                    </View>
-                    <View style={style.Section}>
-                        <Text style={style.SectionTitle}>Work Profile</Text>
-                        <View style={styles.WorkImageWrap}>
+                        <TouchableOpacity
+                            style={styles.editBtn}
+                            onPress={() => {
+                                navigation.navigate("ProfileEdit");
+                            }}
+                        >
+                            <Feather name={"edit"} size={18} color="#333" />
+                        </TouchableOpacity>
+
+                        <Text style={style.SectionTitle}>
+                            Profile Information
+                        </Text>
+                        <View style={styles.InfoGroup}>
+                            <Text style={styles.InfoTitle}>Name</Text>
+                            <Text style={styles.InfoContent}>
+                                {IsNullOrEmpty(Name) ? "Not set" : Name}
+                            </Text>
+                        </View>
+                        <View style={styles.InfoGroup}>
+                            <Text style={styles.InfoTitle}>Cover Letter</Text>
+                            <Text style={styles.InfoContent}>
+                                {IsNullOrEmpty(JobDescription)
+                                    ? "Not set"
+                                    : JobDescription}
+                            </Text>
+                        </View>
+                        <View style={styles.InfoGroup}>
+                            <Text style={styles.InfoTitle}>Contact</Text>
+                            <Text style={styles.InfoContent}>
+                                {IsNullOrEmpty(Contact) ? "Not set" : Contact}
+                            </Text>
+                        </View>
+
+                        <View style={styles.InfoGroup}>
+                            <Text style={styles.InfoTitle}>Rate</Text>
+                            <Text style={styles.InfoContent}>
+                                {IsNullOrEmpty(Rate)
+                                    ? "Not set"
+                                    : JobDescription}
+                            </Text>
+                        </View>
+                        {/* <View style={styles.WorkImageWrap}>
                             <Image
                                 style={styles.WorkImage}
                                 source={require("../../assets/sample_image_1.jpg")}
@@ -219,7 +259,7 @@ export default function ClientHire({ navigation, route }) {
                                 style={styles.WorkImage}
                                 source={require("../../assets/blank.jpg")}
                             />
-                        </View>
+                        </View> */}
                     </View>
                     {/* <View style={style.Section}>
                         <PrimaryButton
@@ -238,6 +278,36 @@ export default function ClientHire({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+    editBtn: {
+        position: "absolute",
+        right: 15,
+        top: 15,
+        zIndex: 2,
+        backgroundColor: "rgba(0,0,0,0.1)",
+        height: 45,
+        width: 45,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 50,
+    },
+    InfoGroup: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderColor: "#dedede",
+    },
+    InfoTitle: {
+        fontSize: 17,
+        fontWeight: 600,
+    },
+
+    InfoContent: {
+        fontSize: 15,
+        fontWeight: 400,
+    },
     CoverImage: {
         width: "100%",
         resizeMode: "cover",
@@ -249,7 +319,8 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         marginTop: "-10%",
         zIndex: 2,
-        backgroundColor: "#ffffff",
+        height: "110%",
+        backgroundColor: "#fff",
     },
     Verbiage: {
         fontSize: 16,

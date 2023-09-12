@@ -111,8 +111,7 @@ export default function ServiceProviderFeeds({ navigation, route }) {
                         // console.log(
                         //     !job.Category.toLowerCase().includes(Category)
                         // );
-
-                        if (IsNullOrEmpty(Category) === false) {
+                        if (IsNullOrEmpty(Category) === null) {
                             if (
                                 job.PostedBy.includes(Email) ||
                                 !job.Category.toLowerCase().includes(

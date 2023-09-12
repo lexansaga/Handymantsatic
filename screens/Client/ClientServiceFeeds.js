@@ -25,6 +25,8 @@ import {
 } from "../../config/firebase.config";
 import { DefaultProfile, IsNullOrEmpty } from "../Utils";
 import { PriceFormat } from "../Utils";
+import { useIsFocused } from "@react-navigation/native";
+import { collection, query, where } from "firebase/firestore";
 export default function ClientServiceFeeds({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Category } = route.params;
@@ -32,56 +34,30 @@ export default function ClientServiceFeeds({ navigation, route }) {
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
     const [jobs, setJobs] = useState([]);
     const [refreshing, setRefreshing] = React.useState(false);
-    // const [profile, setProfile] = useState("");
-    const getJobs = async () => {
-        let profiles = {};
-        await get(child(databaseRef, `Jobs/`))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const snap = snapshot.val();
-                    // console.log(snap);
-                    Object.values(snap).map(async (job) => {
-                        var uid = job.UserID;
-                        // console.log(uid);
-                        await get(child(databaseRef, `Users/${uid}`)).then(
-                            (Profile) => {
-                                profiles[`${job.ID}`] = {
-                                    ...job,
-                                    Profile,
-                                };
-                                const mergedDataString = JSON.stringify(
-                                    profiles,
-                                    null,
-                                    2
-                                );
-                                // console.log(mergedDataString);
-
-                                setJobs(JSON.parse(mergedDataString));
-                            }
-                        );
-                    });
-
-                    // setJobs(snapshot.val());
-                } else {
-                    console.log("No data available");
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+    const [workers, setWorkers] = useState([]);
+    const getWorkers = async () => {
+        await get(child(databaseRef, "Users/")).then((worker) => {
+            let workerSnap = worker.val();
+            setWorkers(workerSnap);
+        });
     };
 
+    const isFocused = useIsFocused();
+    // console.log(job);
     useEffect(() => {
-        // setJobs(JSON.stringify(jobs));
-        getJobs();
-        UserInfo().then((user) => {
-            setUserInfo(user);
-        });
-        // console.log(jobs);
-    }, []);
+        if (isFocused == true) {
+            onRefresh();
+            UserInfo().then((user) => {
+                setUserInfo(user);
+            });
+        } else {
+            navigation.setParams({ Category: null });
+        }
+    }, [isFocused]);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        getJobs();
+        // getJobs();
+        getWorkers();
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -100,61 +76,64 @@ export default function ClientServiceFeeds({ navigation, route }) {
                     />
                 }
             >
-                {Object.values(jobs).map((job) => {
-                    // console.log(jobs);
-                    // console.log(getProfile(job.UserID));
-                    // console.log(
-                    //     `${job.Category.toLowerCase().trim()} :  ${Category.toLowerCase().trim()}`
-                    // );
-                    console.log(IsNullOrEmpty(job));
-                    if (!IsNullOrEmpty(job));
-                    {
+                {Object.values(workers).map((worker) => {
+                    console.log(`${Category} : ${worker.ServiceOffered}`);
+                    if (
+                        IsNullOrEmpty(workers) ||
+                        IsNullOrEmpty(worker.ServiceOffered) ||
+                        worker.Type.includes("Client")
+                    ) {
+                        return;
+                    }
+                    if (IsNullOrEmpty(Category) === false) {
                         if (
-                            job.PostedBy.includes(Email) ||
-                            !job.Category.toLowerCase().includes(
-                                Category.toLowerCase()
+                            !Category.toLowerCase().includes(
+                                worker.ServiceOffered.toLowerCase()
                             )
                         ) {
-                            return;
+                            return <></>;
                         }
-                        return (
-                            <Feed
-                                service={job.Category}
-                                image={{
-                                    uri: job.Profile.Profile,
-                                }}
-                                name={job.Name}
-                                price={PriceFormat(job.Price)}
-                                cover={job.Description}
-                                onpress={() => {
-                                    navigation.navigate("Client Hire Form", {
-                                        ...route.params,
-                                        JobInfo: {
-                                            Active: job.Active,
-                                            Category: job.Category,
-                                            Description: job.Description,
-                                            ID: job.ID,
-                                            Location: job.Location,
-                                            ClientName: job.Name,
-                                            PostedBy: job.PostedBy,
-                                            Price: job.Price,
-                                            ServiceNeed: job.ServiceNeed,
-                                            UserID: job.UserID,
-                                            Profile: job.Profile.Profile,
-                                        },
-                                    });
-                                    // console.log("click");
-                                }}
-                            />
-                        );
                     }
+                    return (
+                        <Feed
+                            service={
+                                IsNullOrEmpty(worker.ServiceOffered)
+                                    ? "General Worker"
+                                    : worker.ServiceOffered
+                            }
+                            image={{
+                                uri: IsNullOrEmpty(worker.Profile)
+                                    ? DefaultProfile
+                                    : worker.Profile,
+                            }}
+                            name={worker.Name}
+                            price={PriceFormat(
+                                IsNullOrEmpty(worker.Rate) ? 0 : worker.Rate
+                            )}
+                            cover={
+                                IsNullOrEmpty(worker.JobDescription)
+                                    ? `I'm ${worker.Name}, always happy to work with you!`
+                                    : worker.JobDescription
+                            }
+                            onpress={() => {
+                                navigation.navigate("Client Hire Form", {
+                                    ...route.params,
+                                    ServiceProviderInfo: {
+                                        SPI_Email: worker.Email,
+                                        SPI_UID: worker.UID,
+                                    },
+                                });
+                                // console.log("click");
+                            }}
+                        />
+                    );
                 })}
             </ScrollView>
         </View>
     );
 }
 
-function Feed({ service, image, name, price, cover, onpress }) {
+export function Feed({ service, image, name, price, cover, onpress }) {
     return (
         <View style={styles.FeedContainer}>
             <ClientServiceFeed

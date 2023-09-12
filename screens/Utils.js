@@ -11,4 +11,33 @@ function IDFormat(value) {
     value = value ? value : "";
     return "#" + value.replace(/[^a-zA-Z]/g, "").slice(-6);
 }
-export { DefaultProfile, PriceFormat, IsNullOrEmpty, IDFormat };
+function NumberFormat(phoneNumber) {
+    if (IsNullOrEmpty(phoneNumber)) return;
+    // Remove any non-numeric characters from the input
+    const numericPhoneNumber = phoneNumber.replace(/\D/g, "");
+
+    // Check if the numericPhoneNumber has a valid length (10 digits)
+    if (numericPhoneNumber.length === 10) {
+        // Format the number as +639 12 345 6789
+        return `+639 ${numericPhoneNumber.substring(
+            1,
+            3
+        )} ${numericPhoneNumber.substring(3, 6)} ${numericPhoneNumber.substring(
+            6
+        )}`;
+    } else {
+        // If the input is not a valid phone number, return an error message or handle it as needed
+        return "Invalid phone number";
+    }
+}
+const IsTextEmpty = (text) => {
+    return !text || text.trim().length === 0;
+};
+export {
+    DefaultProfile,
+    PriceFormat,
+    IsNullOrEmpty,
+    IDFormat,
+    NumberFormat,
+    IsTextEmpty,
+};

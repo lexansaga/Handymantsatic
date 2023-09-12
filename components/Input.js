@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TextInput } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import styles from "../styles/style.js";
+import { IsNullOrEmpty } from "../screens/Utils.js";
 
 const Input = ({
     placeholder,
@@ -17,7 +18,13 @@ const Input = ({
     isNumberOnly,
 }) => {
     return (
-        <View style={styles.inputContainer}>
+        <View
+            style={
+                IsNullOrEmpty(multiline)
+                    ? [styles.inputContainer, { height: 50, maxHeight: 50 }]
+                    : [styles.inputContainer]
+            }
+        >
             {icon && (
                 <Feather
                     name={icon}
@@ -27,7 +34,22 @@ const Input = ({
                 />
             )}
             <TextInput
-                style={isSearch ? styles.inputSearch : styles.input}
+                style={
+                    isSearch
+                        ? styles.inputSearch
+                        : [
+                              styles.input,
+                              multiline
+                                  ? {
+                                        position: "relative",
+                                        height: 100,
+                                        verticalAlign: "top",
+                                        paddingTop: 12,
+                                        maxHeight: 100,
+                                    }
+                                  : {},
+                          ]
+                }
                 secureTextEntry={isPassword}
                 placeholder={placeholder}
                 value={value}

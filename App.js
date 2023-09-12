@@ -5,24 +5,11 @@ import Home from "./screens/Home";
 import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
 import ForgotPassword from "./screens/ForgotPassword";
-import Chat from "./screens/Chat";
-
-import Client from "./screens/Navigator/Client";
-import ServiceProvider from "./screens/Navigator/ServiceProvider";
-
-import ClientHome from "./screens/Client/ClientHome";
-import ClientServiceFeeds from "./screens/Client/ClientServiceFeeds";
-import ClientHireForm from "./screens/Client/ClientHireForm";
-import ClientSuccessBook from "./screens/Client/ClientSuccessBook";
-
-import ServiceProviderHome from "./screens/ServiceProvider/ServiceProviderHome";
-import ServiceProviderFeeds from "./screens/ServiceProvider/ServiceProviderFeed";
-import ServiceProviderPostView from "./screens/ServiceProvider/ServiceProviderPostView";
-import ServiceProviderPostAJob from "./screens/ServiceProvider/ServiceProviderPostAJob";
 
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { View, Text, StyleSheet } from "react-native";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -31,6 +18,9 @@ export default function App({ route }) {
     var isLoggedIn = true;
     return (
         <NavigationContainer independent={true}>
+            <Text style={style.watermark}>
+                This Project is Created by Alexander Saga
+            </Text>
             {/* <MainStack /> */}
             <Drawer.Navigator>
                 {/* This screen can be accessible even if when user is not authenticated */}
@@ -85,16 +75,29 @@ const MainStack = () => {
                 component={Home}
                 options={{ title: "Home" }}
             />
-            <Stack.Screen
-                name="Client"
-                component={Client}
-                options={{ title: "Client" }}
-            />
-            <Stack.Screen
-                name="Chat"
-                component={Chat}
-                options={{ title: "chat" }}
-            />
         </Stack.Navigator>
     );
 };
+
+const style = StyleSheet.create({
+    watermark: {
+        position: "absolute",
+        pointerEvents: "none",
+        bottom: 0,
+        left: 0,
+        zIndex: 9999,
+        height: "10%",
+        width: "100%",
+        textAlign: "center",
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "none",
+        justifyContent: "center",
+        alignItems: "center",
+        verticalAlign: "middle",
+        color: "#fff",
+        fontSize: 18,
+        paddingHorizontal: 18,
+        textTransform: "uppercase",
+        fontWeight: 500,
+    },
+});

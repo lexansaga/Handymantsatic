@@ -1,5 +1,6 @@
 //Handle Global app styling
 import { StyleSheet } from "react-native";
+import { vh } from "react-native-expo-viewport-units";
 const styles = StyleSheet.create({
     container: {
         display: "flex",
@@ -40,8 +41,6 @@ const styles = StyleSheet.create({
 
     inputContainer: {
         width: "100%",
-        height: 50,
-        maxHeight: 50,
         flex: 1,
         flexDirection: "row",
         alignContent: "center",

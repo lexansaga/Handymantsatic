@@ -6,7 +6,7 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
-import { IsTextEmpty } from "../Utils";
+import { IsTextEmpty } from "./Utils";
 import {
     app,
     firestore,
@@ -93,11 +93,6 @@ export default function Signin({ navigation }) {
                 setEmail("");
                 setPassword("");
                 var uid = user.uid;
-                // console.log(uid);
-
-                // const docRef = doc(firestore, "User", `${uid}`);
-                // const querySnapshot = await getDoc(docRef);
-                // var userType = String(querySnapshot.get("Type"));
 
                 await get(child(databaseRef, `Users/${uid}/`))
                     .then((snapshot) => {

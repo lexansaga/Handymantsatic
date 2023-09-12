@@ -7,7 +7,7 @@ import Input from "../components/Input.js";
 import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import DropDownPicker from "react-native-dropdown-picker";
-import { IsTextEmpty } from "../Utils";
+import { IsTextEmpty } from "./Utils";
 import {
     app,
     auth,
