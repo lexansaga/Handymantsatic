@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import Client from "./Navigator/Client";
-import ServiceProvider from "./Navigator/ServiceProvider";
+// import Client from "./Navigator/Client";
+// import ServiceProvider from "./Navigator/ServiceProvider";
 
 import ClientHome, { ClientServiceFeed } from "./Client/ClientHome";
 import ClientServiceFeeds from "./Client/ClientServiceFeeds";
@@ -20,6 +20,7 @@ import ForgotPassword from "./ForgotPassword";
 import Logout from "./Navigator/Logout";
 import Chat from "./Chat";
 import ProfileEdit from "./ProfileEdit";
+import Notification from "./Notification";
 
 import TaskScreen from "./Task/TaskScreen";
 import TaskActive from "./Task/TaskActive";
@@ -107,6 +108,16 @@ const ClientStack = () => {
             ></Drawer.Screen>
 
             <Drawer.Screen
+                name="Task"
+                initialParams={globalRoute.params}
+                component={TaskTabbedNav}
+                options={{
+                    animationTypeForReplace: "push",
+                    animation: "slide_from_right",
+                }}
+            ></Drawer.Screen>
+
+            <Drawer.Screen
                 name="Client Hire"
                 initialParams={globalRoute.params}
                 component={ClientHire}
@@ -116,7 +127,15 @@ const ClientStack = () => {
                     },
                 }}
             ></Drawer.Screen>
-
+            <Stack.Screen
+                name="Notification"
+                component={Notification}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
+            />
             <Drawer.Screen
                 name="Client Hire Form"
                 initialParams={globalRoute.params}
@@ -152,6 +171,26 @@ const ClientStack = () => {
                 name="ClientSuccessBook"
                 initialParams={globalRoute.params}
                 component={ClientSuccessBook}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="ClientHire"
+                initialParams={globalRoute.params}
+                component={ClientHire}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="ProfileEdit"
+                initialParams={globalRoute.params}
+                component={ProfileEdit}
                 options={{
                     drawerItemStyle: {
                         display: "none",
@@ -208,7 +247,15 @@ const ServiceProviderStack = () => {
                     },
                 }}
             ></Drawer.Screen>
-
+            <Stack.Screen
+                name="Notification"
+                component={Notification}
+                options={{
+                    drawerItemStyle: {
+                        display: "none",
+                    },
+                }}
+            />
             <Drawer.Screen
                 name="ClientSuccessBook"
                 initialParams={globalRoute.params}

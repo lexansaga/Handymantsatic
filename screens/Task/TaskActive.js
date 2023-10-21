@@ -27,6 +27,10 @@ export default function TaskActive({ navigation, route }) {
     const [refreshing, setRefreshing] = useState(false);
     let forView = true;
     let status = route.params.status;
+    let isServiceProvider = IsNullOrEmpty(Type)
+        ? false
+        : Type.includes("ServiceProvider");
+    let isCLient = IsNullOrEmpty(Type) ? false : Type.includes("Client");
     const isFocused = useIsFocused();
     const getJobOrder = async () => {
         await get(child(databaseRef, `JobOrder/`))
@@ -43,22 +47,46 @@ export default function TaskActive({ navigation, route }) {
                         await get(child(databaseRef, `Jobs/${jobID}`)).then(
                             async (job) => {
                                 const snapJob = job.val();
-                                const jobUserID = snapJob.UserID;
+                                const jobClientID = snapJob.ClientID;
+                                const jobServiceProviderID =
+                                    snapJob.ServiceProviderID;
                                 await get(
-                                    child(databaseRef, `Users/${jobUserID}/`)
-                                ).then(async (user) => {
-                                    const snapUser = user.val();
-                                    JobOrders.push({
-                                        [`${jobOrderID}`]: {
-                                            status,
-                                            JobOrderID: jobOrderID,
-                                            ...snapUser,
-                                            ...snapJob,
-                                        },
-                                    });
-                                    setJobOrder(JobOrders);
+                                    child(databaseRef, `Users/${jobClientID}/`)
+                                ).then(async (client) => {
+                                    const snapClient = client.val();
 
-                                    //     console.log(JobOrders);
+                                    await get(
+                                        child(
+                                            databaseRef,
+                                            `Users/${jobServiceProviderID}/`
+                                        )
+                                    ).then(async (serviceProvider) => {
+                                        const snapServiceProvider =
+                                            serviceProvider.val();
+
+                                        JobOrders.push({
+                                            [`${jobOrderID}`]: {
+                                                JobOrder: {
+                                                    JobOrderID: jobOrderID,
+                                                    Status: status,
+                                                    JobID: jobID,
+                                                },
+                                                ServiceProvider:
+                                                    snapServiceProvider,
+                                                Client: snapClient,
+                                                Job: snapJob,
+                                            },
+                                        });
+                                        const mergedDataString = JSON.stringify(
+                                            JobOrders,
+                                            null,
+                                            2
+                                        );
+                                        console.log(mergedDataString);
+                                        setJobOrder(
+                                            JSON.parse(mergedDataString)
+                                        );
+                                    });
                                 });
                             }
                         );
@@ -86,6 +114,7 @@ export default function TaskActive({ navigation, route }) {
         setRefreshing(true);
         getJobOrder();
         console.log("Refresh");
+
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
@@ -105,15 +134,28 @@ export default function TaskActive({ navigation, route }) {
                 <View style={style.LandingContainer}>
                     {JobOrder &&
                         JobOrder.map((obj, index) => {
+                            // console.log(obj);
                             const key = Object.keys(obj)[0]; // Extract the key
                             const data = obj[key];
-                            console.log(`${UID} : ${data.UID}`);
+                            // console.log(data);
+                            // console.log(`${UID} : ${data.Client.UID}`);
+
+                            let { iName, iProfile, iWhatIsLooking } = "";
+                            if (isServiceProvider) {
+                                iName = data.Client.Name;
+                                iProfile = data.Client.Profile;
+                                iWhatIsLooking = "Client";
+                            } else {
+                                iName = data.ServiceProvider.Name;
+                                iProfile = data.ServiceProvider.Profile;
+                                iWhatIsLooking =
+                                    data.ServiceProvider.ServiceOffered;
+                            }
                             if (
-                                !data.status
+                                !status
                                     .toLowerCase()
                                     .includes(
-                                        status.toLowerCase() ||
-                                            UID.includes(data.UID)
+                                        data.JobOrder.Status.toLowerCase()
                                     )
                             ) {
                                 return;
@@ -121,16 +163,16 @@ export default function TaskActive({ navigation, route }) {
                             return (
                                 <View style={style.taskItem}>
                                     <Text style={style.taskID}>
-                                        {IDFormat(data.JobOrderID)}
+                                        {IDFormat(data.JobOrder.JobID)}
                                     </Text>
                                     <ClientFeed
-                                        name={data.Name}
-                                        whatlooking={data.ServiceNeed}
-                                        description={data.Description}
-                                        price={PriceFormat(data.Price)}
+                                        name={iName}
+                                        whatlooking={iWhatIsLooking}
+                                        description={data.Job.Description}
+                                        price={PriceFormat(data.Job.Price)}
                                         image={{
-                                            uri: data.Profile
-                                                ? data.Profile
+                                            uri: iProfile
+                                                ? iProfile
                                                 : DefaultProfile,
                                         }}
                                         hasFavorite={false}
@@ -154,13 +196,13 @@ export default function TaskActive({ navigation, route }) {
                                                     .toLowerCase()
                                                     .includes("active")
                                                     ? "Finish Contract"
-                                                    : "Accept Contract"
+                                                    : "Accept Offer"
                                             }
                                             onPress={() => {
                                                 update(
                                                     ref(
                                                         database,
-                                                        `JobOrder/${data.JobOrderID}/`
+                                                        `JobOrder/${data.JobOrder.JobOrderID}/`
                                                     ),
                                                     {
                                                         Status: status
@@ -174,12 +216,18 @@ export default function TaskActive({ navigation, route }) {
                                             }}
                                         />
                                         <SecondaryButton
-                                            title={"Cancel Contract"}
+                                            title={
+                                                status
+                                                    .toLowerCase()
+                                                    .includes("proposed")
+                                                    ? "Decline Offer"
+                                                    : "Cancel Contract"
+                                            }
                                             onPress={() => {
                                                 update(
                                                     ref(
                                                         database,
-                                                        `JobOrder/${data.JobOrderID}/`
+                                                        `JobOrder/${data.JobOrder.JobOrderID}/`
                                                     ),
                                                     {
                                                         Status: `Cancelled`,
@@ -188,7 +236,7 @@ export default function TaskActive({ navigation, route }) {
                                                 update(
                                                     ref(
                                                         database,
-                                                        `Jobs/${data.ID}/`
+                                                        `Jobs/${data.Job.ID}/`
                                                     ),
                                                     {
                                                         Active: true,

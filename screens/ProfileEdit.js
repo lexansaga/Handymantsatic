@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
     View,
     ScrollView,
@@ -42,14 +42,17 @@ import ShowToast from "../components/Toast";
 import Spinner from "../components/Spinner";
 import Input from "../components/Input";
 import SecondaryButton from "../components/SecondaryButton";
+import { add } from "react-native-reanimated";
 export default function ProfileEdit({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const {
         Email,
         Name,
         Password,
+        Contact,
         Profile,
         Type,
+        Address,
         UID,
         JobDescription,
         ServiceOffered,
@@ -76,6 +79,12 @@ export default function ProfileEdit({ navigation, route }) {
     const [contact, setContact] = useState("");
     const [description, setDescription] = useState("");
 
+    const [address, setAddress] = useState("");
+
+    let isServiceProvider = IsNullOrEmpty(Type)
+        ? false
+        : Type.includes("ServiceProvider");
+    let isCLient = IsNullOrEmpty(Type) ? false : Type.includes("Client");
     const getCategory = async () => {
         var categoryData = [];
         await get(child(databaseRef, `Category`))
@@ -184,15 +193,17 @@ export default function ProfileEdit({ navigation, route }) {
             setImage(result.assets[0].uri);
         }
     };
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (isFocused) {
             onRefresh();
             console.log("Focused");
         } else {
             setName("");
+            setContact("");
             setRate("");
             setDescription("");
             setValue("");
+            setAddress("");
         }
     }, [isFocused]);
 
@@ -202,11 +213,14 @@ export default function ProfileEdit({ navigation, route }) {
         UserInfo().then((user) => {
             setUserInfo(user);
         });
+        console.log(userInfo);
         getCategory();
         setName(Name);
         setRate(Rate);
+        setContact(Contact);
         setDescription(JobDescription);
         setValue(ServiceOffered);
+        setAddress(Address);
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -255,28 +269,32 @@ export default function ProfileEdit({ navigation, route }) {
                             Profile Information
                         </Text>
 
-                        <DropDownPicker
-                            open={open}
-                            value={value}
-                            items={items}
-                            setOpen={setOpen}
-                            setValue={setValue}
-                            setItems={setItems}
-                            showArrowIcon={true}
-                            listMode="MODAL"
-                            placeholder="Service  Offered"
-                            modalProps={{
-                                animationType: "slide",
-                                width: "50%",
-                            }}
-                            modalTitle="Select Type"
-                            style={{
-                                borderColor: "transparent",
-                                borderRadius: 0,
-                                backgroundColor: "#ededed",
-                                marginLeft: 10,
-                            }}
-                        />
+                        {isServiceProvider ? (
+                            <DropDownPicker
+                                open={open}
+                                value={value}
+                                items={items}
+                                setOpen={setOpen}
+                                setValue={setValue}
+                                setItems={setItems}
+                                showArrowIcon={true}
+                                listMode="MODAL"
+                                placeholder="Service  Offered"
+                                modalProps={{
+                                    animationType: "slide",
+                                    width: "50%",
+                                }}
+                                modalTitle="Select Type"
+                                style={{
+                                    borderColor: "transparent",
+                                    borderRadius: 0,
+                                    backgroundColor: "#ededed",
+                                    marginLeft: 10,
+                                }}
+                            />
+                        ) : (
+                            <></>
+                        )}
                         <Input
                             style={styles.input}
                             placeholder={"Name"}
@@ -294,45 +312,89 @@ export default function ProfileEdit({ navigation, route }) {
                             isPassword={false}
                         />
 
-                        <Input
-                            style={styles.input}
-                            placeholder={"Rate"}
-                            value={rate}
-                            onChangeText={setRate}
-                            icon="trello"
-                            isPassword={false}
-                        />
-                        <Input
-                            style={styles.input}
-                            placeholder={"Description"}
-                            value={description}
-                            onChangeText={setDescription}
-                            icon="book-open"
-                            numberOfLines={4}
-                            isPassword={false}
-                            multiline={true}
-                        />
+                        {isServiceProvider ? (
+                            <Input
+                                style={styles.input}
+                                placeholder={"Rate"}
+                                value={rate}
+                                onChangeText={setRate}
+                                icon="trello"
+                                isPassword={false}
+                            />
+                        ) : (
+                            <></>
+                        )}
+                        {isCLient ? (
+                            <Input
+                                style={styles.input}
+                                placeholder={"Address"}
+                                value={address}
+                                onChangeText={setAddress}
+                                icon="map-pin"
+                                numberOfLines={4}
+                                isPassword={false}
+                                multiline={true}
+                            />
+                        ) : (
+                            <></>
+                        )}
+                        {isServiceProvider ? (
+                            <Input
+                                style={styles.input}
+                                placeholder={"Description"}
+                                value={description}
+                                onChangeText={setDescription}
+                                icon="book-open"
+                                numberOfLines={4}
+                                isPassword={false}
+                                multiline={true}
+                            />
+                        ) : (
+                            <></>
+                        )}
+
                         <View style={styles.btnWrap}>
                             <PrimaryButton
                                 title={"Save"}
                                 onPress={() => {
-                                    update(ref(database, `Users/${UID}/`), {
-                                        Name: IsNullOrEmpty(name) ? name : Name,
-                                        ServiceOffered: IsNullOrEmpty(value)
-                                            ? ""
-                                            : value,
-                                        JobDescription: IsNullOrEmpty(
-                                            description
-                                        )
-                                            ? ""
-                                            : description,
-                                        Rate: IsNullOrEmpty(rate) ? "" : rate,
-                                        Contact: IsNullOrEmpty(
-                                            NumberFormat(contact)
-                                        )
-                                            ? ""
-                                            : NumberFormat(contact),
-                                    });
+                                    const number =
+                                        NumberFormat(contact) !== false
+                                            ? NumberFormat(contact)
+                                            : "Not Set";
+                                    if (isServiceProvider) {
+                                        update(ref(database, `Users/${UID}/`), {
+                                            Name: IsNullOrEmpty(name)
+                                                ? name
+                                                : Name,
+                                            ServiceOffered: IsNullOrEmpty(value)
+                                                ? ""
+                                                : value,
+                                            JobDescription: IsNullOrEmpty(
+                                                description
+                                            )
+                                                ? ""
+                                                : description,
+                                            Rate: IsNullOrEmpty(rate)
+                                                ? ""
+                                                : rate,
+                                            Contact: IsNullOrEmpty(number)
+                                                ? ""
+                                                : number,
+                                        });
+                                    } else {
+                                        update(ref(database, `Users/${UID}/`), {
+                                            Name: IsNullOrEmpty(name)
+                                                ? name
+                                                : Name,
+                                            Address: IsNullOrEmpty(address)
+                                                ? ""
+                                                : address,
+                                            Contact: IsNullOrEmpty(number)
+                                                ? ""
+                                                : number,
+                                        });
+                                    }
+
                                     ShowToast("Data updated successfully!");
                                     navigation.navigate("ClientHire");
                                     onRefresh();
@@ -413,7 +475,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 8,
         width: "100%",
-        marginTop: 72,
+        marginTop: 18,
         left: 8,
     },
 });

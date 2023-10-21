@@ -85,7 +85,13 @@ export default function Header({
                         }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        sideNavigation.navigate("Notification", {
+                            key: "value",
+                        });
+                    }}
+                >
                     <Feather
                         name="bell"
                         size={25}

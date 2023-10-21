@@ -24,7 +24,7 @@ import {
     UserInfo,
 } from "../../config/firebase.config";
 import { useEffect } from "react";
-import { IsTextEmpty } from "../Utils";
+import { IsTextEmpty, PushNotification } from "../Utils";
 export default function ServiceProviderPostAJob({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
@@ -95,6 +95,7 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
             Category: value,
             Active: true,
             PostedBy: Email,
+            ClientID: UID,
         });
         var saveKey = save.key;
         update(ref(database, `Jobs/${saveKey}`), {
@@ -105,6 +106,13 @@ export default function ServiceProviderPostAJob({ navigation, route }) {
         navigation.replace("Home", {
             Type: [`${Type}`],
         });
+
+        PushNotification(
+            null,
+            "New Task Posted",
+            `${Name} posted a new task. It may fit on you!`,
+            "ServiceProvider"
+        );
     }
     return (
         <View style={{ paddingBottom: 120 }}>

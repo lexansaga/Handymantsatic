@@ -189,7 +189,7 @@ export default function ClientHireForm({ navigation, route }) {
 
                     <View style={[style.Section]}>
                         <PrimaryButton
-                            title={"Hire John!"}
+                            title={`Hire ${serviceProviderInfo.Name}`}
                             onPress={() => {
                                 PostAJob();
 
@@ -208,8 +208,11 @@ export default function ClientHireForm({ navigation, route }) {
                                         );
                                         return;
                                     }
-                                    let service =
-                                        serviceProviderInfo.ServiceOffered;
+                                    let service = IsNullOrEmpty(
+                                        serviceProviderInfo.ServiceOffered
+                                    )
+                                        ? "General Work"
+                                        : serviceProviderInfo.ServiceOffered;
                                     // var name = snap.Name;
                                     var save = push(ref(database, `Jobs`), {
                                         UserID: UID,
@@ -222,6 +225,8 @@ export default function ClientHireForm({ navigation, route }) {
                                         Category: service,
                                         Active: false,
                                         PostedBy: Email,
+                                        ClientID: UID,
+                                        ServiceProviderID: `${serviceProviderInfo.UID}`,
                                     });
                                     var JobID = save.key;
                                     update(ref(database, `Jobs/${JobID}`), {
@@ -234,7 +239,8 @@ export default function ClientHireForm({ navigation, route }) {
                                         ref(database, `JobOrder`),
                                         {
                                             JobID: `${JobID}`,
-                                            UserID: `${serviceProviderInfo.UID}`,
+                                            ServiceProviderID: `${serviceProviderInfo.UID}`,
+                                            ClientID: UID,
                                             Status: `Proposed`,
                                         }
                                     );

@@ -1,8 +1,10 @@
+import { push, update, ref, database } from "../config/firebase.config";
+
 const DefaultProfile =
     "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FProfile%2Fdefault-profile.jpg?alt=media&token=efe7ad46-1b02-464c-9a88-35a99009f263";
 
 function PriceFormat(price) {
-    return `$${price}`;
+    return `₱${price}`;
 }
 function IsNullOrEmpty(value) {
     return value === null || value === undefined || value === "";
@@ -11,8 +13,35 @@ function IDFormat(value) {
     value = value ? value : "";
     return "#" + value.replace(/[^a-zA-Z]/g, "").slice(-6);
 }
+
+async function PushNotification(uid, title, message, forWho) {
+    var save = await push(
+        ref(
+            database,
+            `Notification/${IsNullOrEmpty(uid) ? `General` : `${uid}`}/`
+        ),
+        {
+            Title: title,
+            Message: message,
+            forWho: IsNullOrEmpty(forWho) ? "" : forWho,
+            IsRead: false,
+        }
+    );
+    var saveKey = save.key;
+    await update(
+        ref(
+            database,
+            `Notification/${
+                IsNullOrEmpty(uid) ? `General/${saveKey}` : `${uid}/${saveKey}`
+            }/`
+        ),
+        {
+            ID: saveKey,
+        }
+    );
+}
 function NumberFormat(phoneNumber) {
-    if (IsNullOrEmpty(phoneNumber)) return;
+    if (IsNullOrEmpty(phoneNumber)) return false;
     // Remove any non-numeric characters from the input
     const numericPhoneNumber = phoneNumber.replace(/\D/g, "");
 
@@ -27,7 +56,7 @@ function NumberFormat(phoneNumber) {
         )}`;
     } else {
         // If the input is not a valid phone number, return an error message or handle it as needed
-        return "Invalid phone number";
+        return false;
     }
 }
 const IsTextEmpty = (text) => {
@@ -40,4 +69,5 @@ export {
     IDFormat,
     NumberFormat,
     IsTextEmpty,
+    PushNotification,
 };

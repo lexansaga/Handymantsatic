@@ -123,7 +123,13 @@ export default function ServiceProviderPostView({ navigation, route }) {
                         title={"Take Job"}
                         style={style.BtnTakeJob}
                         onPress={() => {
-                            TakeJob(JobID, UID, navigation, job.Active);
+                            TakeJob(
+                                JobID,
+                                UID,
+                                job.ClientID,
+                                navigation,
+                                job.Active
+                            );
                         }}
                     />
                 </View>
@@ -131,29 +137,39 @@ export default function ServiceProviderPostView({ navigation, route }) {
         </View>
     );
 }
-function TakeJob(JobID, UserID, Navigation, isActive) {
+async function TakeJob(
+    JobID,
+    ServiceProviderID,
+    ClientID,
+    Navigation,
+    isActive
+) {
     if (isActive == false) {
         ShowToast("This is now taken");
         return;
     }
     // var name = snap.Name;
-    var save = push(ref(database, `JobOrder`), {
+    var save = await push(ref(database, `JobOrder`), {
         JobID: `${JobID}`,
-        UserID: `${UserID}`,
-        Status: `Active`,
+        UserID: `${ServiceProviderID}`,
+        ServiceProviderID: ServiceProviderID,
+        ClientID: ClientID,
+        Status: `Proposed`,
     });
     var saveKey = save.key;
-    update(ref(database, `JobOrder/${saveKey}`), {
+    await update(ref(database, `JobOrder/${saveKey}`), {
         ID: saveKey,
     });
-    update(ref(database, `Jobs/${JobID}`), {
-        Active: false,
+    await update(ref(database, `Jobs/${JobID}`), {
+        // Active: false,
+        ServiceProviderID: ServiceProviderID,
     });
     console.log(saveKey);
 
-    Navigation.navigate("ClientSuccessBook", {
+    await Navigation.navigate("ClientSuccessBook", {
         OrderID: saveKey,
     });
+    console.log(saveKey);
 }
 
 const style = StyleSheet.create({

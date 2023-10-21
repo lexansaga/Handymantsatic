@@ -80,7 +80,7 @@ export default function Signup({ navigation }) {
                     Password: password,
                     Type: value,
                 });
-
+                ShowToast("Account created successfully.");
                 // ...
             })
             .catch((error) => {
@@ -88,6 +88,7 @@ export default function Signup({ navigation }) {
                 const errorMessage = error.message;
                 // console.log();
                 console.log(`${errorCode} : ${errorMessage}`);
+                ShowToast("Account creation failed.");
                 // ..
             });
     }

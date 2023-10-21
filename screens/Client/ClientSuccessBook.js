@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     Linking,
     View,
@@ -42,34 +42,38 @@ export default function ClientSuccessBook({ navigation, route }) {
 
     const { OrderID } = route.params;
     const [JobOrder, setJobOrder] = useState({});
-    // .replace(/[^a-zA-Z]/g, "")
     var JobOrderIDFormatted = IDFormat(OrderID);
     const getJobOrder = async () => {
         await get(child(databaseRef, `JobOrder/${OrderID}`))
             .then(async (snapshot) => {
-                console.log(snapshot.val());
                 if (snapshot.exists()) {
-                    // console.log(snapshot.val());
                     const snap = snapshot.val();
                     const jobID = snap.JobID;
                     const userID = snap.UserID;
-                    const status = snap.Status;
-                    //     console.log(jobID);
+                    const Status = snap.Status;
                     await get(child(databaseRef, `Jobs/${jobID}`)).then(
                         async (job) => {
                             const snapJob = job.val();
-                            const jobUserID = snapJob.UserID;
-                            console.log(jobUserID);
+                            const clientID = snapJob.ClientID;
+                            const serviceProviderID = snapJob.ServiceProviderID;
                             await get(
-                                child(databaseRef, `Users/${jobUserID}/`)
-                            ).then(async (user) => {
-                                const snapUser = user.val();
-
-                                //   console.log(snap);
-                                setJobOrder({
-                                    status,
-                                    ...snapUser,
-                                    ...snapJob,
+                                child(databaseRef, `Users/${clientID}/`)
+                            ).then(async (client) => {
+                                const snapClient = client.val();
+                                await get(
+                                    child(
+                                        databaseRef,
+                                        `Users/${serviceProviderID}/`
+                                    )
+                                ).then(async (serviceProvider) => {
+                                    const snapServiceProvider =
+                                        serviceProvider.val();
+                                    setJobOrder({
+                                        Status,
+                                        ServiceProvider: snapServiceProvider,
+                                        Client: snapClient,
+                                        Job: snapJob,
+                                    });
                                 });
                             });
                         }
@@ -89,7 +93,7 @@ export default function ClientSuccessBook({ navigation, route }) {
             UserInfo().then((user) => {
                 setUserInfo(user);
             });
-            // console.log(JobOrder);
+            console.log(JobOrder);
         }
     }, [isFocused]);
 
@@ -105,8 +109,8 @@ export default function ClientSuccessBook({ navigation, route }) {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Image
                     source={{
-                        uri: JobOrder.Profile
-                            ? JobOrder.Profile
+                        uri: JobOrder.ServiceProvider.Profile
+                            ? JobOrder.ServiceProvider.Profile
                             : DefaultProfile,
                     }}
                     style={styles.CoverImage}
@@ -114,9 +118,9 @@ export default function ClientSuccessBook({ navigation, route }) {
                 <View style={styles.MainWrap}>
                     <ClientServiceFeed
                         style={style.Info}
-                        service={JobOrder.Category}
-                        name={JobOrder.Name}
-                        price={PriceFormat(JobOrder.Price)}
+                        service={JobOrder.ServiceProvider.ServiceOffered}
+                        name={JobOrder.ServiceProvider.Name}
+                        price={PriceFormat(JobOrder.Job.Price)}
                     />
 
                     <View style={[style.Section, styles.SBWrap]}>
@@ -125,7 +129,7 @@ export default function ClientSuccessBook({ navigation, route }) {
                         />
                         <Text style={styles.Title}>Booking Success</Text>
                         <Text style={styles.Content}>
-                            {JobOrder.Description}
+                            {JobOrder.Job.Description}
                         </Text>
                         <View style={styles.TransactionWrap}>
                             <Text style={styles.TransactIDTitle}>
@@ -146,18 +150,29 @@ export default function ClientSuccessBook({ navigation, route }) {
                                 Keep In Touch
                             </Text>
                             <View style={styles.KeepInTouchIconWrap}>
-                                <TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        dialCall(
+                                            JobOrder.ServiceProvider.Contact
+                                        );
+                                    }}
+                                >
                                     <Feather
                                         name={"phone-call"}
                                         size={30}
                                         color="#000"
                                         style={styles.KeepInTouchIcon}
-                                        onPress={() => {
-                                            this.dialCall(12345678901);
-                                        }}
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        SendMessage(
+                                            JobOrder.ServiceProvider.Contact,
+                                            ""
+                                        );
+                                        console.log("message");
+                                    }}
+                                >
                                     <Feather
                                         name={"message-circle"}
                                         size={30}
@@ -196,7 +211,13 @@ const dialCall = (number) => {
     }
     Linking.openURL(phoneNumber);
 };
+const SendMessage = (phoneNumber, message) => {
+    let url = `sms:${phoneNumber}${
+        Platform.OS === "ios" ? "&" : "?"
+    }body=${message}`;
 
+    Linking.openURL(url);
+};
 const styles = StyleSheet.create({
     CoverImage: {
         width: "100%",

@@ -80,17 +80,15 @@ export default function ClientServiceFeeds({ navigation, route }) {
                     console.log(`${Category} : ${worker.ServiceOffered}`);
                     if (
                         IsNullOrEmpty(workers) ||
-                        IsNullOrEmpty(worker.ServiceOffered) ||
+                        // IsNullOrEmpty(worker.ServiceOffered) ||
                         worker.Type.includes("Client")
                     ) {
+                        console.log("Is Client");
                         return;
                     }
                     if (IsNullOrEmpty(Category) === false) {
-                        if (
-                            !Category.toLowerCase().includes(
-                                worker.ServiceOffered.toLowerCase()
-                            )
-                        ) {
+                        console.log("Category Empty");
+                        if (!Category.includes(worker.ServiceOffered)) {
                             return <></>;
                         }
                     }
@@ -112,7 +110,7 @@ export default function ClientServiceFeeds({ navigation, route }) {
                             )}
                             cover={
                                 IsNullOrEmpty(worker.JobDescription)
-                                    ? `I'm ${worker.Name}, always happy to work with you!`
+                                    ? `I ${worker.Name} is always happy to work with you!`
                                     : worker.JobDescription
                             }
                             onpress={() => {
@@ -123,7 +121,6 @@ export default function ClientServiceFeeds({ navigation, route }) {
                                         SPI_UID: worker.UID,
                                     },
                                 });
-                                // console.log("click");
                             }}
                         />
                     );

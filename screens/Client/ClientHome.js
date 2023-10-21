@@ -132,7 +132,7 @@ export default function ClientHome({ navigation, route, props }) {
                                     name={`${categoryItem.Name}`}
                                     onpress={() =>
                                         navigation.navigate("Feed", {
-                                            Category: `${categoryItem.ID}`,
+                                            Category: `${categoryItem.Name}`,
                                             ...route.params,
                                         })
                                     }
@@ -152,7 +152,7 @@ export default function ClientHome({ navigation, route, props }) {
                             console.log(IsNullOrEmpty(worker.ServiceOffered));
                             if (
                                 IsNullOrEmpty(workers) ||
-                                IsNullOrEmpty(worker.ServiceOffered) ||
+                                // IsNullOrEmpty(worker.ServiceOffered) ||
                                 worker.Type.includes("Client")
                             ) {
                                 return;

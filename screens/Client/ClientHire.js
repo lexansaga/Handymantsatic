@@ -51,6 +51,8 @@ export default function ClientHire({ navigation, route }) {
         Type,
         UID,
         JobDescription,
+        ServiceOffered,
+        Address,
     } = userInfo;
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
@@ -60,90 +62,11 @@ export default function ClientHire({ navigation, route }) {
     const [isSpinnerShow, setSpinnerShow] = useState(false);
 
     const [image, setImage] = useState(null);
-    const uriToBlob = (uri) => {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                // return the blob
-                resolve(xhr.response);
-            };
 
-            xhr.onerror = function () {
-                // something went wrong
-                reject(new Error("uriToBlob failed"));
-            };
-            // this helps us get a blob
-            xhr.responseType = "blob";
-            xhr.open("GET", uri, true);
-
-            xhr.send(null);
-        });
-    };
-    const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-        let file = await uriToBlob(result.assets[0].uri);
-        console.log(result.assets[0]);
-        let fileName = result.assets[0].uri.split("/").slice(-1);
-        let fileExtension = result.assets[0].uri.split(".").slice(-1);
-        const metadata = {
-            contentType: "image/jpeg",
-        };
-        const storageRef = strRef(
-            storage,
-            `Assets/Profile/${Name}_${UID}.${fileExtension}/`
-        );
-        const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-
-        await uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-                // Observe state change events such as progress, pause, and resume
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log("Upload is " + progress + "% done");
-                setSpinnerTitle(`Uploading Image ${Math.round(progress)}%`);
-                setSpinnerShow(true);
-                switch (snapshot.state) {
-                    case "paused":
-                        console.log("Upload is paused");
-                        break;
-                    case "running":
-                        console.log("Upload is running");
-                        break;
-                }
-            },
-            (error) => {
-                console.log("Error " + error);
-                ShowToast("Upload failed : There's an error occured!");
-            },
-            async () => {
-                // Handle successful uploads on complete
-                // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-                await getDownloadURL(uploadTask.snapshot.ref).then(
-                    (downloadURL) => {
-                        console.log("File available at", downloadURL);
-
-                        update(ref(database, `Users/${UID}/`), {
-                            Profile: downloadURL,
-                        });
-                        setProfileLink(downloadURL);
-                        onRefresh();
-                        setSpinnerShow(false);
-                    }
-                );
-            }
-        );
-        if (!result.canceled) {
-            setImage(result.assets[0].uri);
-        }
-    };
+    let isServiceProvider = IsNullOrEmpty(Type)
+        ? false
+        : Type.includes("ServiceProvider");
+    let isCLient = IsNullOrEmpty(Type) ? false : Type.includes("Client");
     useEffect(() => {
         if (isFocused) {
             onRefresh();
@@ -189,8 +112,8 @@ export default function ClientHire({ navigation, route }) {
                     <ClientServiceFeed
                         style={style.Info}
                         service={Name}
-                        name={"Plumber"}
-                        price=""
+                        name={ServiceOffered}
+                        price={IsNullOrEmpty(Rate) ? "" : PriceFormat(Rate)}
                     />
                     <View style={style.Section}>
                         <TouchableOpacity
@@ -211,29 +134,51 @@ export default function ClientHire({ navigation, route }) {
                                 {IsNullOrEmpty(Name) ? "Not set" : Name}
                             </Text>
                         </View>
-                        <View style={styles.InfoGroup}>
-                            <Text style={styles.InfoTitle}>Cover Letter</Text>
-                            <Text style={styles.InfoContent}>
-                                {IsNullOrEmpty(JobDescription)
-                                    ? "Not set"
-                                    : JobDescription}
-                            </Text>
-                        </View>
+                        {isServiceProvider ? (
+                            <View style={styles.InfoGroup}>
+                                <Text style={styles.InfoTitle}>
+                                    Cover Letter
+                                </Text>
+                                <Text style={styles.InfoContent}>
+                                    {IsNullOrEmpty(JobDescription)
+                                        ? "Not set"
+                                        : JobDescription}
+                                </Text>
+                            </View>
+                        ) : (
+                            <></>
+                        )}
                         <View style={styles.InfoGroup}>
                             <Text style={styles.InfoTitle}>Contact</Text>
                             <Text style={styles.InfoContent}>
                                 {IsNullOrEmpty(Contact) ? "Not set" : Contact}
                             </Text>
                         </View>
+                        {isCLient ? (
+                            <View style={styles.InfoGroup}>
+                                <Text style={styles.InfoTitle}>Address</Text>
+                                <Text style={styles.InfoContent}>
+                                    {IsNullOrEmpty(Address)
+                                        ? "Not set"
+                                        : Address}
+                                </Text>
+                            </View>
+                        ) : (
+                            <></>
+                        )}
 
-                        <View style={styles.InfoGroup}>
-                            <Text style={styles.InfoTitle}>Rate</Text>
-                            <Text style={styles.InfoContent}>
-                                {IsNullOrEmpty(Rate)
-                                    ? "Not set"
-                                    : JobDescription}
-                            </Text>
-                        </View>
+                        {isServiceProvider ? (
+                            <View style={styles.InfoGroup}>
+                                <Text style={styles.InfoTitle}>Rate</Text>
+                                <Text style={styles.InfoContent}>
+                                    {IsNullOrEmpty(Rate)
+                                        ? "Not set"
+                                        : PriceFormat(Rate)}
+                                </Text>
+                            </View>
+                        ) : (
+                            <></>
+                        )}
                         {/* <View style={styles.WorkImageWrap}>
                             <Image
                                 style={styles.WorkImage}
