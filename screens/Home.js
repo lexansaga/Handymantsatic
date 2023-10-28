@@ -18,7 +18,8 @@ import Signin from "./Signin";
 import Signup from "./Signup";
 import ForgotPassword from "./ForgotPassword";
 import Logout from "./Navigator/Logout";
-import Chat from "./Chat";
+import Chat from "./Chat/Chat";
+import ChatList from "./Chat/ChatList";
 import ProfileEdit from "./ProfileEdit";
 import Notification from "./Notification";
 
@@ -40,6 +41,41 @@ export default function Home({ navigation, route, props }) {
     const { Type } = route.params;
     const ClientType = Type.includes("Client");
     console.log(Type);
+    ServiceProviderDrawerNavigator();
+    if (ClientType) {
+        return <ClientDrawerNavigator />;
+    } else {
+        return <ServiceProviderDrawerNavigator />;
+    }
+}
+const ServiceProviderDrawerNavigator = () => {
+    return (
+        <Drawer.Navigator
+            screenOptions={{
+                headerShown: false,
+                overlayColor: "rgba(0,0,0,0.8)",
+            }}
+        >
+            <Drawer.Screen
+                name="Home"
+                initialParams={globalRoute.params}
+                component={ServiceProviderStackNavigator}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="Feed"
+                initialParams={globalRoute.params}
+                component={ServiceProviderFeeds}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="Task"
+                initialParams={globalRoute.params}
+                component={TaskTabbedNav}
+            ></Drawer.Screen>
+            <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
+        </Drawer.Navigator>
+    );
+};
+const ServiceProviderStackNavigator = () => {
     return (
         <Stack.Navigator
             screenOptions={{
@@ -53,37 +89,61 @@ export default function Home({ navigation, route, props }) {
                 },
             }}
         >
-            {ClientType ? (
-                <Stack.Screen
-                    name="Client"
-                    component={ClientStack}
-                    initialParams={route.params}
-                    options={{ header: () => null }}
-                ></Stack.Screen>
-            ) : (
-                <Stack.Screen
-                    name="ServiceProvider"
-                    component={ServiceProviderStack}
-                    initialParams={route.params}
-                    options={{ header: () => null }}
-                ></Stack.Screen>
-            )}
-
             <Stack.Screen
                 name="Home"
-                component={Home}
-                options={{ title: "Home" }}
-            />
+                initialParams={globalRoute.params}
+                component={ServiceProviderHome}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="Feed"
+                initialParams={globalRoute.params}
+                component={ServiceProviderFeeds}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="Task"
+                initialParams={globalRoute.params}
+                component={TaskTabbedNav}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="ServiceProviderPostView"
+                component={ServiceProviderPostView}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="ServiceProviderPostAJob"
+                initialParams={globalRoute.params}
+                component={ServiceProviderPostAJob}
+            ></Stack.Screen>
+            <Stack.Screen name="Notification" component={Notification} />
+            <Stack.Screen
+                name="ClientSuccessBook"
+                initialParams={globalRoute.params}
+                component={ClientSuccessBook}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="ClientHire"
+                initialParams={globalRoute.params}
+                component={ClientHire}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="ProfileEdit"
+                initialParams={globalRoute.params}
+                component={ProfileEdit}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="ChatList"
+                initialParams={globalRoute.params}
+                component={ChatList}
+            ></Stack.Screen>
             <Stack.Screen
                 name="Chat"
+                initialParams={globalRoute.params}
                 component={Chat}
-                options={{ title: "Chat" }}
-            />
+            ></Stack.Screen>
+            <Stack.Screen name="Logout" component={Logout}></Stack.Screen>
         </Stack.Navigator>
     );
-}
-
-const ClientStack = () => {
+};
+const ClientDrawerNavigator = () => {
     return (
         <Drawer.Navigator
             screenOptions={{
@@ -94,200 +154,90 @@ const ClientStack = () => {
             <Drawer.Screen
                 name="Home"
                 initialParams={globalRoute.params}
-                component={ClientHome}
+                component={ClientStackNavigator}
+            ></Drawer.Screen>
+
+            <Drawer.Screen
+                name="Messages"
+                initialParams={globalRoute.params}
+                component={ChatList}
             ></Drawer.Screen>
 
             <Drawer.Screen
                 name="Feed"
                 initialParams={globalRoute.params}
                 component={ClientServiceFeeds}
-                options={{
-                    animationTypeForReplace: "push",
-                    animation: "slide_from_right",
-                }}
             ></Drawer.Screen>
 
             <Drawer.Screen
                 name="Task"
                 initialParams={globalRoute.params}
                 component={TaskTabbedNav}
-                options={{
-                    animationTypeForReplace: "push",
-                    animation: "slide_from_right",
-                }}
-            ></Drawer.Screen>
-
-            <Drawer.Screen
-                name="Client Hire"
-                initialParams={globalRoute.params}
-                component={ClientHire}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Stack.Screen
-                name="Notification"
-                component={Notification}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            />
-            <Drawer.Screen
-                name="Client Hire Form"
-                initialParams={globalRoute.params}
-                component={ClientHireForm}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-
-            <Drawer.Screen
-                name="Client Success Book"
-                initialParams={globalRoute.params}
-                component={ClientSuccessBook}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen
-                name="ServiceProviderPostAJob"
-                initialParams={globalRoute.params}
-                component={ServiceProviderPostAJob}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen
-                name="ClientSuccessBook"
-                initialParams={globalRoute.params}
-                component={ClientSuccessBook}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen
-                name="ClientHire"
-                initialParams={globalRoute.params}
-                component={ClientHire}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen
-                name="ProfileEdit"
-                initialParams={globalRoute.params}
-                component={ProfileEdit}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
             ></Drawer.Screen>
             <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
     );
 };
 
-const ServiceProviderStack = () => {
+const ClientStackNavigator = () => {
     return (
-        <Drawer.Navigator
+        <Stack.Navigator
             screenOptions={{
                 headerShown: false,
-                overlayColor: "rgba(0,0,0,0.8)",
+                headerStyle: {
+                    backgroundColor: "#ffffff",
+                },
+                cardStyle: { backgroundColor: "#fff" },
+                contentStyle: {
+                    backgroundColor: "#FFFFFF",
+                },
             }}
         >
-            <Drawer.Screen
+            <Stack.Screen
                 name="Home"
                 initialParams={globalRoute.params}
-                component={ServiceProviderHome}
-            ></Drawer.Screen>
+                component={ClientHome}
+            ></Stack.Screen>
 
-            <Drawer.Screen
-                name="Feed"
-                initialParams={globalRoute.params}
-                component={ServiceProviderFeeds}
-            ></Drawer.Screen>
-
-            <Drawer.Screen
-                name="Task"
-                initialParams={globalRoute.params}
-                component={TaskTabbedNav}
-            ></Drawer.Screen>
-            <Drawer.Screen
-                name="ServiceProviderPostView"
-                component={ServiceProviderPostView}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-
-            <Drawer.Screen
-                name="ServiceProviderPostAJob"
-                initialParams={globalRoute.params}
-                component={ServiceProviderPostAJob}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
             <Stack.Screen
-                name="Notification"
-                component={Notification}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            />
-            <Drawer.Screen
+                name="Chat"
+                initialParams={globalRoute.params}
+                component={Chat}
+            ></Stack.Screen>
+
+            <Stack.Screen
+                name="Client Hire"
+                initialParams={globalRoute.params}
+                component={ClientHire}
+            ></Stack.Screen>
+            <Stack.Screen name="Notification" component={Notification} />
+            <Stack.Screen
+                name="Client Hire Form"
+                initialParams={globalRoute.params}
+                component={ClientHireForm}
+            ></Stack.Screen>
+
+            <Stack.Screen
                 name="ClientSuccessBook"
                 initialParams={globalRoute.params}
                 component={ClientSuccessBook}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen
+            ></Stack.Screen>
+            <Stack.Screen
+                name="ServiceProviderPostAJob"
+                initialParams={globalRoute.params}
+                component={ServiceProviderPostAJob}
+            ></Stack.Screen>
+            <Stack.Screen
                 name="ClientHire"
                 initialParams={globalRoute.params}
                 component={ClientHire}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen
+            ></Stack.Screen>
+            <Stack.Screen
                 name="ProfileEdit"
                 initialParams={globalRoute.params}
                 component={ProfileEdit}
-                options={{
-                    drawerItemStyle: {
-                        display: "none",
-                    },
-                }}
-            ></Drawer.Screen>
-            <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
-        </Drawer.Navigator>
+            ></Stack.Screen>
+        </Stack.Navigator>
     );
 };
 

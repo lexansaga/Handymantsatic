@@ -31,7 +31,7 @@ import {
     UserInfo,
 } from "../../config/firebase.config";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile, PriceFormat, IDFormat } from "../Utils";
+import { DefaultProfile, PriceFormat, IDFormat, IsNullOrEmpty } from "../Utils";
 export default function ClientSuccessBook({ navigation, route }) {
     const [name, contact, date, time, location] = useState("");
     const [dpOpen, dpSetOpen] = useState(false);
@@ -43,6 +43,8 @@ export default function ClientSuccessBook({ navigation, route }) {
     const { OrderID } = route.params;
     const [JobOrder, setJobOrder] = useState({});
     var JobOrderIDFormatted = IDFormat(OrderID);
+    const [IsJobOrderExists, setIsJobOrderExists] = useState(false);
+
     const getJobOrder = async () => {
         await get(child(databaseRef, `JobOrder/${OrderID}`))
             .then(async (snapshot) => {
@@ -74,6 +76,7 @@ export default function ClientSuccessBook({ navigation, route }) {
                                         Client: snapClient,
                                         Job: snapJob,
                                     });
+                                    setIsJobOrderExists(true);
                                 });
                             });
                         }
@@ -86,6 +89,7 @@ export default function ClientSuccessBook({ navigation, route }) {
                 console.error(error);
             });
     };
+
     const isFocused = useIsFocused();
     useEffect(() => {
         if (isFocused == true) {
@@ -94,6 +98,7 @@ export default function ClientSuccessBook({ navigation, route }) {
                 setUserInfo(user);
             });
             console.log(JobOrder);
+            console.log(IsJobOrderExists);
         }
     }, [isFocused]);
 
@@ -106,98 +111,106 @@ export default function ClientSuccessBook({ navigation, route }) {
         >
             <Header />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <Image
-                    source={{
-                        uri: JobOrder.ServiceProvider.Profile
-                            ? JobOrder.ServiceProvider.Profile
-                            : DefaultProfile,
-                    }}
-                    style={styles.CoverImage}
-                />
-                <View style={styles.MainWrap}>
-                    <ClientServiceFeed
-                        style={style.Info}
-                        service={JobOrder.ServiceProvider.ServiceOffered}
-                        name={JobOrder.ServiceProvider.Name}
-                        price={PriceFormat(JobOrder.Job.Price)}
+            {IsJobOrderExists == false ? (
+                <></>
+            ) : (
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <Image
+                        source={{
+                            uri: JobOrder.ServiceProvider.Profile
+                                ? JobOrder.ServiceProvider.Profile
+                                : DefaultProfile,
+                        }}
+                        style={styles.CoverImage}
                     />
-
-                    <View style={[style.Section, styles.SBWrap]}>
-                        <Image
-                            source={require("../../assets/success_book.png")}
+                    <View style={styles.MainWrap}>
+                        <ClientServiceFeed
+                            style={style.Info}
+                            service={JobOrder.ServiceProvider.ServiceOffered}
+                            name={JobOrder.ServiceProvider.Name}
+                            price={PriceFormat(JobOrder.Job.Price)}
                         />
-                        <Text style={styles.Title}>Booking Success</Text>
-                        <Text style={styles.Content}>
-                            {JobOrder.Job.Description}
-                        </Text>
-                        <View style={styles.TransactionWrap}>
-                            <Text style={styles.TransactIDTitle}>
-                                Transaction ID
-                            </Text>
-                            <Text style={styles.TransactID}>
-                                {JobOrderIDFormatted}
-                            </Text>
-                        </View>
 
-                        <View style={styles.KeepInTouch}>
-                            <Text
-                                style={[
-                                    style.SectionTitle,
-                                    { textAlign: "center", fontWeight: 400 },
-                                ]}
-                            >
-                                Keep In Touch
+                        <View style={[style.Section, styles.SBWrap]}>
+                            <Image
+                                source={require("../../assets/success_book.png")}
+                            />
+                            <Text style={styles.Title}>Booking Success</Text>
+                            <Text style={styles.Content}>
+                                {JobOrder.Job.Description}
                             </Text>
-                            <View style={styles.KeepInTouchIconWrap}>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        dialCall(
-                                            JobOrder.ServiceProvider.Contact
-                                        );
-                                    }}
+                            <View style={styles.TransactionWrap}>
+                                <Text style={styles.TransactIDTitle}>
+                                    Transaction ID
+                                </Text>
+                                <Text style={styles.TransactID}>
+                                    {JobOrderIDFormatted}
+                                </Text>
+                            </View>
+
+                            <View style={styles.KeepInTouch}>
+                                <Text
+                                    style={[
+                                        style.SectionTitle,
+                                        {
+                                            textAlign: "center",
+                                            fontWeight: 400,
+                                        },
+                                    ]}
                                 >
-                                    <Feather
-                                        name={"phone-call"}
-                                        size={30}
-                                        color="#000"
-                                        style={styles.KeepInTouchIcon}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        SendMessage(
-                                            JobOrder.ServiceProvider.Contact,
-                                            ""
-                                        );
-                                        console.log("message");
-                                    }}
-                                >
-                                    <Feather
-                                        name={"message-circle"}
-                                        size={30}
-                                        color="#000"
-                                        style={styles.KeepInTouchIcon}
-                                    />
-                                </TouchableOpacity>
+                                    Keep In Touch
+                                </Text>
+                                <View style={styles.KeepInTouchIconWrap}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            dialCall(
+                                                JobOrder.ServiceProvider.Contact
+                                            );
+                                        }}
+                                    >
+                                        <Feather
+                                            name={"phone-call"}
+                                            size={30}
+                                            color="#000"
+                                            style={styles.KeepInTouchIcon}
+                                        />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            SendMessage(
+                                                JobOrder.ServiceProvider
+                                                    .Contact,
+                                                ""
+                                            );
+                                            console.log("message");
+                                        }}
+                                    >
+                                        <Feather
+                                            name={"message-circle"}
+                                            size={30}
+                                            color="#000"
+                                            style={styles.KeepInTouchIcon}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    <DatePicker
-                        modal
-                        open={dpOpen}
-                        date={dpDate}
-                        onConfirm={(dpDate) => {
-                            dpSetOpen(false);
-                            dpSetDate(dpDate);
-                        }}
-                        onCancel={() => {
-                            dpSetOpen(false);
-                        }}
-                    />
-                </View>
-            </ScrollView>
+                        <DatePicker
+                            modal
+                            open={dpOpen}
+                            date={dpDate}
+                            onConfirm={(dpDate) => {
+                                dpSetOpen(false);
+                                dpSetDate(dpDate);
+                            }}
+                            onCancel={() => {
+                                dpSetOpen(false);
+                            }}
+                        />
+                    </View>
+                </ScrollView>
+            )}
         </View>
     );
 }

@@ -193,7 +193,7 @@ export default function ClientHireForm({ navigation, route }) {
                             onPress={() => {
                                 PostAJob();
 
-                                function PostAJob() {
+                                async function PostAJob() {
                                     if (
                                         // IsTextEmpty(serviceNeed) ||
 
@@ -214,28 +214,34 @@ export default function ClientHireForm({ navigation, route }) {
                                         ? "General Work"
                                         : serviceProviderInfo.ServiceOffered;
                                     // var name = snap.Name;
-                                    var save = push(ref(database, `Jobs`), {
-                                        UserID: UID,
-                                        Name: Name,
-                                        ServiceNeed: service,
-                                        Description: description,
-                                        Price: price,
-                                        Location: location,
-                                        Time: time,
-                                        Category: service,
-                                        Active: false,
-                                        PostedBy: Email,
-                                        ClientID: UID,
-                                        ServiceProviderID: `${serviceProviderInfo.UID}`,
-                                    });
+                                    var save = await push(
+                                        ref(database, `Jobs`),
+                                        {
+                                            UserID: UID,
+                                            Name: Name,
+                                            ServiceNeed: service,
+                                            Description: description,
+                                            Price: price,
+                                            Location: location,
+                                            Time: time,
+                                            Category: service,
+                                            Active: false,
+                                            PostedBy: Email,
+                                            ClientID: UID,
+                                            ServiceProviderID: `${serviceProviderInfo.UID}`,
+                                        }
+                                    );
                                     var JobID = save.key;
-                                    update(ref(database, `Jobs/${JobID}`), {
-                                        ID: JobID,
-                                    });
+                                    await update(
+                                        ref(database, `Jobs/${JobID}`),
+                                        {
+                                            ID: JobID,
+                                        }
+                                    );
 
                                     // Job Order Starts Here!
 
-                                    var saveJobOrder = push(
+                                    var saveJobOrder = await push(
                                         ref(database, `JobOrder`),
                                         {
                                             JobID: `${JobID}`,
@@ -245,7 +251,7 @@ export default function ClientHireForm({ navigation, route }) {
                                         }
                                     );
                                     var jobOrderKey = saveJobOrder.key;
-                                    update(
+                                    await update(
                                         ref(
                                             database,
                                             `JobOrder/${jobOrderKey}`

@@ -42,7 +42,7 @@ export default function ServiceProviderPostView({ navigation, route }) {
     const [job, setJob] = useState([]);
 
     const { JobID } = route.params;
-    console.log(`${JobID} Loaded`);
+    // console.log(`${JobID} Loaded`);
     const getJobs = async () => {
         await get(child(databaseRef, `Jobs/${JobID}`))
             .then((snapshot) => {
@@ -95,6 +95,11 @@ export default function ServiceProviderPostView({ navigation, route }) {
                     title={job.Name}
                     hasContact={true}
                     dialNo={12345678901}
+                    MessageOnPress={() => {
+                        navigation.navigate("Chat", {
+                            ReceiverID: job.ClientID,
+                        });
+                    }}
                 />
 
                 <View style={styles.Section}>
@@ -164,12 +169,12 @@ async function TakeJob(
         // Active: false,
         ServiceProviderID: ServiceProviderID,
     });
-    console.log(saveKey);
+    // console.log(saveKey);
 
-    await Navigation.navigate("ClientSuccessBook", {
+    Navigation.navigate("ClientSuccessBook", {
         OrderID: saveKey,
     });
-    console.log(saveKey);
+    // console.log(saveKey);
 }
 
 const style = StyleSheet.create({

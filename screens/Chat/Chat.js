@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
     SafeAreaView,
@@ -11,6 +11,7 @@ import {
     PermissionsAndroid,
     Dimensions,
     ScrollView,
+    RefreshControl,
 } from "react-native";
 
 // Import Image Picker
@@ -18,15 +19,32 @@ import {
 import * as ImagePicker from "expo-image-picker";
 
 import { Avatar } from "react-native-elements";
-import Input from "../components/Input";
+import Input from "../../components/Input";
 import { Feather } from "@expo/vector-icons";
-import Header from "../components/Header";
+import Header from "../../components/Header";
+
+import {
+    database,
+    databaseRef,
+    ref,
+    child,
+    get,
+    UserInfo,
+    push,
+    update,
+    Timestamp,
+} from "../../config/firebase.config";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
+import ShowToast from "../../components/Toast";
 
 export default function Chat({ navigation, route }) {
     const [message, setMessage] = useState("");
 
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+    const ReceiverID = route.params.ReceiverID;
+    const [refreshing, setRefreshing] = useState(false);
     var [selectedImage, setSelectedImage] = useState(null);
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -42,6 +60,20 @@ export default function Chat({ navigation, route }) {
         }
     };
 
+    useEffect(() => {
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
+    }, []);
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        console.log("Refresh");
+
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
     return (
         <View automaticallyAdjustContentInset={true}>
             <Header />
@@ -69,6 +101,12 @@ export default function Chat({ navigation, route }) {
                     }}
                     automaticallyAdjustKeyboardInsets={true}
                     showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                    }
                 >
                     <View style={[styles.messageReceived, styles.message]}>
                         <Text>
@@ -102,6 +140,30 @@ export default function Chat({ navigation, route }) {
                         placeholder={"Message"}
                         value={message}
                         onChangeText={setMessage}
+                        onSubmitEditing={async () => {
+                            var chatID = `${UID}|${ReceiverID}`;
+                            var timeStamp = Date.now();
+                            await update(ref(database, `Messages/${chatID}`), {
+                                ChatID: chatID,
+                                Participants: [
+                                    chatID.split("|")[0],
+                                    chatID.split("|")[2],
+                                ],
+                            });
+                            await update(
+                                ref(
+                                    database,
+                                    `Messages/${chatID}/Messages/${timeStamp}/`
+                                ),
+                                {
+                                    MessageID: "",
+                                    SenderID: UID,
+                                    ReceiverID: ReceiverID,
+                                    TimeStamp: timeStamp,
+                                    Content: message,
+                                }
+                            );
+                        }}
                         icon={"edit-2"}
                     />
                     <TouchableOpacity

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-export const AppTitle = ({ title, hasContact, dialNo }) => {
+export const AppTitle = ({ title, hasContact, dialNo, MessageOnPress }) => {
     return (
         <View style={style.HeaderTitle}>
             <Text style={hasContact ? style.Title : style.NoIconTitle}>
@@ -28,7 +28,7 @@ export const AppTitle = ({ title, hasContact, dialNo }) => {
                         }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={MessageOnPress}>
                     <Feather
                         name={"message-circle"}
                         size={25}

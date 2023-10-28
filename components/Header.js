@@ -81,7 +81,9 @@ export default function Header({
                         color={hasMessage ? "#7EB58D" : "#000"}
                         style={styles.Navbutton}
                         onPress={() => {
-                            sideNavigation.navigate("Chat", { key: "value" });
+                            sideNavigation.navigate("ChatList", {
+                                key: "value",
+                            });
                         }}
                     />
                 </TouchableOpacity>

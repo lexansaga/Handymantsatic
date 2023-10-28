@@ -16,6 +16,7 @@ const Input = ({
     isPassword,
     isSearch,
     isNumberOnly,
+    onSubmitEditing,
 }) => {
     return (
         <View
@@ -61,6 +62,7 @@ const Input = ({
                 keyboardType={keyboardType}
                 onPress={onPress}
                 multiline={multiline}
+                onSubmitEditing={onSubmitEditing}
             />
         </View>
     );

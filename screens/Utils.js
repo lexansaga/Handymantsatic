@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { push, update, ref, database } from "../config/firebase.config";
 
 const DefaultProfile =
@@ -62,6 +63,15 @@ function NumberFormat(phoneNumber) {
 const IsTextEmpty = (text) => {
     return !text || text.trim().length === 0;
 };
+
+const useBeforeRender = (callback, deps) => {
+    const [isRun, setIsRun] = useState(false);
+
+    if (!isRun) {
+        callback();
+        setIsRun(true);
+    }
+};
 export {
     DefaultProfile,
     PriceFormat,
@@ -70,4 +80,5 @@ export {
     NumberFormat,
     IsTextEmpty,
     PushNotification,
+    useBeforeRender,
 };
