@@ -37,6 +37,8 @@ import {
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import ShowToast from "../../components/Toast";
+import { DefaultProfile, IsNullOrEmpty } from "../Utils";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function Chat({ navigation, route }) {
     const [message, setMessage] = useState("");
@@ -44,6 +46,7 @@ export default function Chat({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
     const ReceiverID = route.params.ReceiverID;
+    console.log(ReceiverID);
     const [refreshing, setRefreshing] = useState(false);
     var [selectedImage, setSelectedImage] = useState(null);
     const pickImageAsync = async () => {
@@ -60,16 +63,83 @@ export default function Chat({ navigation, route }) {
         }
     };
 
-    useEffect(() => {
-        UserInfo().then((user) => {
-            setUserInfo(user);
+    const [participants, setParticipants] = useState({});
+    const [chats, setChats] = useState({});
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    async function getParticipants() {
+        await get(child(databaseRef, "Messages/")).then(async (messages) => {
+            if (messages.exists()) {
+                const snapMessages = messages.val();
+                for (const key in snapMessages) {
+                    const eachMessages = snapMessages[key];
+                    const MessagesParticipants = eachMessages.Participants;
+                    const ReceiverClient = MessagesParticipants.find(
+                        (MessagesParticipants) => MessagesParticipants !== UID
+                    );
+                    const SenderClient = MessagesParticipants.find(
+                        (MessagesParticipants) => MessagesParticipants === UID
+                    );
+                    await get(
+                        child(databaseRef, `Users/${ReceiverClient}/`)
+                    ).then(async (receiver) => {
+                        const snapReceiver = receiver.val();
+                        // console.log(snapReceiver);
+
+                        await get(
+                            child(databaseRef, `Users/${SenderClient}/`)
+                        ).then(async (sender) => {
+                            const snapSender = sender.val();
+                            // console.log(snapSender);
+                            const data = {
+                                Sender: snapSender,
+                                Receiver: snapReceiver,
+                            };
+                            const mergedDataString = JSON.stringify(
+                                data,
+                                null,
+                                2
+                            );
+                            // console.log(mergedDataString);
+                            await setParticipants(JSON.parse(mergedDataString));
+
+                            // console.log(participants);
+                        });
+                    });
+                }
+            }
         });
-    }, []);
+    }
+
+    async function getMessages() {
+        await get(child(databaseRef, "Messages/")).then(async (messages) => {
+            if (messages.exists()) {
+                const snapMessages = messages.val();
+                for (const key in snapMessages) {
+                    const eachMessages = snapMessages[key];
+                    const snapChats = eachMessages.Messages;
+                    setChats(snapChats);
+                }
+            }
+        });
+    }
+    const isFocused = useIsFocused();
+    useEffect(() => {
+        if (isFocused == true) {
+            UserInfo().then((user) => {
+                setUserInfo(user);
+            });
+            async function fetchData() {
+                await getParticipants();
+            }
+            fetchData();
+            console.log(participants);
+        }
+    }, [participants]);
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         console.log("Refresh");
-
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
@@ -77,121 +147,137 @@ export default function Chat({ navigation, route }) {
     return (
         <View automaticallyAdjustContentInset={true}>
             <Header />
-            <View style={styles.mainWrapper}>
-                <View style={styles.chatHeader}>
-                    <Avatar
-                        rounded
-                        title="Profile"
-                        source={{
-                            uri: "https://www.mecgale.com/wp-content/uploads/2017/08/dummy-profile.png",
-                        }}
-                        containerStyle={{
-                            height: 50,
-                            width: 50,
-                        }}
-                    />
-                    <Text style={styles.ClientName}>John Doe</Text>
-                </View>
-                <ScrollView
-                    style={styles.chatBody}
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        flexDirection: "column-reverse",
-                        justifyContent: "flex-end",
-                    }}
-                    automaticallyAdjustKeyboardInsets={true}
-                    showsVerticalScrollIndicator={false}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                        />
-                    }
-                >
-                    <View style={[styles.messageReceived, styles.message]}>
-                        <Text>
-                            Hello! I asm near at this store come and pick me up
-                        </Text>
-                    </View>
-                    <View style={[styles.messageSent, styles.message]}>
-                        <Text style={styles.messageSent}>
-                            Hello! I asm near at this store come and pick me up
-                        </Text>
-                    </View>
-                    <View
-                        style={[
-                            styles.messageSent,
-                            styles.message,
-                            styles.messageImage,
-                        ]}
-                    >
-                        {selectedImage != null ? (
-                            <Image
-                                source={{ uri: selectedImage }}
-                                style={styles.chatImage}
-                            />
-                        ) : null}
-                        {(selectedImage = useState(null))}
-                    </View>
-                </ScrollView>
-                <View style={styles.chatCTA}>
-                    <Input
-                        style={styles.chatMessage}
-                        placeholder={"Message"}
-                        value={message}
-                        onChangeText={setMessage}
-                        onSubmitEditing={async () => {
-                            var chatID = `${UID}|${ReceiverID}`;
-                            var timeStamp = Date.now();
-                            await update(ref(database, `Messages/${chatID}`), {
-                                ChatID: chatID,
-                                Participants: [
-                                    chatID.split("|")[0],
-                                    chatID.split("|")[2],
-                                ],
-                            });
-                            await update(
-                                ref(
-                                    database,
-                                    `Messages/${chatID}/Messages/${timeStamp}/`
-                                ),
-                                {
-                                    MessageID: "",
-                                    SenderID: UID,
-                                    ReceiverID: ReceiverID,
-                                    TimeStamp: timeStamp,
-                                    Content: message,
-                                }
-                            );
-                        }}
-                        icon={"edit-2"}
-                    />
-                    <TouchableOpacity
-                        style={styles.chatBtnImage}
-                        onPress={pickImageAsync}
-                        title="Select Image"
-                    >
-                        <Feather
-                            name="image"
-                            size={30}
-                            color="#000"
-                            style={styles.inputIcon}
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.chatBtnImage}
-                        onPress={pickImageAsync}
-                        title="Select Image"
-                    >
-                        <Feather
-                            name="camera"
-                            size={30}
-                            color="#000"
-                            style={styles.inputIcon}
-                        />
-                    </TouchableOpacity>
-                </View>
-            </View>
+            {isLoaded === false ? (
+                <></>
+            ) : (
+                // <View style={styles.mainWrapper}>
+                //     <View style={styles.chatHeader}>
+                //         <Avatar
+                //             rounded
+                //             title="Profile"
+                //             source={{
+                //                 uri: IsNullOrEmpty(
+                //                     participants.Receiver.Profile
+                //                 )
+                //                     ? DefaultProfile
+                //                     : participants.Receiver.Profile,
+                //             }}
+                //             containerStyle={{
+                //                 height: 50,
+                //                 width: 50,
+                //             }}
+                //         />
+                //         <Text style={styles.ClientName}>
+                //             {participants.Receiver.Name}
+                //         </Text>
+                //     </View>
+                //     <ScrollView
+                //         style={styles.chatBody}
+                //         contentContainerStyle={{
+                //             flexGrow: 1,
+                //             flexDirection: "column-reverse",
+                //             justifyContent: "flex-end",
+                //         }}
+                //         automaticallyAdjustKeyboardInsets={true}
+                //         showsVerticalScrollIndicator={false}
+                //         refreshControl={
+                //             <RefreshControl
+                //                 refreshing={refreshing}
+                //                 onRefresh={onRefresh}
+                //             />
+                //         }
+                //     >
+                //         <View style={[styles.messageReceived, styles.message]}>
+                //             <Text>
+                //                 Hello! I asm near at this store come and pick me
+                //                 up
+                //             </Text>
+                //         </View>
+                //         <View style={[styles.messageSent, styles.message]}>
+                //             <Text style={styles.messageSent}>
+                //                 Hello! I asm near at this store come and pick me
+                //                 up
+                //             </Text>
+                //         </View>
+                //         <View
+                //             style={[
+                //                 styles.messageSent,
+                //                 styles.message,
+                //                 styles.messageImage,
+                //             ]}
+                //         >
+                //             {selectedImage != null ? (
+                //                 <Image
+                //                     source={{ uri: selectedImage }}
+                //                     style={styles.chatImage}
+                //                 />
+                //             ) : null}
+                //             {(selectedImage = useState(null))}
+                //         </View>
+                //     </ScrollView>
+                //     <View style={styles.chatCTA}>
+                //         <Input
+                //             style={styles.chatMessage}
+                //             placeholder={"Message"}
+                //             value={message}
+                //             onChangeText={setMessage}
+                //             onSubmitEditing={async () => {
+                //                 var chatID = `${UID}|${ReceiverID}`;
+                //                 var timeStamp = Date.now();
+                //                 await update(
+                //                     ref(database, `Messages/${chatID}`),
+                //                     {
+                //                         ChatID: chatID,
+                //                         Participants: [
+                //                             chatID.split("|")[0],
+                //                             chatID.split("|")[1],
+                //                         ],
+                //                     }
+                //                 );
+                //                 await update(
+                //                     ref(
+                //                         database,
+                //                         `Messages/${chatID}/Messages/${timeStamp}/`
+                //                     ),
+                //                     {
+                //                         MessageID: "",
+                //                         SenderID: UID,
+                //                         ReceiverID: ReceiverID,
+                //                         TimeStamp: timeStamp,
+                //                         Content: message,
+                //                     }
+                //                 );
+                //             }}
+                //             icon={"edit-2"}
+                //         />
+                //         <TouchableOpacity
+                //             style={styles.chatBtnImage}
+                //             onPress={pickImageAsync}
+                //             title="Select Image"
+                //         >
+                //             <Feather
+                //                 name="image"
+                //                 size={30}
+                //                 color="#000"
+                //                 style={styles.inputIcon}
+                //             />
+                //         </TouchableOpacity>
+                //         <TouchableOpacity
+                //             style={styles.chatBtnImage}
+                //             onPress={pickImageAsync}
+                //             title="Select Image"
+                //         >
+                //             <Feather
+                //                 name="camera"
+                //                 size={30}
+                //                 color="#000"
+                //                 style={styles.inputIcon}
+                //             />
+                //         </TouchableOpacity>
+                //     </View>
+                // </View>
+                <></>
+            )}
         </View>
     );
 }
