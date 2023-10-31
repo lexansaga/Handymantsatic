@@ -19,6 +19,7 @@ import PrimaryButton from "../../components/PrimaryButton";
 import SecondaryButton from "../../components/SecondaryButton";
 import { useIsFocused } from "@react-navigation/native";
 
+import { Feather } from "@expo/vector-icons";
 export default function TaskActive({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
@@ -178,75 +179,83 @@ export default function TaskActive({ navigation, route }) {
                                         hasFavorite={false}
                                         onpress={() => {}}
                                     />
-                                    <View
-                                        style={
-                                            status
-                                                .toLowerCase()
-                                                .includes("active") ||
-                                            status
-                                                .toLowerCase()
-                                                .includes("proposed")
-                                                ? style.btnActionWrap
-                                                : style.forViewBtnActionWrap
-                                        }
-                                    >
-                                        <PrimaryButton
-                                            title={
-                                                status
-                                                    .toLowerCase()
-                                                    .includes("active")
-                                                    ? "Finish Contract"
-                                                    : "Accept Offer"
-                                            }
-                                            onPress={() => {
-                                                update(
-                                                    ref(
-                                                        database,
-                                                        `JobOrder/${data.JobOrder.JobOrderID}/`
-                                                    ),
-                                                    {
-                                                        Status: status
-                                                            .toLowerCase()
-                                                            .includes("active")
-                                                            ? `Completed`
-                                                            : `Active`,
-                                                    }
-                                                );
-                                                onRefresh();
-                                            }}
-                                        />
-                                        <SecondaryButton
-                                            title={
-                                                status
-                                                    .toLowerCase()
-                                                    .includes("proposed")
-                                                    ? "Decline Offer"
-                                                    : "Cancel Contract"
-                                            }
-                                            onPress={() => {
-                                                update(
-                                                    ref(
-                                                        database,
-                                                        `JobOrder/${data.JobOrder.JobOrderID}/`
-                                                    ),
-                                                    {
-                                                        Status: `Cancelled`,
-                                                    }
-                                                );
-                                                update(
-                                                    ref(
-                                                        database,
-                                                        `Jobs/${data.Job.ID}/`
-                                                    ),
-                                                    {
-                                                        Active: true,
-                                                    }
-                                                );
+                                    {status.toLowerCase().includes("active") ||
+                                    status
+                                        .toLowerCase()
+                                        .includes("proposed") ? (
+                                        <View style={style.btnActionWrap}>
+                                            <PrimaryButton
+                                                title={
+                                                    status
+                                                        .toLowerCase()
+                                                        .includes("active")
+                                                        ? "Finish Contract"
+                                                        : "Accept Offer"
+                                                }
+                                                onPress={() => {
+                                                    update(
+                                                        ref(
+                                                            database,
+                                                            `JobOrder/${data.JobOrder.JobOrderID}/`
+                                                        ),
+                                                        {
+                                                            Status: status
+                                                                .toLowerCase()
+                                                                .includes(
+                                                                    "active"
+                                                                )
+                                                                ? `Completed`
+                                                                : `Active`,
+                                                        }
+                                                    );
+                                                    onRefresh();
+                                                }}
+                                            />
+                                            <SecondaryButton
+                                                title={
+                                                    status
+                                                        .toLowerCase()
+                                                        .includes("proposed")
+                                                        ? "Decline Offer"
+                                                        : "Cancel Contract"
+                                                }
+                                                onPress={() => {
+                                                    update(
+                                                        ref(
+                                                            database,
+                                                            `JobOrder/${data.JobOrder.JobOrderID}/`
+                                                        ),
+                                                        {
+                                                            Status: `Cancelled`,
+                                                        }
+                                                    );
+                                                    update(
+                                                        ref(
+                                                            database,
+                                                            `Jobs/${data.Job.ID}/`
+                                                        ),
+                                                        {
+                                                            Active: true,
+                                                        }
+                                                    );
 
-                                                onRefresh();
-                                            }}
-                                        />
-                                    </View>
+                                                    onRefresh();
+                                                }}
+                                            />
+                                        </View>
+                                    ) : (
+                                        <View style={style.btnActionWrap}>
+                                            <PrimaryButton
+                                                title={"Add Review"}
+                                                onPress={() => {
+                                                    navigation.navigate(
+                                                        "Review",
+                                                        { ID: "" }
+                                                    );
+                                                }}
+                                            />
+                                        </View>
+                                    )}
                                 </View>
                             );
                         })}
@@ -274,7 +283,6 @@ const style = StyleSheet.create({
     },
     taskID: {
         paddingVertical: 8,
-
         paddingHorizontal: 8,
         fontWeight: 500,
         textTransform: "uppercase",
@@ -282,8 +290,11 @@ const style = StyleSheet.create({
         textAlign: "center",
         backgroundColor: "#7EB58D",
         color: "#fff",
-        borderRadius: 8,
-        marginBottom: 0,
+        borderRadius: 0,
+        marginBottom: -8,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        zIndex: 2,
     },
     btnActionWrap: {
         display: "flex",

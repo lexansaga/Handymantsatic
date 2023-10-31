@@ -5,6 +5,7 @@ import Home from "./screens/Home";
 import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
 import ForgotPassword from "./screens/ForgotPassword";
+import OneTimePin from "./screens/OneTimePin";
 
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -37,7 +38,6 @@ export default function App({ route }) {
 const MainStack = () => {
     return (
         <Stack.Navigator
-            initialRouteName="Signin"
             screenOptions={{
                 headerShown: false,
                 headerStyle: {
@@ -74,6 +74,16 @@ const MainStack = () => {
                 name="Home"
                 component={Home}
                 options={{ title: "Home" }}
+            />
+            <Stack.Screen
+                name="OneTimePin"
+                component={OneTimePin}
+                options={{
+                    title: "OneTimePin",
+                    header: () => {
+                        null;
+                    },
+                }}
             />
         </Stack.Navigator>
     );

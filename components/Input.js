@@ -17,6 +17,7 @@ const Input = ({
     isSearch,
     isNumberOnly,
     onSubmitEditing,
+    style,
 }) => {
     return (
         <View

@@ -22,6 +22,7 @@ import Chat from "./Chat/Chat";
 import ChatList from "./Chat/ChatList";
 import ProfileEdit from "./ProfileEdit";
 import Notification from "./Notification";
+import Review from "./Review";
 
 import TaskScreen from "./Task/TaskScreen";
 import TaskActive from "./Task/TaskActive";
@@ -139,6 +140,11 @@ const ServiceProviderStackNavigator = () => {
                 initialParams={globalRoute.params}
                 component={Chat}
             ></Stack.Screen>
+            <Stack.Screen
+                name="Review"
+                initialParams={globalRoute.params}
+                component={Review}
+            ></Stack.Screen>
             <Stack.Screen name="Logout" component={Logout}></Stack.Screen>
         </Stack.Navigator>
     );
@@ -236,6 +242,11 @@ const ClientStackNavigator = () => {
                 name="ProfileEdit"
                 initialParams={globalRoute.params}
                 component={ProfileEdit}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="Review"
+                initialParams={globalRoute.params}
+                component={Review}
             ></Stack.Screen>
         </Stack.Navigator>
     );

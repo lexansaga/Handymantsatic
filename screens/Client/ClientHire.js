@@ -85,7 +85,7 @@ export default function ClientHire({ navigation, route }) {
         }, 2000);
     }, []);
     return (
-        <View style={{ paddingBottom: 120 }}>
+        <View>
             <Spinner
                 title={spinnerTitle}
                 description={"Please wait while uploading image..."}
@@ -108,13 +108,12 @@ export default function ClientHire({ navigation, route }) {
                             onRefresh={onRefresh}
                         />
                     }
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        justifyContent: "space-between",
+                    }}
+                    style={style.MainScroll}
                 >
-                    <ClientServiceFeed
-                        style={style.Info}
-                        service={Name}
-                        name={ServiceOffered}
-                        price={IsNullOrEmpty(Rate) ? "" : PriceFormat(Rate)}
-                    />
                     <View style={style.Section}>
                         <TouchableOpacity
                             style={styles.editBtn}
@@ -179,7 +178,7 @@ export default function ClientHire({ navigation, route }) {
                         ) : (
                             <></>
                         )}
-                        {/* <View style={styles.WorkImageWrap}>
+                        <View style={styles.WorkImageWrap}>
                             <Image
                                 style={styles.WorkImage}
                                 source={require("../../assets/sample_image_1.jpg")}
@@ -204,7 +203,218 @@ export default function ClientHire({ navigation, route }) {
                                 style={styles.WorkImage}
                                 source={require("../../assets/blank.jpg")}
                             />
-                        </View> */}
+                        </View>
+
+                        <View style={styles.ReviewWrap}>
+                            <Text style={style.SectionTitle}>Reviews</Text>
+                            <View style={styles.ReviewItemWrap}>
+                                <View style={styles.ReviewItem}>
+                                    <Text style={styles.ReviewContent}>
+                                        Ullamco quis mollit id minim proident
+                                        cillum cupidatat ad eiusmod irure aute
+                                        officia. Ut adipisicing aliquip aliquip
+                                        veniam. Dolor nostrud labore voluptate
+                                        nulla.
+                                    </Text>
+                                    <Text style={styles.ReviewName}>
+                                        John Doe
+                                    </Text>
+
+                                    <View style={styles.StarRate}>
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                    </View>
+                                </View>
+
+                                <View style={styles.ReviewItem}>
+                                    <Text style={styles.ReviewContent}>
+                                        Voluptate Lorem amet laboris duis ipsum
+                                        aliquip aliqua labore laborum excepteur
+                                        nisi excepteur nulla commodo. Et nisi ad
+                                        reprehenderit aute labore mollit in sunt
+                                        non dolor officia. Amet non eiusmod non
+                                        esse qui deserunt deserunt aliquip
+                                        adipisicing nostrud aliquip esse.
+                                        Officia proident aliqua aute elit ad.
+                                        Labore mollit adipisicing ad dolore
+                                        nulla elit ut et labore sint pariatur
+                                        dolor.
+                                    </Text>
+                                    <Text style={styles.ReviewName}>
+                                        John Doe
+                                    </Text>
+
+                                    <View style={styles.StarRate}>
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                    </View>
+                                </View>
+
+                                <View style={styles.ReviewItem}>
+                                    <Text style={styles.ReviewContent}>
+                                        Reprehenderit commodo aliqua adipisicing
+                                        amet sit cillum dolor reprehenderit.
+                                        Nostrud fugiat elit cupidatat mollit
+                                        aliqua enim Lorem. Sunt nulla et veniam
+                                        minim aliqua est aute sunt cillum irure
+                                        culpa sit do. Deserunt exercitation id
+                                        nisi pariatur consectetur aliquip
+                                        adipisicing. Qui sint exercitation id
+                                        cupidatat dolore mollit ipsum sint ut
+                                        magna. Qui quis sint laborum ullamco
+                                        aliqua ea aute voluptate labore non sit
+                                        laboris. Ex aliqua ea quis aliquip
+                                        cupidatat exercitation incididunt
+                                        voluptate enim.
+                                    </Text>
+                                    <Text style={styles.ReviewName}>
+                                        John Doe
+                                    </Text>
+
+                                    <View style={styles.StarRate}>
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                    </View>
+                                </View>
+
+                                <View style={styles.ReviewItem}>
+                                    <Text style={styles.ReviewContent}>
+                                        Ea ullamco culpa incididunt proident
+                                        voluptate et minim consequat do. Velit
+                                        sunt reprehenderit nulla anim ullamco
+                                        ullamco. Mollit esse ipsum et excepteur
+                                        cupidatat dolor proident veniam officia
+                                        pariatur deserunt dolor consequat.
+                                        Cillum quis aute culpa sint. Amet ipsum
+                                        labore exercitation qui. Est est est
+                                        cupidatat aute id minim sint in elit
+                                        tempor ea nostrud commodo. Culpa elit
+                                        amet est pariatur tempor sint aliquip
+                                        deserunt.
+                                    </Text>
+                                    <Text style={styles.ReviewName}>
+                                        John Doe
+                                    </Text>
+
+                                    <View style={styles.StarRate}>
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                        <Feather
+                                            name="star"
+                                            color="#E5C865"
+                                            size={23}
+                                            style={styles.StarRate_Star}
+                                        />
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
                     </View>
                     {/* <View style={style.Section}>
                         <PrimaryButton
@@ -261,11 +471,14 @@ const styles = StyleSheet.create({
     MainWrap: {
         borderTopLeftRadius: 30,
         borderTopEndRadius: 30,
-        overflow: "hidden",
-        marginTop: "-10%",
+        // overflow: "hidden",
+        marginTop: "-5%",
         zIndex: 2,
-        height: "110%",
+        height: vh(70),
         backgroundColor: "#fff",
+    },
+    MainScroll: {
+        flex: 1,
     },
     Verbiage: {
         fontSize: 16,
@@ -282,5 +495,27 @@ const styles = StyleSheet.create({
         width: vw(25),
         height: vw(25),
         resizeMode: "contain",
+    },
+    ReviewWrap: {
+        marginTop: 28,
+    },
+    ReviewItemWrap: {
+        marginTop: 18,
+    },
+    ReviewItem: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        borderBottomColor: "rgba(0,0,0,0.1)",
+        borderBottomWidth: 2,
+        marginBottom: 30,
+        paddingBottom: 30,
+    },
+    ReviewName: { fontWeight: 500, fontSize: 20, fontStyle: "italic" },
+    ReviewContent: { fontSize: 16, lineHeight: 25 },
+    StarRate: {
+        display: "flex",
+        flexDirection: "row",
+        gap: 4,
     },
 });
