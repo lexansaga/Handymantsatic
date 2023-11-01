@@ -14,6 +14,8 @@ import ServiceProviderFeeds from "./ServiceProvider/ServiceProviderFeed";
 import ServiceProviderPostView from "./ServiceProvider/ServiceProviderPostView";
 import ServiceProviderPostAJob from "./ServiceProvider/ServiceProviderPostAJob";
 
+import AdminHome from "./Admin/AdminHome,js";
+
 import Signin from "./Signin";
 import Signup from "./Signup";
 import ForgotPassword from "./ForgotPassword";
@@ -45,10 +47,54 @@ export default function Home({ navigation, route, props }) {
     ServiceProviderDrawerNavigator();
     if (ClientType) {
         return <ClientDrawerNavigator />;
-    } else {
+    }
+    else if (Type.includes("Admin")) {
+        return <AdminNavigator />
+    }
+    else {
         return <ServiceProviderDrawerNavigator />;
     }
 }
+
+const AdminNavigator = () => {
+    return (
+        <Drawer.Navigator screenOptions={{
+            headerShown: false,
+            overlayColor: "rgba(0,0,0,0.8)",
+        }}>
+
+            <Drawer.Screen
+                name="Home"
+                initialParams={globalRoute.params}
+                component={AdminStackNavigator}
+            ></Drawer.Screen>
+
+        </Drawer.Navigator>
+    )
+}
+const AdminStackNavigator = () => {
+    return (
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false,
+                headerStyle: {
+                    backgroundColor: "#ffffff",
+                },
+                cardStyle: { backgroundColor: "#fff" },
+                contentStyle: {
+                    backgroundColor: "#FFFFFF",
+                },
+            }}
+        >
+            <Stack.Screen
+                name="Home"
+                initialParams={globalRoute.params}
+                component={AdminHome}
+            ></Stack.Screen>
+        </Stack.Navigator>
+    )
+}
+
 const ServiceProviderDrawerNavigator = () => {
     return (
         <Drawer.Navigator

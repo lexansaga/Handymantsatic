@@ -1,7 +1,53 @@
+import React, { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet } from "react-native";
+import { Header } from "../../components/Header";
+import {
+	StyleSheet,
+	Text,
+	Image,
+	View,
+	ScrollView,
+	RefreshControl,
+	TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+export default function AdminHome({ useNavigation, route }) {
 
+    
+    const [refreshing, setRefreshing] = React.useState(false);
 
+    const [userInfo, setUserInfo] = useState({});
+    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+    useEffect(() => {
+        onRefresh();
+    }, []);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
+        console.log("Refresh");
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000);
+    }, []);
+	return (
+		<View style={{ paddingBottom: 120 }}>
+			<StatusBar style="auto" />
+			<Header profile={Profile} />
 
-export default function AdminHome()
-{
-        
+			<ScrollView
+				showsVerticalScrollIndicator={false}
+				refreshControl={
+					<RefreshControl
+						refreshing={refreshing}
+						onRefresh={onRefresh}
+					/>
+				}
+			></ScrollView>
+		</View>
+	);
 }
+
+const style = StyleSheet.create({});
