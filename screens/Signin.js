@@ -82,12 +82,11 @@ export default function Signin({ navigation }) {
         if (IsTextEmpty(email) || IsTextEmpty(password)) {
             ShowToast("Fill up all the information!");
             return;
-        }
-        else if (email == "admin@gmail.com" && password == "123456") {
+        } else if (email == "admin@gmail.com" && password == "123456") {
             navigation.replace("Home", {
-                Type: "Admin"
+                Type: "Admin",
             });
-            return
+            return;
         }
 
         signInWithEmailAndPassword(auth, email, password)

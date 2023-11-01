@@ -14,7 +14,9 @@ import ServiceProviderFeeds from "./ServiceProvider/ServiceProviderFeed";
 import ServiceProviderPostView from "./ServiceProvider/ServiceProviderPostView";
 import ServiceProviderPostAJob from "./ServiceProvider/ServiceProviderPostAJob";
 
-import AdminHome from "./Admin/AdminHome,js";
+import AdminHome from "./Admin/AdminHome";
+import AdminUsers from "./Admin/AdminUsers";
+import AdminReports from "./Admin/AdminReports";
 
 import Signin from "./Signin";
 import Signup from "./Signup";
@@ -47,31 +49,29 @@ export default function Home({ navigation, route, props }) {
     ServiceProviderDrawerNavigator();
     if (ClientType) {
         return <ClientDrawerNavigator />;
-    }
-    else if (Type.includes("Admin")) {
-        return <AdminNavigator />
-    }
-    else {
+    } else if (Type.includes("Admin")) {
+        return <AdminNavigator />;
+    } else {
         return <ServiceProviderDrawerNavigator />;
     }
 }
 
 const AdminNavigator = () => {
     return (
-        <Drawer.Navigator screenOptions={{
-            headerShown: false,
-            overlayColor: "rgba(0,0,0,0.8)",
-        }}>
-
+        <Drawer.Navigator
+            screenOptions={{
+                headerShown: false,
+                overlayColor: "rgba(0,0,0,0.8)",
+            }}
+        >
             <Drawer.Screen
                 name="Home"
                 initialParams={globalRoute.params}
                 component={AdminStackNavigator}
             ></Drawer.Screen>
-
         </Drawer.Navigator>
-    )
-}
+    );
+};
 const AdminStackNavigator = () => {
     return (
         <Stack.Navigator
@@ -91,9 +91,19 @@ const AdminStackNavigator = () => {
                 initialParams={globalRoute.params}
                 component={AdminHome}
             ></Stack.Screen>
+            <Stack.Screen
+                name="AdminUsers"
+                initialParams={globalRoute.params}
+                component={AdminUsers}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="AdminReports"
+                initialParams={globalRoute.params}
+                component={AdminReports}
+            ></Stack.Screen>
         </Stack.Navigator>
-    )
-}
+    );
+};
 
 const ServiceProviderDrawerNavigator = () => {
     return (

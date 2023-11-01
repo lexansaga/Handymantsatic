@@ -11,7 +11,6 @@ import {
     TouchableOpacity,
 } from "react-native";
 import Header from "../../components/Header";
-import ClientHome, { ClientServiceFeed } from "./ClientHome";
 import style from "../../styles/style";
 import {
     database,
@@ -39,7 +38,8 @@ import {
 } from "firebase/storage";
 import ShowToast from "../../components/Toast";
 import Spinner from "../../components/Spinner";
-export default function ClientHire({ navigation, route }) {
+import { Toast } from "reactstrap";
+export default function AdminUsers({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const {
         Email,
@@ -48,7 +48,6 @@ export default function ClientHire({ navigation, route }) {
         Rate,
         Password,
         Profile,
-        Type,
         UID,
         JobDescription,
         ServiceOffered,
@@ -62,6 +61,9 @@ export default function ClientHire({ navigation, route }) {
     const [isSpinnerShow, setSpinnerShow] = useState(false);
 
     const [image, setImage] = useState(null);
+
+    const Type = route.params.Type;
+    console.log(`This type ${Type}`);
 
     let isServiceProvider = IsNullOrEmpty(Type)
         ? false
@@ -115,14 +117,39 @@ export default function ClientHire({ navigation, route }) {
                     style={style.MainScroll}
                 >
                     <View style={style.Section}>
-                        <TouchableOpacity
-                            style={styles.editBtn}
-                            onPress={() => {
-                                navigation.navigate("ProfileEdit");
-                            }}
-                        >
-                            <Feather name={"edit"} size={18} color="#333" />
-                        </TouchableOpacity>
+                        <View style={styles.btnActionWrap}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.actionButton,
+                                    styles.actionButtonHasText,
+                                ]}
+                                onPress={() => {
+                                    navigation.navigate("AdminReports", {
+                                        ID: "ID",
+                                        Type: Type,
+                                    });
+                                }}
+                            >
+                                <Feather name={"flag"} size={18} color="#333" />
+                                <Text>Reports</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.actionButton}
+                                onPress={() => {
+                                    //     navigation.navigate("AdminReports");
+                                    ShowToast(
+                                        "Are you sure you want to delete this user?"
+                                    );
+                                }}
+                            >
+                                <Feather
+                                    name={"trash-2"}
+                                    size={18}
+                                    color="#333"
+                                />
+                            </TouchableOpacity>
+                        </View>
 
                         <Text style={style.SectionTitle}>
                             Profile Information
@@ -209,6 +236,31 @@ export default function ClientHire({ navigation, route }) {
                             <Text style={style.SectionTitle}>Reviews</Text>
                             <View style={styles.ReviewItemWrap}>
                                 <View style={styles.ReviewItem}>
+                                    <View style={styles.ReviewBtnActionWrap}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.actionButton,
+                                                styles.actionButtonHasText,
+                                                {
+                                                    backgroundColor:
+                                                        "#eb343133",
+                                                },
+                                            ]}
+                                            onPress={() => {
+                                                navigation.navigate(
+                                                    "ProfileEdit"
+                                                );
+                                            }}
+                                        >
+                                            <Feather
+                                                name={"trash-2"}
+                                                size={18}
+                                                color="#333"
+                                            />
+                                            <Text>Delete Review</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
                                     <Text style={styles.ReviewContent}>
                                         Ullamco quis mollit id minim proident
                                         cillum cupidatat ad eiusmod irure aute
@@ -253,20 +305,38 @@ export default function ClientHire({ navigation, route }) {
                                         />
                                     </View>
                                 </View>
-
                                 <View style={styles.ReviewItem}>
+                                    <View style={styles.ReviewBtnActionWrap}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.actionButton,
+                                                styles.actionButtonHasText,
+                                                {
+                                                    backgroundColor:
+                                                        "#eb343133",
+                                                },
+                                            ]}
+                                            onPress={() => {
+                                                navigation.navigate(
+                                                    "ProfileEdit"
+                                                );
+                                            }}
+                                        >
+                                            <Feather
+                                                name={"trash-2"}
+                                                size={18}
+                                                color="#333"
+                                            />
+                                            <Text>Delete Review</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
                                     <Text style={styles.ReviewContent}>
-                                        Voluptate Lorem amet laboris duis ipsum
-                                        aliquip aliqua labore laborum excepteur
-                                        nisi excepteur nulla commodo. Et nisi ad
-                                        reprehenderit aute labore mollit in sunt
-                                        non dolor officia. Amet non eiusmod non
-                                        esse qui deserunt deserunt aliquip
-                                        adipisicing nostrud aliquip esse.
-                                        Officia proident aliqua aute elit ad.
-                                        Labore mollit adipisicing ad dolore
-                                        nulla elit ut et labore sint pariatur
-                                        dolor.
+                                        Ullamco quis mollit id minim proident
+                                        cillum cupidatat ad eiusmod irure aute
+                                        officia. Ut adipisicing aliquip aliquip
+                                        veniam. Dolor nostrud labore voluptate
+                                        nulla.
                                     </Text>
                                     <Text style={styles.ReviewName}>
                                         John Doe
@@ -305,76 +375,38 @@ export default function ClientHire({ navigation, route }) {
                                         />
                                     </View>
                                 </View>
-
                                 <View style={styles.ReviewItem}>
-                                    <Text style={styles.ReviewContent}>
-                                        Reprehenderit commodo aliqua adipisicing
-                                        amet sit cillum dolor reprehenderit.
-                                        Nostrud fugiat elit cupidatat mollit
-                                        aliqua enim Lorem. Sunt nulla et veniam
-                                        minim aliqua est aute sunt cillum irure
-                                        culpa sit do. Deserunt exercitation id
-                                        nisi pariatur consectetur aliquip
-                                        adipisicing. Qui sint exercitation id
-                                        cupidatat dolore mollit ipsum sint ut
-                                        magna. Qui quis sint laborum ullamco
-                                        aliqua ea aute voluptate labore non sit
-                                        laboris. Ex aliqua ea quis aliquip
-                                        cupidatat exercitation incididunt
-                                        voluptate enim.
-                                    </Text>
-                                    <Text style={styles.ReviewName}>
-                                        John Doe
-                                    </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
+                                    <View style={styles.ReviewBtnActionWrap}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.actionButton,
+                                                styles.actionButtonHasText,
+                                                {
+                                                    backgroundColor:
+                                                        "#eb343133",
+                                                },
+                                            ]}
+                                            onPress={() => {
+                                                navigation.navigate(
+                                                    "ProfileEdit"
+                                                );
+                                            }}
+                                        >
+                                            <Feather
+                                                name={"trash-2"}
+                                                size={18}
+                                                color="#333"
+                                            />
+                                            <Text>Delete Review</Text>
+                                        </TouchableOpacity>
                                     </View>
-                                </View>
 
-                                <View style={styles.ReviewItem}>
                                     <Text style={styles.ReviewContent}>
-                                        Ea ullamco culpa incididunt proident
-                                        voluptate et minim consequat do. Velit
-                                        sunt reprehenderit nulla anim ullamco
-                                        ullamco. Mollit esse ipsum et excepteur
-                                        cupidatat dolor proident veniam officia
-                                        pariatur deserunt dolor consequat.
-                                        Cillum quis aute culpa sint. Amet ipsum
-                                        labore exercitation qui. Est est est
-                                        cupidatat aute id minim sint in elit
-                                        tempor ea nostrud commodo. Culpa elit
-                                        amet est pariatur tempor sint aliquip
-                                        deserunt.
+                                        Ullamco quis mollit id minim proident
+                                        cillum cupidatat ad eiusmod irure aute
+                                        officia. Ut adipisicing aliquip aliquip
+                                        veniam. Dolor nostrud labore voluptate
+                                        nulla.
                                     </Text>
                                     <Text style={styles.ReviewName}>
                                         John Doe
@@ -433,18 +465,38 @@ export default function ClientHire({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-    editBtn: {
+    ReviewBtnActionWrap: {
+        position: "absolute",
+        right: 15,
+        bottom: 30,
+        zIndex: 2,
+        display: "flex",
+        flexDirection: "row",
+        gap: 8,
+    },
+    btnActionWrap: {
         position: "absolute",
         right: 15,
         top: 15,
         zIndex: 2,
-        backgroundColor: "rgba(0,0,0,0.1)",
-        height: 45,
-        width: 45,
         display: "flex",
+        flexDirection: "row",
+        gap: 8,
+    },
+    actionButton: {
+        backgroundColor: "#eb343133",
+        minHeight: 45,
+        minWidth: 45,
+        display: "flex",
+        flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 50,
+    },
+    actionButtonHasText: {
+        paddingHorizontal: 12,
+        gap: 8,
+        backgroundColor: "#7EB58D33",
     },
     InfoGroup: {
         display: "flex",

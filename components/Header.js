@@ -1,18 +1,9 @@
 import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Text, Image } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Input from "./Input";
-import { Avatar } from "react-native-elements";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import {
-    app,
-    auth,
-    onAuthStateChanged,
-    get,
-    databaseRef,
-    child,
-    UserInfo,
-} from "../config/firebase.config";
+import { useNavigation } from "@react-navigation/native";
+import { UserInfo } from "../config/firebase.config";
 import { useEffect } from "react";
 import { DefaultProfile, IsNullOrEmpty } from "../screens/Utils";
 export default function Header({
@@ -40,7 +31,7 @@ export default function Header({
         UserInfo().then((user) => {
             setUserInfo(user);
             setProfile(user.Profile ? user.Profile : DefaultProfile);
-            setUID(use.UID);
+            setUID(user.UID);
         });
     }, []);
     // console.log(profileImage);
@@ -106,15 +97,13 @@ export default function Header({
                         sideNavigation.navigate("ClientHire");
                     }}
                 >
-                    <Avatar
-                        rounded
-                        title="Profile"
+                    <Image
                         source={{
                             uri: IsNullOrEmpty(userProfile)
                                 ? profile
                                 : userProfile,
                         }}
-                        containerStyle={{ height: 30, width: 30 }}
+                        style={styles.Avatar}
                     />
                 </TouchableOpacity>
             </View>
@@ -133,6 +122,8 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     Avatar: {
-        height: 50,
+        height: 35,
+        width: 35,
+        borderRadius: 50,
     },
 });

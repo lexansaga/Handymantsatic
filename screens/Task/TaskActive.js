@@ -83,7 +83,7 @@ export default function TaskActive({ navigation, route }) {
                                             null,
                                             2
                                         );
-                                        console.log(mergedDataString);
+                                        // console.log(mergedDataString);
                                         setJobOrder(
                                             JSON.parse(mergedDataString)
                                         );
@@ -250,7 +250,11 @@ export default function TaskActive({ navigation, route }) {
                                                 onPress={() => {
                                                     navigation.navigate(
                                                         "Review",
-                                                        { ID: "" }
+                                                        {
+                                                            ID: data
+                                                                .ServiceProvider
+                                                                .UID,
+                                                        }
                                                     );
                                                 }}
                                             />

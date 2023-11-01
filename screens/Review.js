@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import {
     View,
     ScrollView,
@@ -24,6 +24,7 @@ import {
     UserInfo,
     push,
     update,
+    set,
 } from "../config/firebase.config";
 import DatePicker from "react-native-date-picker";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
@@ -39,21 +40,39 @@ import {
 
 import { Feather } from "@expo/vector-icons";
 import StarRating from "../components/StarRating";
-export default function Review() {
+export default function Review({ navigation, route }) {
     const [review, setReview] = useState("");
     const [starRate, setStarRate] = useState(0);
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Contact, Password, Profile, Type, UID } = userInfo;
     const [refreshing, setRefreshing] = React.useState(false);
+    const [serviceProviderInfo, setServiceProviderInfo] = useState({});
+    const [secondLoad, setSecondLoad] = useState(false);
+    const ServiceProviderID = route.params.ID;
+    console.log(`SID ${ServiceProviderID} : ${UID}`);
+
+    const getToReviewInfo = async () => {
+        await get(child(databaseRef, `Users/${ServiceProviderID}/`)).then(
+            async (serviceProvider) => {
+                const snapServiceProvider = await serviceProvider.val();
+                setServiceProviderInfo(await snapServiceProvider);
+            }
+        );
+    };
+
     useEffect(() => {
         onRefresh();
     }, []);
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         UserInfo().then((user) => {
             setUserInfo(user);
         });
         setStarRate(0);
+        getToReviewInfo();
+        setTimeout(() => {
+            console.log(serviceProviderInfo);
+        }, 5000);
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -107,7 +126,7 @@ export default function Review() {
                         </Text>
                         <View style={styles.StarRate}>
                             <StarRating
-                                rate={3}
+                                rate={starRate}
                                 maxRating={5}
                                 onRatingPress={handleRatingPress}
                             />
@@ -126,7 +145,22 @@ export default function Review() {
                         </View>
 
                         <Text></Text>
-                        <PrimaryButton title={"Submit"} />
+                        <PrimaryButton
+                            title={"Submit"}
+                            onPress={() => {
+                                push(
+                                    ref(
+                                        database,
+                                        `Reviews/${ServiceProviderID}/`
+                                    ),
+                                    {
+                                        Name: Name,
+                                        Review: review,
+                                        Rate: starRate,
+                                    }
+                                );
+                            }}
+                        />
                     </View>
                 </View>
             </ScrollView>
