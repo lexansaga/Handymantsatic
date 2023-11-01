@@ -46,11 +46,11 @@ export default function Review({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Contact, Password, Profile, Type, UID } = userInfo;
     const [refreshing, setRefreshing] = React.useState(false);
-    const [serviceProviderInfo, setServiceProviderInfo] = useState({});
     const [secondLoad, setSecondLoad] = useState(false);
     const ServiceProviderID = route.params.ID;
     console.log(`SID ${ServiceProviderID} : ${UID}`);
 
+    const [serviceProviderInfo, setServiceProviderInfo] = useState({});
     const getToReviewInfo = async () => {
         await get(child(databaseRef, `Users/${ServiceProviderID}/`)).then(
             async (serviceProvider) => {
@@ -61,6 +61,8 @@ export default function Review({ navigation, route }) {
     };
 
     useEffect(() => {
+        getToReviewInfo();
+
         onRefresh();
     }, []);
     const onRefresh = React.useCallback(async () => {
