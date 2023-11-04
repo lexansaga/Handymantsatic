@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useCallback } from "react";
 import {
     View,
     ScrollView,
@@ -7,8 +7,8 @@ import {
     StyleSheet,
     RefreshControl,
 } from "react-native";
+import axios from "axios";
 import Header from "../components/Header";
-import ClientHome, { ClientServiceFeed } from "./Client/ClientHome";
 import Input from "../components/Input";
 import style from "../styles/style";
 import {
@@ -25,22 +25,14 @@ import {
     push,
     update,
     set,
+    firebaseBaseUrl
 } from "../config/firebase.config";
-import DatePicker from "react-native-date-picker";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../components/PrimaryButton";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
-import {
-    DefaultProfile,
-    IsNullOrEmpty,
-    IsTextEmpty,
-    NumberFormat,
-    PriceFormat,
-} from "./Utils";
 
-import { Feather } from "@expo/vector-icons";
 import StarRating from "../components/StarRating";
 export default function Review({ navigation, route }) {
+
     const [review, setReview] = useState("");
     const [starRate, setStarRate] = useState(0);
     const [userInfo, setUserInfo] = useState({});
@@ -52,29 +44,29 @@ export default function Review({ navigation, route }) {
 
     const [serviceProviderInfo, setServiceProviderInfo] = useState({});
     const getToReviewInfo = async () => {
-        await get(child(databaseRef, `Users/${ServiceProviderID}/`)).then(
-            async (serviceProvider) => {
-                const snapServiceProvider = await serviceProvider.val();
-                setServiceProviderInfo(await snapServiceProvider);
-            }
-        );
+        const url = `${firebaseBaseUrl}/Users/${ServiceProviderID}.json`;
+        const response = await axios.get(url);
+        setServiceProviderInfo(response.data)
+        console.log(url)
+        console.log(serviceProviderInfo)
+      
     };
-
-    useEffect(() => {
-        getToReviewInfo();
-
-        onRefresh();
-    }, []);
-    const onRefresh = React.useCallback(async () => {
-        setRefreshing(true);
+    useEffect(()=>
+    {
         UserInfo().then((user) => {
             setUserInfo(user);
         });
-        setStarRate(0);
+        console.log(userInfo)
+    },[])
+    useEffect(() => {
         getToReviewInfo();
-        setTimeout(() => {
-            console.log(serviceProviderInfo);
-        }, 5000);
+        // onRefresh();
+    }, []);
+    const onRefresh = useCallback( () => {
+        setRefreshing(true);
+ 
+        setStarRate(0);
+        
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -156,6 +148,7 @@ export default function Review({ navigation, route }) {
                                         `Reviews/${ServiceProviderID}/`
                                     ),
                                     {
+                                        ReviewerID:UID,
                                         Name: Name,
                                         Review: review,
                                         Rate: starRate,

@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 
-import { initializeApp } from "firebase/app";
+import {
+    initializeApp
+} from "firebase/app";
 import {
     getAuth,
     onAuthStateChanged,
@@ -27,8 +29,13 @@ import {
     onValue,
     orderBy,
 } from "firebase/database";
-import { getStorage, uploadBytes } from "firebase/storage";
-import { useState } from "react";
+import {
+    getStorage,
+    uploadBytes
+} from "firebase/storage";
+import {
+    useState
+} from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -58,10 +65,11 @@ async function getDataOnce(path) {
     onValue(
         ref(database, path),
         (snapshot) => {
-            data = { ...snapshot.val() };
+            data = {
+                ...snapshot.val()
+            };
             // console.log(data);
-        },
-        {
+        }, {
             onlyOnce: true,
         }
     );
@@ -79,6 +87,7 @@ async function UserInfo() {
     );
 }
 
+const firebaseBaseUrl = "https://handymantastic-80f66-default-rtdb.firebaseio.com/"
 export {
     app,
     auth,
@@ -104,4 +113,5 @@ export {
     getDataOnce,
     UserInfo,
     storage,
+    firebaseBaseUrl
 };
