@@ -38,15 +38,13 @@ import PrimaryButton from "../components/PrimaryButton";
 
 import StarRating from "../components/StarRating";
 import { DefaultProfile, IsNullOrEmpty } from "./Utils";
-export default function Review({ navigation, route }) {
-    const [review, setReview] = useState("");
-    const [starRate, setStarRate] = useState(0);
+export default function Report({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Contact, Password, Profile, Type, UID } = userInfo;
     const [refreshing, setRefreshing] = React.useState(false);
-    const [secondLoad, setSecondLoad] = useState(false);
     const ServiceProviderID = route.params.ID;
-    console.log(`SID ${ServiceProviderID} : ${UID}`);
+    const [reportTitle, setReportTitle] = useState("");
+    const [reportReason, setReportReason] = useState("");
 
     const [serviceProviderInfo, setServiceProviderInfo] = useState({});
     const getToReviewInfo = async () => {
@@ -71,7 +69,6 @@ export default function Review({ navigation, route }) {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
 
-        setStarRate(0);
         getToReviewInfo().then((data) => {
             console.log(data);
             setServiceProviderInfo(data);
@@ -83,10 +80,6 @@ export default function Review({ navigation, route }) {
         }, 2000);
     }, []);
 
-    const handleRatingPress = (newRating) => {
-        setStarRate(newRating);
-        console.log(`Selected rating: ${starRate}`);
-    };
     return (
         <View style={styles.MainWrap}>
             <Header />
@@ -113,8 +106,8 @@ export default function Review({ navigation, route }) {
                         We Value Your Opinion!
                     </Text>
                     <Text style={styles.SectionSubTitle}>
-                        Please use the form below to submit a review of our
-                        practice. ​​​​​​​ We value your feedback and would
+                        Please use the form below to submit a report of this{" "}
+                        {Type}. ​​​​​​​ We value your feedback and would
                         appreciate hearing about your experience along with{" "}
                         <Text style={{ fontWeight: 700, fontStyle: "italic" }}>
                             {serviceProviderInfo.Name}
@@ -122,28 +115,26 @@ export default function Review({ navigation, route }) {
                     </Text>
                     <View style={styles.InputGroup}>
                         <Text style={styles.InputLabel}>
-                            How would you like to rate{" "}
-                            <Text
-                                style={{ fontWeight: 700, fontStyle: "italic" }}
-                            >
-                                {serviceProviderInfo.Name}
-                            </Text>{" "}
-                            service?
+                            We're taking action, please elaborate the situation.{" "}
                         </Text>
-                        <View style={styles.StarRate}>
-                            <StarRating
-                                rate={starRate}
-                                maxRating={5}
-                                onRatingPress={handleRatingPress}
+                        <View style={{ marginLeft: -12 }}>
+                            <Input
+                                style={styles.Input}
+                                placeholder={"Report Title"}
+                                value={reportTitle}
+                                onChangeText={setReportTitle}
+                                icon="edit-2"
+                                isPassword={false}
+                                onPress={() => dpSetOpen(true)}
                             />
                         </View>
                         <View style={{ marginLeft: -12 }}>
                             <Input
                                 multiline={true}
                                 style={styles.Input}
-                                placeholder={"Enter Message"}
-                                value={review}
-                                onChangeText={setReview}
+                                placeholder={"What would be the reason?"}
+                                value={reportReason}
+                                onChangeText={setReportReason}
                                 icon="edit-2"
                                 isPassword={false}
                                 onPress={() => dpSetOpen(true)}
@@ -157,19 +148,20 @@ export default function Review({ navigation, route }) {
                                 push(
                                     ref(
                                         database,
-                                        `Reviews/${ServiceProviderID}/`
+                                        `Reports/${ServiceProviderID}/`
                                     ),
                                     {
-                                        ReviewerID: UID,
-                                        ToReviewer: serviceProviderInfo.UID,
+                                        ReporterID: UID,
+                                        ToWho: serviceProviderInfo.UID,
                                         Name: Name,
-                                        Review: review,
-                                        Rate: starRate,
+                                        ReportTitle: reportTitle,
+                                        ReportReason: reportReason,
+                                        ReporterName: Name,
                                     }
                                 );
                                 ShowToast("Review submitted sucessfully!");
-                                setStarRate(0);
-                                setReview("");
+                                setReportTitle("");
+                                setReportReason("");
                             }}
                         />
                     </View>

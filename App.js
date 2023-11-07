@@ -19,9 +19,12 @@ export default function App({ route }) {
     var isLoggedIn = true;
     return (
         <NavigationContainer independent={true}>
-            <Text style={style.watermark}>
-                This Project is Created by Alexander Saga
-            </Text>
+            <View style={style.watermark}>
+                <Text style={style.watermarkText}>
+                    This Project is Created by Alexander Saga
+                </Text>
+            </View>
+
             {/* <MainStack /> */}
             <Drawer.Navigator>
                 {/* This screen can be accessible even if when user is not authenticated */}
@@ -52,7 +55,6 @@ const MainStack = () => {
             <Stack.Screen
                 name="Signin"
                 component={Signin}
-                // options={{ title: "Signin", header: () => <Header /> }}
                 options={{
                     title: "Signin",
                     header: () => {
@@ -95,18 +97,20 @@ const style = StyleSheet.create({
         pointerEvents: "none",
         bottom: 0,
         left: 0,
-        zIndex: 9999,
+        zIndex: 1,
         height: "10%",
         width: "100%",
-        textAlign: "center",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        display: "none",
+        backgroundColor: "rgba(0,0,0,0.3)",
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
         verticalAlign: "middle",
+        paddingHorizontal: 18,
+    },
+    watermarkText: {
+        textAlign: "center",
         color: "#fff",
         fontSize: 18,
-        paddingHorizontal: 18,
         textTransform: "uppercase",
         fontWeight: 500,
     },

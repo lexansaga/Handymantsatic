@@ -6,7 +6,7 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
-import { IsTextEmpty } from "./Utils";
+import { IsNullOrEmpty, IsTextEmpty } from "./Utils";
 import {
     app,
     firestore,
@@ -44,23 +44,29 @@ export default function Signin({ navigation }) {
                                 var name = snap.Name;
                                 var profile = snap.Profile;
                                 var type = String(snap.Type);
-                                console.log(user);
-                                if (type.includes("Client")) {
-                                    navigation.replace("Home", {
-                                        UID: uid,
-                                        Email: email,
-                                        Name: name,
-                                        Type: type,
-                                        Profile: profile,
-                                    });
+                                var isActive = snap.IsActive;
+                                if (isActive == false || isActive == "false") {
+                                    // ShowToast("This account is now disabled!");
+                                    return;
                                 } else {
-                                    navigation.replace("Home", {
-                                        UID: uid,
-                                        Email: email,
-                                        Name: name,
-                                        Type: type,
-                                        Profile: profile,
-                                    });
+                                    console.log(email);
+                                    if (type.includes("Client")) {
+                                        navigation.replace("Home", {
+                                            UID: uid,
+                                            Email: email,
+                                            Name: name,
+                                            Type: type,
+                                            Profile: profile,
+                                        });
+                                    } else {
+                                        navigation.replace("Home", {
+                                            UID: uid,
+                                            Email: email,
+                                            Name: name,
+                                            Type: type,
+                                            Profile: profile,
+                                        });
+                                    }
                                 }
                             } else {
                                 console.log("No data available");
@@ -107,24 +113,30 @@ export default function Signin({ navigation }) {
                             var name = snap.Name;
                             var profile = snap.Profile;
                             var type = String(snap.Type);
-
-                            // console.log(type);
-                            if (type.includes("Client")) {
-                                navigation.replace("Home", {
-                                    UID: uid,
-                                    Email: email,
-                                    Name: name,
-                                    Type: type,
-                                    Profile: profile,
-                                });
+                            var isActive = snap.IsActive;
+                            console.log(`IsActive? ${isActive}`);
+                            if (isActive == false || isActive == "false") {
+                                ShowToast("This account is now disabled!");
+                                return;
                             } else {
-                                navigation.replace("Home", {
-                                    UID: uid,
-                                    Email: email,
-                                    Name: name,
-                                    Type: type,
-                                    Profile: profile,
-                                });
+                                console.log("Now logged in");
+                                if (type.includes("Client")) {
+                                    navigation.replace("Home", {
+                                        UID: uid,
+                                        Email: email,
+                                        Name: name,
+                                        Type: type,
+                                        Profile: profile,
+                                    });
+                                } else {
+                                    navigation.replace("Home", {
+                                        UID: uid,
+                                        Email: email,
+                                        Name: name,
+                                        Type: type,
+                                        Profile: profile,
+                                    });
+                                }
                             }
                         } else {
                             console.log("No data available");

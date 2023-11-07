@@ -21,13 +21,16 @@ import {
     push,
     update,
     storage,
+    firebaseBaseUrl,
 } from "../../config/firebase.config";
 import { useNavigation } from "@react-navigation/native";
-import { DefaultProfile } from "../Utils";
+import { DefaultProfile, IsNullOrEmpty } from "../Utils";
+import axios from "axios";
 
 export default function AdminHome({ navigation, route }) {
     const [refreshing, setRefreshing] = React.useState(false);
     const [userInfo, setUserInfo] = useState({});
+    const [users, setUsers] = useState({});
     const {
         Email,
         Name,
@@ -42,14 +45,25 @@ export default function AdminHome({ navigation, route }) {
         Address,
     } = userInfo;
 
+    const getUsers = async () => {
+        const url = `${firebaseBaseUrl}/Users.json`;
+        const response = await axios.get(url);
+        console.log(url);
+        return response.data;
+    };
+
     useEffect(() => {
         onRefresh();
     }, []);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        UserInfo().then((user) => {
-            setUserInfo(user);
+        // UserInfo().then((user) => {
+        //     setUserInfo(user);
+        // });
+        getUsers().then((data) => {
+            setUsers(data);
         });
+        console.log(users);
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -72,31 +86,41 @@ export default function AdminHome({ navigation, route }) {
                 <View style={styles.Section}>
                     <Text style={styles.SectionTitle}>Users</Text>
                     <View style={style.UserWrapper}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                navigation.navigate("AdminUsers", {
-                                    ID: "ID",
-                                    Type: "ServiceProvider",
-                                });
-                            }}
-                        >
-                            <View style={style.UserItem}>
-                                <View style={style.UserContent}>
-                                    <Image
-                                        source={{ uri: DefaultProfile }}
-                                        style={style.UserImage}
-                                    />
-                                    <View style={style.UserInfo}>
-                                        <Text style={style.UserName}>
-                                            John Doe
-                                        </Text>
-                                        <Text style={style.UserType}>
-                                            Client
-                                        </Text>
+                        {Object.values(users).map((user) => {
+                            return (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        navigation.navigate("AdminUsers", {
+                                            ID: user.UID,
+                                            Type: user.Type,
+                                        });
+                                    }}
+                                >
+                                    <View style={style.UserItem}>
+                                        <View style={style.UserContent}>
+                                            <Image
+                                                source={{
+                                                    uri: IsNullOrEmpty(
+                                                        user.Profile
+                                                    )
+                                                        ? DefaultProfile
+                                                        : user.Profile,
+                                                }}
+                                                style={style.UserImage}
+                                            />
+                                            <View style={style.UserInfo}>
+                                                <Text style={style.UserName}>
+                                                    {user.Name}
+                                                </Text>
+                                                <Text style={style.UserType}>
+                                                    {user.Type}
+                                                </Text>
+                                            </View>
+                                        </View>
                                     </View>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </View>
             </ScrollView>

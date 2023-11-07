@@ -23,7 +23,9 @@ import {
     push,
     update,
     storage,
+    firebaseBaseUrl,
 } from "../../config/firebase.config";
+import axios from "axios";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
@@ -39,6 +41,7 @@ import {
 } from "firebase/storage";
 import ShowToast from "../../components/Toast";
 import Spinner from "../../components/Spinner";
+import StarRating from "../../components/StarRating";
 export default function ClientHire({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const {
@@ -60,6 +63,7 @@ export default function ClientHire({ navigation, route }) {
 
     const [spinnerTitle, setSpinnerTitle] = useState("");
     const [isSpinnerShow, setSpinnerShow] = useState(false);
+    const [reviews, setReviews] = useState({});
 
     const [image, setImage] = useState(null);
 
@@ -67,6 +71,8 @@ export default function ClientHire({ navigation, route }) {
         ? false
         : Type.includes("ServiceProvider");
     let isCLient = IsNullOrEmpty(Type) ? false : Type.includes("Client");
+
+    useEffect(() => {}, []);
     useEffect(() => {
         if (isFocused) {
             onRefresh();
@@ -78,12 +84,26 @@ export default function ClientHire({ navigation, route }) {
         setRefreshing(true);
         UserInfo().then((user) => {
             setUserInfo(user);
+            console.log(user);
+            getClientReviews(user.UID).then((data) => {
+                setReviews(data);
+                // console.log(reviews);
+            });
         });
+        console.log(UID);
+
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
     }, []);
+
+    const getClientReviews = async (ClientID) => {
+        const url = `${firebaseBaseUrl}Reviews/${ClientID}.json`;
+        const response = await axios.get(url);
+        console.log(url);
+        return response.data;
+    };
     return (
         <View>
             <Spinner
@@ -92,7 +112,6 @@ export default function ClientHire({ navigation, route }) {
                 isOpen={isSpinnerShow}
             />
             <Header userProfile={profileLink} />
-
             <Image
                 source={{
                     uri: Profile ? Profile : DefaultProfile,
@@ -208,211 +227,32 @@ export default function ClientHire({ navigation, route }) {
                         <View style={styles.ReviewWrap}>
                             <Text style={style.SectionTitle}>Reviews</Text>
                             <View style={styles.ReviewItemWrap}>
-                                <View style={styles.ReviewItem}>
-                                    <Text style={styles.ReviewContent}>
-                                        Ullamco quis mollit id minim proident
-                                        cillum cupidatat ad eiusmod irure aute
-                                        officia. Ut adipisicing aliquip aliquip
-                                        veniam. Dolor nostrud labore voluptate
-                                        nulla.
-                                    </Text>
+                                {IsNullOrEmpty(reviews) ? (
                                     <Text style={styles.ReviewName}>
-                                        John Doe
+                                        No Reviews Yet!
                                     </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={styles.ReviewItem}>
-                                    <Text style={styles.ReviewContent}>
-                                        Voluptate Lorem amet laboris duis ipsum
-                                        aliquip aliqua labore laborum excepteur
-                                        nisi excepteur nulla commodo. Et nisi ad
-                                        reprehenderit aute labore mollit in sunt
-                                        non dolor officia. Amet non eiusmod non
-                                        esse qui deserunt deserunt aliquip
-                                        adipisicing nostrud aliquip esse.
-                                        Officia proident aliqua aute elit ad.
-                                        Labore mollit adipisicing ad dolore
-                                        nulla elit ut et labore sint pariatur
-                                        dolor.
-                                    </Text>
-                                    <Text style={styles.ReviewName}>
-                                        John Doe
-                                    </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={styles.ReviewItem}>
-                                    <Text style={styles.ReviewContent}>
-                                        Reprehenderit commodo aliqua adipisicing
-                                        amet sit cillum dolor reprehenderit.
-                                        Nostrud fugiat elit cupidatat mollit
-                                        aliqua enim Lorem. Sunt nulla et veniam
-                                        minim aliqua est aute sunt cillum irure
-                                        culpa sit do. Deserunt exercitation id
-                                        nisi pariatur consectetur aliquip
-                                        adipisicing. Qui sint exercitation id
-                                        cupidatat dolore mollit ipsum sint ut
-                                        magna. Qui quis sint laborum ullamco
-                                        aliqua ea aute voluptate labore non sit
-                                        laboris. Ex aliqua ea quis aliquip
-                                        cupidatat exercitation incididunt
-                                        voluptate enim.
-                                    </Text>
-                                    <Text style={styles.ReviewName}>
-                                        John Doe
-                                    </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
-
-                                <View style={styles.ReviewItem}>
-                                    <Text style={styles.ReviewContent}>
-                                        Ea ullamco culpa incididunt proident
-                                        voluptate et minim consequat do. Velit
-                                        sunt reprehenderit nulla anim ullamco
-                                        ullamco. Mollit esse ipsum et excepteur
-                                        cupidatat dolor proident veniam officia
-                                        pariatur deserunt dolor consequat.
-                                        Cillum quis aute culpa sint. Amet ipsum
-                                        labore exercitation qui. Est est est
-                                        cupidatat aute id minim sint in elit
-                                        tempor ea nostrud commodo. Culpa elit
-                                        amet est pariatur tempor sint aliquip
-                                        deserunt.
-                                    </Text>
-                                    <Text style={styles.ReviewName}>
-                                        John Doe
-                                    </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
+                                ) : (
+                                    Object.values(reviews).map((review) => {
+                                        return (
+                                            <View style={styles.ReviewItem}>
+                                                <Text
+                                                    style={styles.ReviewContent}
+                                                >
+                                                    {review.Review}
+                                                </Text>
+                                                <Text style={styles.ReviewName}>
+                                                    {review.Name}
+                                                </Text>
+                                                <View style={styles.StarRate}>
+                                                    <StarRating
+                                                        rating={review.Rate}
+                                                        maxRating={5}
+                                                    />
+                                                </View>
+                                            </View>
+                                        );
+                                    })
+                                )}
                             </View>
                         </View>
                     </View>

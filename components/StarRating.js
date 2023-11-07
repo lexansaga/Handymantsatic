@@ -17,7 +17,9 @@ const StarRating = ({ rating, maxRating = 5, onRatingPress }) => {
             {[...Array(maxRating)].map((_, index) => (
                 <TouchableOpacity
                     key={index}
-                    onPress={() => handleRatingPress(index + 1)}
+                    onPress={() => {
+                        onRatingPress && handleRatingPress(index + 1);
+                    }}
                     activeOpacity={0.6}
                 >
                     <Icon

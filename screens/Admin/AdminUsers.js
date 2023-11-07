@@ -9,6 +9,8 @@ import {
     Platform,
     PermissionsAndroid,
     TouchableOpacity,
+    Alert,
+    Switch,
 } from "react-native";
 import Header from "../../components/Header";
 import style from "../../styles/style";
@@ -22,8 +24,11 @@ import {
     push,
     update,
     storage,
+    firebaseBaseUrl,
+    set,
 } from "../../config/firebase.config";
-
+import axios from "axios";
+import StarRating from "../../components/StarRating";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
@@ -39,6 +44,7 @@ import {
 import ShowToast from "../../components/Toast";
 import Spinner from "../../components/Spinner";
 import { Toast } from "reactstrap";
+import AppAlert from "../../components/AppAlert";
 export default function AdminUsers({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const {
@@ -52,6 +58,7 @@ export default function AdminUsers({ navigation, route }) {
         JobDescription,
         ServiceOffered,
         Address,
+        IsActive,
     } = userInfo;
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
@@ -59,16 +66,29 @@ export default function AdminUsers({ navigation, route }) {
 
     const [spinnerTitle, setSpinnerTitle] = useState("");
     const [isSpinnerShow, setSpinnerShow] = useState(false);
+    const [reviews, setReviews] = useState({});
+    const [isUserActive, setIsUserActive] = useState(
+        IsActive ? IsActive : false
+    );
+    const toggleIsUserActive = () => {
+        setIsUserActive(!isUserActive);
+        update(child(databaseRef, `Users/${UID}/`), {
+            IsActive: !isUserActive,
+        });
+        // console.log(isUserActive);
+    };
 
     const [image, setImage] = useState(null);
 
+    const ID = route.params.ID;
     const Type = route.params.Type;
-    console.log(`This type ${Type}`);
+    console.log(`This type ${ID}`);
 
     let isServiceProvider = IsNullOrEmpty(Type)
         ? false
         : Type.includes("ServiceProvider");
     let isCLient = IsNullOrEmpty(Type) ? false : Type.includes("Client");
+
     useEffect(() => {
         if (isFocused) {
             onRefresh();
@@ -78,14 +98,26 @@ export default function AdminUsers({ navigation, route }) {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        UserInfo().then((user) => {
+        UserInfo(ID).then((user) => {
             setUserInfo(user);
+            setIsUserActive(user.IsActive);
+            getClientReviews(user.UID).then((data) => {
+                setReviews(data);
+            });
         });
+
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
     }, []);
+
+    const getClientReviews = async (ClientID) => {
+        const url = `${firebaseBaseUrl}Reviews/${ClientID}.json`;
+        const response = await axios.get(url);
+        console.log(url);
+        return response.data;
+    };
     return (
         <View>
             <Spinner
@@ -125,7 +157,7 @@ export default function AdminUsers({ navigation, route }) {
                                 ]}
                                 onPress={() => {
                                     navigation.navigate("AdminReports", {
-                                        ID: "ID",
+                                        ID: UID,
                                         Type: Type,
                                     });
                                 }}
@@ -134,7 +166,7 @@ export default function AdminUsers({ navigation, route }) {
                                 <Text>Reports</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 style={styles.actionButton}
                                 onPress={() => {
                                     //     navigation.navigate("AdminReports");
@@ -148,7 +180,7 @@ export default function AdminUsers({ navigation, route }) {
                                     size={18}
                                     color="#333"
                                 />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
 
                         <Text style={style.SectionTitle}>
@@ -205,246 +237,121 @@ export default function AdminUsers({ navigation, route }) {
                         ) : (
                             <></>
                         )}
-                        {/* <View style={styles.WorkImageWrap}>
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/sample_image_1.jpg")}
+
+                        <View style={styles.InfoGroup}>
+                            <Text style={styles.InfoTitle}>Set Active</Text>
+                            <Switch
+                                trackColor={{
+                                    false: "#767577",
+                                    true: "#81b0ff",
+                                }}
+                                thumbColor={
+                                    isUserActive ? "#f5dd4b" : "#f4f3f4"
+                                }
+                                ios_backgroundColor="#3e3e3e"
+                                onValueChange={toggleIsUserActive}
+                                value={isUserActive}
                             />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/sample_image_2.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/sample_image_3.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
-                            />
-                            <Image
-                                style={styles.WorkImage}
-                                source={require("../../assets/blank.jpg")}
-                            />
-                        </View> */}
+                        </View>
 
                         <View style={styles.ReviewWrap}>
                             <Text style={style.SectionTitle}>Reviews</Text>
                             <View style={styles.ReviewItemWrap}>
-                                <View style={styles.ReviewItem}>
-                                    <View style={styles.ReviewBtnActionWrap}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.actionButton,
-                                                styles.actionButtonHasText,
-                                                {
-                                                    backgroundColor:
-                                                        "#eb343133",
-                                                },
-                                            ]}
-                                            onPress={() => {
-                                                navigation.navigate(
-                                                    "ProfileEdit"
-                                                );
-                                            }}
-                                        >
-                                            <Feather
-                                                name={"trash-2"}
-                                                size={18}
-                                                color="#333"
-                                            />
-                                            <Text>Delete Review</Text>
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <Text style={styles.ReviewContent}>
-                                        Ullamco quis mollit id minim proident
-                                        cillum cupidatat ad eiusmod irure aute
-                                        officia. Ut adipisicing aliquip aliquip
-                                        veniam. Dolor nostrud labore voluptate
-                                        nulla.
-                                    </Text>
+                                {IsNullOrEmpty(reviews) ? (
                                     <Text style={styles.ReviewName}>
-                                        John Doe
+                                        No Reviews Yet!
                                     </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
-                                <View style={styles.ReviewItem}>
-                                    <View style={styles.ReviewBtnActionWrap}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.actionButton,
-                                                styles.actionButtonHasText,
-                                                {
-                                                    backgroundColor:
-                                                        "#eb343133",
-                                                },
-                                            ]}
-                                            onPress={() => {
-                                                navigation.navigate(
-                                                    "ProfileEdit"
-                                                );
-                                            }}
-                                        >
-                                            <Feather
-                                                name={"trash-2"}
-                                                size={18}
-                                                color="#333"
-                                            />
-                                            <Text>Delete Review</Text>
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <Text style={styles.ReviewContent}>
-                                        Ullamco quis mollit id minim proident
-                                        cillum cupidatat ad eiusmod irure aute
-                                        officia. Ut adipisicing aliquip aliquip
-                                        veniam. Dolor nostrud labore voluptate
-                                        nulla.
-                                    </Text>
-                                    <Text style={styles.ReviewName}>
-                                        John Doe
-                                    </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
-                                <View style={styles.ReviewItem}>
-                                    <View style={styles.ReviewBtnActionWrap}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.actionButton,
-                                                styles.actionButtonHasText,
-                                                {
-                                                    backgroundColor:
-                                                        "#eb343133",
-                                                },
-                                            ]}
-                                            onPress={() => {
-                                                navigation.navigate(
-                                                    "ProfileEdit"
-                                                );
-                                            }}
-                                        >
-                                            <Feather
-                                                name={"trash-2"}
-                                                size={18}
-                                                color="#333"
-                                            />
-                                            <Text>Delete Review</Text>
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <Text style={styles.ReviewContent}>
-                                        Ullamco quis mollit id minim proident
-                                        cillum cupidatat ad eiusmod irure aute
-                                        officia. Ut adipisicing aliquip aliquip
-                                        veniam. Dolor nostrud labore voluptate
-                                        nulla.
-                                    </Text>
-                                    <Text style={styles.ReviewName}>
-                                        John Doe
-                                    </Text>
-
-                                    <View style={styles.StarRate}>
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                        <Feather
-                                            name="star"
-                                            color="#E5C865"
-                                            size={23}
-                                            style={styles.StarRate_Star}
-                                        />
-                                    </View>
-                                </View>
+                                ) : (
+                                    Object.entries(reviews).map(
+                                        ([key, review]) => {
+                                            return (
+                                                <View style={styles.ReviewItem}>
+                                                    <Text
+                                                        style={
+                                                            styles.ReviewContent
+                                                        }
+                                                    >
+                                                        {review.Review}
+                                                    </Text>
+                                                    <Text
+                                                        style={
+                                                            styles.ReviewName
+                                                        }
+                                                    >
+                                                        {review.Name}
+                                                    </Text>
+                                                    <View
+                                                        style={styles.StarRate}
+                                                    >
+                                                        <StarRating
+                                                            rating={review.Rate}
+                                                            maxRating={5}
+                                                        />
+                                                    </View>
+                                                    <View
+                                                        style={
+                                                            styles.ReviewBtnActionWrap
+                                                        }
+                                                    >
+                                                        <TouchableOpacity
+                                                            style={[
+                                                                styles.actionButton,
+                                                                styles.actionButtonHasText,
+                                                                {
+                                                                    backgroundColor:
+                                                                        "#eb343133",
+                                                                },
+                                                            ]}
+                                                            onPress={() => {
+                                                                Alert.alert(
+                                                                    "Delete Review",
+                                                                    "Are you sure you want to delete this review?",
+                                                                    [
+                                                                        {
+                                                                            text: "No",
+                                                                            onPress:
+                                                                                () => {},
+                                                                            style: "cancel",
+                                                                        },
+                                                                        {
+                                                                            text: "Yes",
+                                                                            onPress:
+                                                                                () => {
+                                                                                    console.log(
+                                                                                        "Press yes"
+                                                                                    );
+                                                                                    set(
+                                                                                        child(
+                                                                                            databaseRef,
+                                                                                            `Reviews/${UID}/${key}`
+                                                                                        ),
+                                                                                        {}
+                                                                                    );
+                                                                                    onRefresh();
+                                                                                },
+                                                                        },
+                                                                    ],
+                                                                    {
+                                                                        cancelable: false,
+                                                                    }
+                                                                );
+                                                            }}
+                                                        >
+                                                            <Feather
+                                                                name={"trash-2"}
+                                                                size={18}
+                                                                color="#333"
+                                                            />
+                                                            <Text>
+                                                                Delete Review
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                            );
+                                        }
+                                    )
+                                )}
                             </View>
                         </View>
                     </View>
@@ -501,6 +408,7 @@ const styles = StyleSheet.create({
     InfoGroup: {
         display: "flex",
         flexDirection: "column",
+        alignItems: "flex-start",
         gap: 4,
         paddingVertical: 16,
         borderBottomWidth: 1,

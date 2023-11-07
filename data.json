@@ -50,47 +50,255 @@
       "-Nbt5E-Fy2xtb1NskrCf": false
     }
   },
+  "JobOrder": {
+    "-NfkASIfksSGUCfFC3j4": {
+      "ID": "-NfkASIfksSGUCfFC3j4",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Cancelled",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-NfkCCi1JyjIz2HcjDWx": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-NfkCCi1JyjIz2HcjDWx",
+      "JobID": "-Nfk3AHurF4Su2GQzfeQ",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Cancelled",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-NhpqZ7iJKGCBA6wFNPI": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-NhpqZ7iJKGCBA6wFNPI",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Completed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-Nhpqu9H0YFhvvWf29uE": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-Nhpqu9H0YFhvvWf29uE",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-Nhpr2ajrIL0S2Uo-ymb": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-Nhpr2ajrIL0S2Uo-ymb",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-Nhpr7u8CYF5MVne6raQ": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-Nhpr7u8CYF5MVne6raQ",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-NhpsR_UR6TepuO0BDau": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-NhpsR_UR6TepuO0BDau",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-NhvQrjEVGoRVHs2biY8": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-NhvQrjEVGoRVHs2biY8",
+      "JobID": "-Nfk3-0YOaFqichDa1UW",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-NhvR4L2J9r_zRmvrlST": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-NhvR4L2J9r_zRmvrlST",
+      "JobID": "-NfkZE9ygmupGCRU2oGT",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed",
+      "UserID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "-Ni4odV99nar8z7H-NKQ": {
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "ID": "-Ni4odV99nar8z7H-NKQ",
+      "JobID": "-Ni4odM6c_kwA7HPmrKC",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Status": "Proposed"
+    }
+  },
   "Jobs": {
-    "-NbsvyKvovSZogPUreII": {
+    "-Nfk3-0YOaFqichDa1UW": {
       "Active": true,
-      "Category": "Electrician",
-      "Description": "Work with lines, setup house electrical wirings",
-      "ID": "-NbsvyKvovSZogPUreII",
+      "Category": "Gardener",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "test",
+      "ID": "-Nfk3-0YOaFqichDa1UW",
       "Location": "Laguna",
       "Name": "Lexan",
       "PostedBy": "lexansaga72@gmail.com",
-      "Price": "1500",
+      "Price": "2000",
+      "ServiceNeed": "Gardener",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    },
+    "-Nfk3AHurF4Su2GQzfeQ": {
+      "Active": true,
+      "Category": "Electrician",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "Clean Wires",
+      "ID": "-Nfk3AHurF4Su2GQzfeQ",
+      "Location": "Laguna",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "1200",
+      "ServiceNeed": "Electrician",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Time": "8:00am",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    },
+    "-NfkYR0UBEivh77Rq1LA": {
+      "Active": true,
+      "Category": "Electrician",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "Task",
+      "ID": "-NfkYR0UBEivh77Rq1LA",
+      "Location": "Laguna",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "1200",
       "ServiceNeed": "Electrician",
       "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
     },
-    "-Nbt4r1webP-ivLgkiG5": {
+    "-NfkYj7WbLuCUJcGtSin": {
       "Active": true,
-      "Category": "Aircon",
-      "Description": "Please repair my Aircon it's not working",
-      "ID": "-Nbt4r1webP-ivLgkiG5",
-      "Location": "Santa Rosa Laguna",
-      "Name": "Xander",
-      "PostedBy": "naxeldragneel07@gmail.com",
-      "Price": "500",
-      "ServiceNeed": "Aircon",
-      "UserID": "w38gsPMzYJVXpgadDqaTwYAOCJJ2"
+      "Category": "Painter",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "Tes",
+      "ID": "-NfkYj7WbLuCUJcGtSin",
+      "Location": "Test",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "7284",
+      "ServiceNeed": "Painter",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
     },
-    "-Nbt5E-Fy2xtb1NskrCf": {
+    "-NfkZ6Zw7r6CEFh-NO5d": {
       "Active": true,
-      "Category": "Plumber",
-      "Description": "Fix my faucet,, water pressure low",
-      "ID": "-Nbt5E-Fy2xtb1NskrCf",
-      "Location": "Binan",
-      "Name": "Xander",
-      "PostedBy": "naxeldragneel07@gmail.com",
-      "Price": "1200",
-      "ServiceNeed": "Plumber",
-      "UserID": "w38gsPMzYJVXpgadDqaTwYAOCJJ2"
+      "Category": "Carpenter",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "Tes",
+      "ID": "-NfkZ6Zw7r6CEFh-NO5d",
+      "Location": "Test",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "20",
+      "ServiceNeed": "Carpenter",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    },
+    "-NfkZE9ygmupGCRU2oGT": {
+      "Active": true,
+      "Category": "Washer",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "New Notif",
+      "ID": "-NfkZE9ygmupGCRU2oGT",
+      "Location": "he",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "764",
+      "ServiceNeed": "Washer",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    },
+    "-Ni4odM6c_kwA7HPmrKC": {
+      "Active": false,
+      "Category": "Electrician",
+      "ClientID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Description": "test",
+      "ID": "-Ni4odM6c_kwA7HPmrKC",
+      "Location": "test",
+      "Name": "Lexan",
+      "PostedBy": "lexansaga72@gmail.com",
+      "Price": "test",
+      "ServiceNeed": "Electrician",
+      "ServiceProviderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+      "Time": "test",
+      "UserID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
+    }
+  },
+  "Messages": {
+    "Im0inJb8uZb0MQbvoNXySh4medx2|GJgwS7H65WOGk8u57OC2vznEUJL2": {
+      "ChatID": "Im0inJb8uZb0MQbvoNXySh4medx2|GJgwS7H65WOGk8u57OC2vznEUJL2",
+      "Messages": {
+        "1698579702136": {
+          "Content": "smple",
+          "MessageID": "",
+          "ReceiverID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+          "SenderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+          "TimeStamp": 1698579702136
+        },
+        "1698581214887": {
+          "Content": "",
+          "MessageID": "",
+          "ReceiverID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+          "SenderID": "Im0inJb8uZb0MQbvoNXySh4medx2",
+          "TimeStamp": 1698581214887
+        }
+      },
+      "Participants": [
+        "Im0inJb8uZb0MQbvoNXySh4medx2",
+        "GJgwS7H65WOGk8u57OC2vznEUJL2"
+      ]
+    }
+  },
+  "Notification": {
+    "General": {
+      "-NfkZ6_3UoB7cuFtX-aS": {
+        "ID": "-NfkZ6_3UoB7cuFtX-aS",
+        "Message": "Lexan posted a new tasks. It may fit on you!",
+        "Title": "New Task Posteds",
+        "forWho": "Client"
+      },
+      "-NfkZEABxIchyFS09uKv": {
+        "ID": "-NfkZEABxIchyFS09uKv",
+        "Message": "Lexan posted a new task. It may fit on you!",
+        "Title": "New Task Posted",
+        "forWho": "ServiceProvider"
+      }
+    }
+  },
+  "Reviews": {
+    "GJgwS7H65WOGk8u57OC2vznEUJL2": {
+      "-Ni9mqRrvCIT2lHrlBIY": {
+        "Name": "Lexan",
+        "Rate": 5,
+        "Review": "Great Work"
+      },
+      "-NiPtJ4zAFT7fQIHh6Ui": {
+        "Name": "Lexan",
+        "Rate": 5,
+        "Review": "Great Work!",
+        "ReviewerID": "GJgwS7H65WOGk8u57OC2vznEUJL2",
+        "ToReviewer": "Im0inJb8uZb0MQbvoNXySh4medx2"
+      }
     }
   },
   "Users": {
+    "28DVhMKatbcOwMW8NA6RBKeBunE3": {
+      "Email": "Carlos@gmail.com",
+      "Name": "Carlos",
+      "Password": "Carlos123",
+      "Type": "Client",
+      "UID": "28DVhMKatbcOwMW8NA6RBKeBunE3"
+    },
     "GJgwS7H65WOGk8u57OC2vznEUJL2": {
+      "Address": "Sta Rosa Laguna",
+      "Contact": "+639 12 699 7937",
       "Email": "lexansaga72@gmail.com",
+      "IsActive": false,
       "Name": "Lexan",
       "Password": "123456",
       "Profile": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FProfile%2Fprofile-3.jpg?alt=media&token=1bcc411a-595b-47f4-a820-03c421fedbd4",
@@ -98,13 +306,76 @@
       "UID": "GJgwS7H65WOGk8u57OC2vznEUJL2"
     },
     "Im0inJb8uZb0MQbvoNXySh4medx2": {
+      "Contact": "+639 12 345 6789",
       "Email": "alexsaga72@gmail.com",
       "JobDescription": "LoremIpsum",
       "Name": "Alex",
       "Password": "123456",
       "Profile": "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FProfile%2Fprofile-2.jpg?alt=media&token=2149676c-9371-4536-89c0-1e9c57557874",
+      "Rate": "1200",
+      "ServiceOffered": "Electrician",
       "Type": "ServiceProvider",
       "UID": "Im0inJb8uZb0MQbvoNXySh4medx2"
+    },
+    "MqxxHNVwbJVydlKqb9WTWMRh0UB3": {
+      "Email": "jermine098@gmail.com",
+      "Name": "jerome",
+      "Password": "jermine25",
+      "Type": "Client",
+      "UID": "MqxxHNVwbJVydlKqb9WTWMRh0UB3"
+    },
+    "P0t1HyZBBXfNnIN33JHEGbRcuVG3": {
+      "Email": "johnjustan@gmail.com",
+      "Name": "johnjustan",
+      "Password": "123456",
+      "Type": "ServiceProvider",
+      "UID": "P0t1HyZBBXfNnIN33JHEGbRcuVG3"
+    },
+    "QMoLcJmiueU2UY14yC3NB1a9Tso2": {
+      "Email": "james13@gmail.com",
+      "Name": "james",
+      "Password": "123456",
+      "Type": "Client",
+      "UID": "QMoLcJmiueU2UY14yC3NB1a9Tso2"
+    },
+    "WSHoQJ4PzzZVMzggdrUhChH6kvu1": {
+      "Email": "steph@gmail.com",
+      "Name": "Steph30",
+      "Password": "steph30",
+      "Type": "ServiceProvider",
+      "UID": "WSHoQJ4PzzZVMzggdrUhChH6kvu1"
+    },
+    "fLauC4qT31gGlP6I7zRxLqMdVEA2": {
+      "Email": "clarkson@gmail.com",
+      "Name": "clarkson",
+      "Password": "123456",
+      "Type": "Client",
+      "UID": "fLauC4qT31gGlP6I7zRxLqMdVEA2"
+    },
+    "iwFdgp8cSKZxNfW32qTlWTtt55I2": {
+      "Email": "lebron23@gmail.com",
+      "Name": "lebron",
+      "Password": "123456",
+      "Type": "ServiceProvider",
+      "UID": "iwFdgp8cSKZxNfW32qTlWTtt55I2"
+    },
+    "saOFLeQXr1NHu5AYe5fJnvr60hp1": {
+      "Email": "lebron@gmail.com",
+      "Name": "Lebron",
+      "Password": "lebron23",
+      "Type": "Client",
+      "UID": "saOFLeQXr1NHu5AYe5fJnvr60hp1"
+    },
+    "uv3D8wbMBvWYr7YMkIQn4n62sXa2": {
+      "Contact": "+639 12 345 6789",
+      "Email": "alex.saga@roya.com",
+      "JobDescription": "I can create great woodwork and help you with things.",
+      "Name": "Xander",
+      "Password": "123456",
+      "Rate": "500",
+      "ServiceOffered": "Carpenter",
+      "Type": "ServiceProvider",
+      "UID": "uv3D8wbMBvWYr7YMkIQn4n62sXa2"
     },
     "w38gsPMzYJVXpgadDqaTwYAOCJJ2": {
       "Email": "naxeldragneel07@gmail.com",

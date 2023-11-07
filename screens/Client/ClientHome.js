@@ -149,7 +149,7 @@ export default function ClientHome({ navigation, route, props }) {
                     </Text>
                     <View style={styles.ServiceFeedWrap}>
                         {Object.values(workers).map((worker) => {
-                            console.log(IsNullOrEmpty(worker.ServiceOffered));
+                            // console.log(IsNullOrEmpty(worker.ServiceOffered));
                             if (
                                 IsNullOrEmpty(workers) ||
                                 // IsNullOrEmpty(worker.ServiceOffered) ||
@@ -186,7 +186,7 @@ export default function ClientHome({ navigation, route, props }) {
                                                 },
                                             }
                                         );
-                                        console.log("click");
+                                        // console.log("click");
                                     }}
                                 />
                             );

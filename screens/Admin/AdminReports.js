@@ -9,6 +9,7 @@ import {
     Platform,
     PermissionsAndroid,
     TouchableOpacity,
+    Alert,
 } from "react-native";
 import Header from "../../components/Header";
 import style from "../../styles/style";
@@ -22,6 +23,8 @@ import {
     push,
     update,
     storage,
+    firebaseBaseUrl,
+    set,
 } from "../../config/firebase.config";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
@@ -38,6 +41,7 @@ import {
 } from "firebase/storage";
 import ShowToast from "../../components/Toast";
 import Spinner from "../../components/Spinner";
+import axios from "axios";
 export default function AdminReports({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
     const {
@@ -58,10 +62,11 @@ export default function AdminReports({ navigation, route }) {
 
     const [spinnerTitle, setSpinnerTitle] = useState("");
     const [isSpinnerShow, setSpinnerShow] = useState(false);
-
+    const [reports, setReports] = useState({});
     const [image, setImage] = useState(null);
 
     const Type = route.params.Type;
+    const ID = route.params.ID;
     console.log(`This type ${Type}`);
 
     let isServiceProvider = IsNullOrEmpty(Type)
@@ -77,14 +82,25 @@ export default function AdminReports({ navigation, route }) {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        UserInfo().then((user) => {
+        UserInfo(ID).then((user) => {
             setUserInfo(user);
+            getReports(user.UID).then((data) => {
+                setReports(data);
+                console.log(reports);
+            });
         });
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
     }, []);
+
+    const getReports = async (ClientID) => {
+        const url = `${firebaseBaseUrl}Reports/${ClientID}.json`;
+        const response = await axios.get(url);
+        console.log(url);
+        return response.data;
+    };
     return (
         <View>
             <Spinner
@@ -117,7 +133,7 @@ export default function AdminReports({ navigation, route }) {
                 >
                     <View style={style.Section}>
                         <View style={styles.btnActionWrap}>
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 style={styles.actionButton}
                                 onPress={() => {
                                     navigation.navigate("ProfileEdit");
@@ -128,7 +144,7 @@ export default function AdminReports({ navigation, route }) {
                                     size={18}
                                     color="#333"
                                 />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
 
                         <Text style={style.SectionTitle}>
@@ -144,56 +160,107 @@ export default function AdminReports({ navigation, route }) {
                         <View style={styles.ReviewWrap}>
                             <Text style={style.SectionTitle}>Reports</Text>
                             <View style={styles.ReviewItemWrap}>
-                                <View style={styles.ReviewItem}>
-                                    <View style={styles.ReviewBtnActionWrap}>
-                                        <TouchableOpacity
-                                            style={[
-                                                styles.actionButton,
-                                                styles.actionButtonHasText,
-                                                {
-                                                    backgroundColor:
-                                                        "#eb343133",
-                                                },
-                                            ]}
-                                            onPress={() => {
-                                                navigation.navigate(
-                                                    "ProfileEdit"
-                                                );
-                                            }}
-                                        >
-                                            <Feather
-                                                name={"trash-2"}
-                                                size={18}
-                                                color="#333"
-                                            />
-                                            <Text>Delete Report</Text>
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <Text style={styles.ReviewContent}>
-                                        Ullamco quis mollit id minim proident
-                                        cillum cupidatat ad eiusmod irure aute
-                                        officia. Ut adipisicing aliquip aliquip
-                                        veniam. Dolor nostrud labore voluptate
-                                        nulla.
-                                    </Text>
+                                {IsNullOrEmpty(reports) ? (
                                     <Text style={styles.ReviewName}>
-                                        John Doe
+                                        No Report Yet!
                                     </Text>
-                                </View>
+                                ) : (
+                                    Object.entries(reports).map(
+                                        ([key, report]) => {
+                                            return (
+                                                <View style={styles.ReviewItem}>
+                                                    <View
+                                                        style={
+                                                            styles.ReviewBtnActionWrap
+                                                        }
+                                                    >
+                                                        <TouchableOpacity
+                                                            style={[
+                                                                styles.actionButton,
+                                                                styles.actionButtonHasText,
+                                                                {
+                                                                    backgroundColor:
+                                                                        "#eb343133",
+                                                                },
+                                                            ]}
+                                                            onPress={() => {
+                                                                Alert.alert(
+                                                                    "Delete report",
+                                                                    "Are you sure you want to delete this report?",
+                                                                    [
+                                                                        {
+                                                                            text: "No",
+                                                                            onPress:
+                                                                                () => {},
+                                                                            style: "cancel",
+                                                                        },
+                                                                        {
+                                                                            text: "Yes",
+                                                                            onPress:
+                                                                                () => {
+                                                                                    console.log(
+                                                                                        "Press yes"
+                                                                                    );
+                                                                                    set(
+                                                                                        child(
+                                                                                            databaseRef,
+                                                                                            `Reports/${UID}/${key}`
+                                                                                        ),
+                                                                                        {}
+                                                                                    );
+                                                                                    onRefresh();
+                                                                                },
+                                                                        },
+                                                                    ],
+                                                                    {
+                                                                        cancelable: false,
+                                                                    }
+                                                                );
+                                                            }}
+                                                        >
+                                                            <Feather
+                                                                name={"trash-2"}
+                                                                size={18}
+                                                                color="#333"
+                                                            />
+                                                            <Text>
+                                                                Delete Report
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                    <Text
+                                                        style={
+                                                            styles.ReviewName
+                                                        }
+                                                    >
+                                                        {report.ReportTitle}
+                                                    </Text>
+                                                    <Text
+                                                        style={
+                                                            styles.ReviewContent
+                                                        }
+                                                    >
+                                                        {report.ReportReason}
+                                                    </Text>
+                                                    <Text
+                                                        style={[
+                                                            styles.ReviewName,
+                                                            {
+                                                                fontStyle:
+                                                                    "italic",
+                                                            },
+                                                        ]}
+                                                    >
+                                                        {report.Name}
+                                                    </Text>
+                                                </View>
+                                            );
+                                        }
+                                    )
+                                )}
                             </View>
                         </View>
                     </View>
-                    {/* <View style={style.Section}>
-                        <PrimaryButton
-                            title={"Hire John"}
-                            onPress={() => {
-                                navigation.navigate("Client Hire Form", {
-                                    key: "value",
-                                });
-                            }}
-                        />
-                    </View> */}
                 </ScrollView>
             </View>
         </View>
@@ -299,7 +366,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         paddingBottom: 30,
     },
-    ReviewName: { fontWeight: 500, fontSize: 20, fontStyle: "italic" },
+    ReviewName: { fontWeight: 500, fontSize: 20 },
     ReviewContent: { fontSize: 16, lineHeight: 25 },
     StarRate: {
         display: "flex",

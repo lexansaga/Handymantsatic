@@ -258,6 +258,19 @@ export default function TaskActive({ navigation, route }) {
                                                     );
                                                 }}
                                             />
+                                            <SecondaryButton
+                                                title={"Report"}
+                                                onPress={() => {
+                                                    navigation.navigate(
+                                                        "Report",
+                                                        {
+                                                            ID: data
+                                                                .ServiceProvider
+                                                                .UID,
+                                                        }
+                                                    );
+                                                }}
+                                            />
                                         </View>
                                     )}
                                 </View>

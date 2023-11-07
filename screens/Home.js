@@ -27,8 +27,8 @@ import ChatList from "./Chat/ChatList";
 import ProfileEdit from "./ProfileEdit";
 import Notification from "./Notification";
 import Review from "./Review";
+import Report from "./Report";
 
-import TaskScreen from "./Task/TaskScreen";
 import TaskActive from "./Task/TaskActive";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -69,6 +69,7 @@ const AdminNavigator = () => {
                 initialParams={globalRoute.params}
                 component={AdminStackNavigator}
             ></Drawer.Screen>
+            <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
     );
 };
@@ -201,6 +202,11 @@ const ServiceProviderStackNavigator = () => {
                 initialParams={globalRoute.params}
                 component={Review}
             ></Stack.Screen>
+            <Stack.Screen
+                name="Report"
+                initialParams={globalRoute.params}
+                component={Report}
+            ></Stack.Screen>
             <Stack.Screen name="Logout" component={Logout}></Stack.Screen>
         </Stack.Navigator>
     );
@@ -268,6 +274,12 @@ const ClientStackNavigator = () => {
             ></Stack.Screen>
 
             <Stack.Screen
+                name="ChatList"
+                initialParams={globalRoute.params}
+                component={ChatList}
+            ></Stack.Screen>
+
+            <Stack.Screen
                 name="Client Hire"
                 initialParams={globalRoute.params}
                 component={ClientHire}
@@ -303,6 +315,11 @@ const ClientStackNavigator = () => {
                 name="Review"
                 initialParams={globalRoute.params}
                 component={Review}
+            ></Stack.Screen>
+            <Stack.Screen
+                name="Report"
+                initialParams={globalRoute.params}
+                component={Report}
             ></Stack.Screen>
         </Stack.Navigator>
     );

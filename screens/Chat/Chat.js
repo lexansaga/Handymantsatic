@@ -33,12 +33,14 @@ import {
     push,
     update,
     Timestamp,
+    firebaseBaseUrl,
 } from "../../config/firebase.config";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import ShowToast from "../../components/Toast";
 import { DefaultProfile, IsNullOrEmpty } from "../Utils";
 import { useIsFocused } from "@react-navigation/native";
+import axios from "axios";
 
 export default function Chat({ navigation, route }) {
     const [message, setMessage] = useState("");
@@ -67,50 +69,91 @@ export default function Chat({ navigation, route }) {
     const [chats, setChats] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
 
-    async function getParticipants() {
-        await get(child(databaseRef, "Messages/")).then(async (messages) => {
-            if (messages.exists()) {
-                const snapMessages = messages.val();
-                for (const key in snapMessages) {
-                    const eachMessages = snapMessages[key];
-                    const MessagesParticipants = eachMessages.Participants;
-                    const ReceiverClient = MessagesParticipants.find(
-                        (MessagesParticipants) => MessagesParticipants !== UID
-                    );
-                    const SenderClient = MessagesParticipants.find(
-                        (MessagesParticipants) => MessagesParticipants === UID
-                    );
-                    await get(
-                        child(databaseRef, `Users/${ReceiverClient}/`)
-                    ).then(async (receiver) => {
-                        const snapReceiver = receiver.val();
-                        // console.log(snapReceiver);
+    // async function getParticipants() {
+    //     await get(child(databaseRef, "Messages/")).then((messages) => {
+    //         if (messages.exists()) {
+    //             const snapMessages = messages.val();
+    //             for (const key in snapMessages) {
+    //                 const eachMessages = snapMessages[key];
+    //                 const MessagesParticipants = eachMessages.Participants;
+    //                 const ReceiverClient = MessagesParticipants.find(
+    //                     (MessagesParticipants) => MessagesParticipants !== UID
+    //                 );
+    //                 const SenderClient = MessagesParticipants.find(
+    //                     (MessagesParticipants) => MessagesParticipants === UID
+    //                 );
+    //                 get(child(databaseRef, `Users/${ReceiverClient}/`)).then(
+    //                     (receiver) => {
+    //                         const snapReceiver = receiver.val();
+    //                         // console.log(snapReceiver);
 
-                        await get(
-                            child(databaseRef, `Users/${SenderClient}/`)
-                        ).then(async (sender) => {
-                            const snapSender = sender.val();
-                            // console.log(snapSender);
-                            const data = {
-                                Sender: snapSender,
-                                Receiver: snapReceiver,
-                            };
-                            const mergedDataString = JSON.stringify(
-                                data,
-                                null,
-                                2
-                            );
-                            // console.log(mergedDataString);
-                            await setParticipants(JSON.parse(mergedDataString));
+    //                         get(
+    //                             child(databaseRef, `Users/${SenderClient}/`)
+    //                         ).then((sender) => {
+    //                             const snapSender = sender.val();
+    //                             // console.log(snapSender);
+    //                             const data = {
+    //                                 Sender: snapSender,
+    //                                 Receiver: snapReceiver,
+    //                             };
+    //                             const mergedDataString = JSON.stringify(
+    //                                 data,
+    //                                 null,
+    //                                 2
+    //                             );
+    //                             // console.log(mergedDataString);
+    //                             setParticipants(JSON.parse(mergedDataString));
 
-                            // console.log(participants);
-                        });
-                    });
-                }
+    //                             console.log(participants);
+    //                         });
+    //                     }
+    //                 );
+    //             }
+    //         }
+    //     });
+    // }
+
+    const getParticipants = async () => {
+        var data = {};
+        var sender = {};
+        var receiver = {};
+        var messagesData = {};
+        var url = `${firebaseBaseUrl}/Messages.json`;
+        var messages = await axios.get(url);
+        for (var key in messages.data) {
+            if (key.includes(ReceiverID) && key.includes(UID)) {
+                console.log(`Key : ${key}`);
+                url = `${firebaseBaseUrl}/Messages/${key}.json`;
+                var messagesData = await axios.get(url);
+                var participants = messagesData.data.Participants;
+                const ReceiverClient = participants.find(
+                    (participants) => participants !== UID
+                );
+                const SenderClient = participants.find(
+                    (participants) => participants === UID
+                );
+                var receiverURL = `${firebaseBaseUrl}/Users/${ReceiverClient}.json`;
+                var senderURL = `${firebaseBaseUrl}/Users/${SenderClient}.json`;
+
+                var receiverData = await axios.get(receiverURL);
+                var senderData = await axios.get(senderURL);
+
+                messagesData = messagesData.data;
+                receiver = receiverData.data;
+                sender = senderData.data;
             }
-        });
-    }
 
+            // console.log(`Receiver ${ReceiverClient} | Sender : ${UID}`);
+        }
+        data = {
+            ...messagesData,
+            Receiver: receiver,
+            Sender: sender,
+        };
+        const mergedDataString = JSON.stringify(data, null, 2);
+        setChats(JSON.parse(mergedDataString));
+        return JSON.parse(mergedDataString);
+    };
     async function getMessages() {
         await get(child(databaseRef, "Messages/")).then(async (messages) => {
             if (messages.exists()) {
@@ -126,159 +169,156 @@ export default function Chat({ navigation, route }) {
     const isFocused = useIsFocused();
     useEffect(() => {
         if (isFocused == true) {
-            UserInfo().then((user) => {
-                setUserInfo(user);
-            });
-            async function fetchData() {
-                await getParticipants();
+            onRefresh();
+
+            async function fetch() {
+                getParticipants().then((data) => {
+                    console.log("data");
+                    console.log(data);
+                    setChats(data);
+                });
             }
-            fetchData();
-            console.log(participants);
+            fetch();
+            console.log(chats);
         }
-    }, [participants]);
+    }, []);
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         console.log("Refresh");
+        UserInfo().then((user) => {
+            setUserInfo(user);
+        });
+
+        // console.log(chats);
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
     }, []);
     return (
-        <View automaticallyAdjustContentInset={true}>
-            <Header />
-            {isLoaded === false ? (
-                <></>
-            ) : (
-                // <View style={styles.mainWrapper}>
-                //     <View style={styles.chatHeader}>
-                //         <Avatar
-                //             rounded
-                //             title="Profile"
-                //             source={{
-                //                 uri: IsNullOrEmpty(
-                //                     participants.Receiver.Profile
-                //                 )
-                //                     ? DefaultProfile
-                //                     : participants.Receiver.Profile,
-                //             }}
-                //             containerStyle={{
-                //                 height: 50,
-                //                 width: 50,
-                //             }}
-                //         />
-                //         <Text style={styles.ClientName}>
-                //             {participants.Receiver.Name}
-                //         </Text>
-                //     </View>
-                //     <ScrollView
-                //         style={styles.chatBody}
-                //         contentContainerStyle={{
-                //             flexGrow: 1,
-                //             flexDirection: "column-reverse",
-                //             justifyContent: "flex-end",
-                //         }}
-                //         automaticallyAdjustKeyboardInsets={true}
-                //         showsVerticalScrollIndicator={false}
-                //         refreshControl={
-                //             <RefreshControl
-                //                 refreshing={refreshing}
-                //                 onRefresh={onRefresh}
-                //             />
-                //         }
-                //     >
-                //         <View style={[styles.messageReceived, styles.message]}>
-                //             <Text>
-                //                 Hello! I asm near at this store come and pick me
-                //                 up
-                //             </Text>
-                //         </View>
-                //         <View style={[styles.messageSent, styles.message]}>
-                //             <Text style={styles.messageSent}>
-                //                 Hello! I asm near at this store come and pick me
-                //                 up
-                //             </Text>
-                //         </View>
-                //         <View
-                //             style={[
-                //                 styles.messageSent,
-                //                 styles.message,
-                //                 styles.messageImage,
-                //             ]}
-                //         >
-                //             {selectedImage != null ? (
-                //                 <Image
-                //                     source={{ uri: selectedImage }}
-                //                     style={styles.chatImage}
-                //                 />
-                //             ) : null}
-                //             {(selectedImage = useState(null))}
-                //         </View>
-                //     </ScrollView>
-                //     <View style={styles.chatCTA}>
-                //         <Input
-                //             style={styles.chatMessage}
-                //             placeholder={"Message"}
-                //             value={message}
-                //             onChangeText={setMessage}
-                //             onSubmitEditing={async () => {
-                //                 var chatID = `${UID}|${ReceiverID}`;
-                //                 var timeStamp = Date.now();
-                //                 await update(
-                //                     ref(database, `Messages/${chatID}`),
-                //                     {
-                //                         ChatID: chatID,
-                //                         Participants: [
-                //                             chatID.split("|")[0],
-                //                             chatID.split("|")[1],
-                //                         ],
-                //                     }
-                //                 );
-                //                 await update(
-                //                     ref(
-                //                         database,
-                //                         `Messages/${chatID}/Messages/${timeStamp}/`
-                //                     ),
-                //                     {
-                //                         MessageID: "",
-                //                         SenderID: UID,
-                //                         ReceiverID: ReceiverID,
-                //                         TimeStamp: timeStamp,
-                //                         Content: message,
-                //                     }
-                //                 );
-                //             }}
-                //             icon={"edit-2"}
-                //         />
-                //         <TouchableOpacity
-                //             style={styles.chatBtnImage}
-                //             onPress={pickImageAsync}
-                //             title="Select Image"
-                //         >
-                //             <Feather
-                //                 name="image"
-                //                 size={30}
-                //                 color="#000"
-                //                 style={styles.inputIcon}
-                //             />
-                //         </TouchableOpacity>
-                //         <TouchableOpacity
-                //             style={styles.chatBtnImage}
-                //             onPress={pickImageAsync}
-                //             title="Select Image"
-                //         >
-                //             <Feather
-                //                 name="camera"
-                //                 size={30}
-                //                 color="#000"
-                //                 style={styles.inputIcon}
-                //             />
-                //         </TouchableOpacity>
-                //     </View>
-                // </View>
-                <></>
-            )}
-        </View>
+        <></>
+        // <View automaticallyAdjustContentInset={true}>
+        //     <Header />
+        //     <View style={styles.mainWrapper}>
+        //         <View style={styles.chatHeader}>
+        //             <Avatar
+        //                 rounded
+        //                 title="Profile"
+        //                 source={{
+        //                     uri: IsNullOrEmpty(participants.Receiver.Profile)
+        //                         ? DefaultProfile
+        //                         : participants.Receiver.Profile,
+        //                 }}
+        //                 containerStyle={{
+        //                     height: 50,
+        //                     width: 50,
+        //                 }}
+        //             />
+        //             <Text style={styles.ClientName}>
+        //                 {participants.Receiver.Name}
+        //             </Text>
+        //         </View>
+        //         <ScrollView
+        //             style={styles.chatBody}
+        //             contentContainerStyle={{
+        //                 flexGrow: 1,
+        //                 flexDirection: "column-reverse",
+        //                 justifyContent: "flex-end",
+        //             }}
+        //             automaticallyAdjustKeyboardInsets={true}
+        //             showsVerticalScrollIndicator={false}
+        //             refreshControl={
+        //                 <RefreshControl
+        //                     refreshing={refreshing}
+        //                     onRefresh={onRefresh}
+        //                 />
+        //             }
+        //         >
+        //             <View style={[styles.messageReceived, styles.message]}>
+        //                 <Text>
+        //                     Hello! I asm near at this store come and pick me up
+        //                 </Text>
+        //             </View>
+        //             <View style={[styles.messageSent, styles.message]}>
+        //                 <Text style={styles.messageSent}>
+        //                     Hello! I asm near at this store come and pick me up
+        //                 </Text>
+        //             </View>
+        //             <View
+        //                 style={[
+        //                     styles.messageSent,
+        //                     styles.message,
+        //                     styles.messageImage,
+        //                 ]}
+        //             >
+        //                 {selectedImage != null ? (
+        //                     <Image
+        //                         source={{ uri: selectedImage }}
+        //                         style={styles.chatImage}
+        //                     />
+        //                 ) : null}
+        //                 {(selectedImage = useState(null))}
+        //             </View>
+        //         </ScrollView>
+        //         <View style={styles.chatCTA}>
+        //             <Input
+        //                 style={styles.chatMessage}
+        //                 placeholder={"Message"}
+        //                 value={message}
+        //                 onChangeText={setMessage}
+        //                 onSubmitEditing={async () => {
+        //                     var chatID = `${UID}|${ReceiverID}`;
+        //                     var timeStamp = Date.now();
+        //                     await update(ref(database, `Messages/${chatID}`), {
+        //                         ChatID: chatID,
+        //                         Participants: [
+        //                             chatID.split("|")[0],
+        //                             chatID.split("|")[1],
+        //                         ],
+        //                     });
+        //                     await update(
+        //                         ref(
+        //                             database,
+        //                             `Messages/${chatID}/Messages/${timeStamp}/`
+        //                         ),
+        //                         {
+        //                             MessageID: "",
+        //                             SenderID: UID,
+        //                             ReceiverID: ReceiverID,
+        //                             TimeStamp: timeStamp,
+        //                             Content: message,
+        //                         }
+        //                     );
+        //                 }}
+        //                 icon={"edit-2"}
+        //             />
+        //             <TouchableOpacity
+        //                 style={styles.chatBtnImage}
+        //                 onPress={pickImageAsync}
+        //                 title="Select Image"
+        //             >
+        //                 <Feather
+        //                     name="image"
+        //                     size={30}
+        //                     color="#000"
+        //                     style={styles.inputIcon}
+        //                 />
+        //             </TouchableOpacity>
+        //             <TouchableOpacity
+        //                 style={styles.chatBtnImage}
+        //                 onPress={pickImageAsync}
+        //                 title="Select Image"
+        //             >
+        //                 <Feather
+        //                     name="camera"
+        //                     size={30}
+        //                     color="#000"
+        //                     style={styles.inputIcon}
+        //                 />
+        //             </TouchableOpacity>
+        //         </View>
+        //     </View>
+        // </View>
     );
 }
 
