@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { push, update, ref, database } from "../config/firebase.config";
+import {
+    useState
+} from "react";
+import {
+    push,
+    update,
+    ref,
+    database
+} from "../config/firebase.config";
 
 const DefaultProfile =
     "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FProfile%2Fdefault-profile.jpg?alt=media&token=efe7ad46-1b02-464c-9a88-35a99009f263";
@@ -7,9 +14,11 @@ const DefaultProfile =
 function PriceFormat(price) {
     return `₱${price}`;
 }
+
 function IsNullOrEmpty(value) {
     return value === null || value === undefined || value === "";
 }
+
 function IDFormat(value) {
     value = value ? value : "";
     return "#" + value.replace(/[^a-zA-Z]/g, "").slice(-6);
@@ -20,8 +29,7 @@ async function PushNotification(uid, title, message, forWho) {
         ref(
             database,
             `Notification/${IsNullOrEmpty(uid) ? `General` : `${uid}`}/`
-        ),
-        {
+        ), {
             Title: title,
             Message: message,
             forWho: IsNullOrEmpty(forWho) ? "" : forWho,
@@ -35,12 +43,12 @@ async function PushNotification(uid, title, message, forWho) {
             `Notification/${
                 IsNullOrEmpty(uid) ? `General/${saveKey}` : `${uid}/${saveKey}`
             }/`
-        ),
-        {
+        ), {
             ID: saveKey,
         }
     );
 }
+
 function NumberFormat(phoneNumber) {
     if (IsNullOrEmpty(phoneNumber)) return false;
     // Remove any non-numeric characters from the input
@@ -63,7 +71,9 @@ function NumberFormat(phoneNumber) {
 const IsTextEmpty = (text) => {
     return !text || text.trim().length === 0;
 };
-
+const IsTextEmptyFallback = (text, fallback) => {
+    return IsNullOrEmpty(text) ? fallback : text;
+}
 const useBeforeRender = (callback, deps) => {
     const [isRun, setIsRun] = useState(false);
 
@@ -81,4 +91,5 @@ export {
     IsTextEmpty,
     PushNotification,
     useBeforeRender,
+    IsTextEmptyFallback
 };
