@@ -31,7 +31,7 @@ export default function ServiceProviderFeeds({ navigation, route }) {
     const [refreshing, setRefreshing] = React.useState(false);
     const [userInfo, setUserInfo] = useState({});
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
-    const { Category } = route.params;
+    const { Category, SearchKey } = route.params;
     let jobCount = 0;
     // console.log(`Category : ${Category}`);
     const getJobs = async () => {
@@ -80,17 +80,19 @@ export default function ServiceProviderFeeds({ navigation, route }) {
                 setUserInfo(user);
             });
         } else {
-            navigation.setParams({ Category: null });
+            navigation.setParams({ Category: null, SearhKey: null });
         }
     }, [isFocused]);
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = () => {
         setRefreshing(true);
         getJobs();
+
+        console.log(SearchKey);
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
-    }, []);
+    };
     return (
         <View style={{ paddingBottom: 120 }}>
             <StatusBar style="auto" />
@@ -107,10 +109,6 @@ export default function ServiceProviderFeeds({ navigation, route }) {
             >
                 <View style={style.ServiceFeedWrap}>
                     {Object.values(jobs).map((job) => {
-                        // console.log(IsNullOrEmpty(Category) + ":" + Category);
-                        // console.log(
-                        //     !job.Category.toLowerCase().includes(Category)
-                        // );
                         if (IsNullOrEmpty(Category) === null) {
                             if (
                                 job.PostedBy.includes(Email) ||
@@ -123,29 +121,65 @@ export default function ServiceProviderFeeds({ navigation, route }) {
                                 return;
                             }
                         }
-
-                        return (
-                            <ClientFeed
-                                name={job.Name}
-                                whatlooking={job.ServiceNeed}
-                                description={job.Description}
-                                price={PriceFormat(job.Price)}
-                                image={{
-                                    uri: job.Profile.Profile
-                                        ? job.Profile.Profile
-                                        : DefaultProfile,
-                                }}
-                                onpress={() => {
-                                    console.log(`From feed:${job.ID}`);
-                                    navigation.navigate(
-                                        "ServiceProviderPostView",
-                                        {
-                                            JobID: job.ID,
-                                        }
-                                    );
-                                }}
-                            />
-                        );
+                        if (!IsNullOrEmpty(SearchKey)) {
+                            if (
+                                job.Name.toLowerCase().includes(
+                                    SearchKey.toLowerCase()
+                                ) ||
+                                job.Description.toLowerCase().includes(
+                                    SearchKey.toLowerCase()
+                                ) ||
+                                job.ServiceNeed.toLowerCase().includes(
+                                    SearchKey.toLowerCase()
+                                )
+                            ) {
+                                return (
+                                    <ClientFeed
+                                        name={job.Name}
+                                        whatlooking={job.ServiceNeed}
+                                        description={job.Description}
+                                        price={PriceFormat(job.Price)}
+                                        image={{
+                                            uri: job.Profile.Profile
+                                                ? job.Profile.Profile
+                                                : DefaultProfile,
+                                        }}
+                                        onpress={() => {
+                                            console.log(`From feed:${job.ID}`);
+                                            navigation.navigate(
+                                                "ServiceProviderPostView",
+                                                {
+                                                    JobID: job.ID,
+                                                }
+                                            );
+                                        }}
+                                    />
+                                );
+                            }
+                        } else {
+                            return (
+                                <ClientFeed
+                                    name={job.Name}
+                                    whatlooking={job.ServiceNeed}
+                                    description={job.Description}
+                                    price={PriceFormat(job.Price)}
+                                    image={{
+                                        uri: job.Profile.Profile
+                                            ? job.Profile.Profile
+                                            : DefaultProfile,
+                                    }}
+                                    onpress={() => {
+                                        console.log(`From feed:${job.ID}`);
+                                        navigation.navigate(
+                                            "ServiceProviderPostView",
+                                            {
+                                                JobID: job.ID,
+                                            }
+                                        );
+                                    }}
+                                />
+                            );
+                        }
                     })}
                 </View>
                 {/* ClientServiceFeed - End */}

@@ -65,7 +65,7 @@ export default function Chat({ navigation, route }) {
         }
     };
 
-    const [participants, setParticipants] = useState({});
+    const [participants, setParticipants] = useState(null);
     const [chats, setChats] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
 
@@ -114,18 +114,34 @@ export default function Chat({ navigation, route }) {
     // }
 
     const getParticipants = async () => {
+        var url = `${firebaseBaseUrl}/Messages.json`;
+        var messages = await axios.get(url);
+        return messages.data;
+
+        // console.log(data);
+        // const mergedDataString = JSON.stringify(data, null, 2);
+        // console.log(mergedDataString);
+        // setChats(JSON.parse(mergedDataString));
+        // return JSON.parse(mergedDataString);
+    };
+    const getParticipantsData = async (messages) => {
         var data = {};
         var sender = {};
         var receiver = {};
+        var chatData = {};
         var messagesData = {};
-        var url = `${firebaseBaseUrl}/Messages.json`;
-        var messages = await axios.get(url);
-        for (var key in messages.data) {
+        Object.values(messages).map(async (message) => {
+            var key = message.ChatID;
+            // console.log(message.Participants);
+            // console.log(`this Ley ${message.ChatID}`);
             if (key.includes(ReceiverID) && key.includes(UID)) {
-                console.log(`Key : ${key}`);
-                url = `${firebaseBaseUrl}/Messages/${key}.json`;
-                var messagesData = await axios.get(url);
-                var participants = messagesData.data.Participants;
+                // console.log(`Key : ${key}`);
+                // var mUrl = `${firebaseBaseUrl}/Messages/${key}/Messages.json`;
+                // var mData = await axios.get(messagesUrl);
+
+                var chat = message.Messages;
+
+                var participants = message.Participants;
                 const ReceiverClient = participants.find(
                     (participants) => participants !== UID
                 );
@@ -138,63 +154,74 @@ export default function Chat({ navigation, route }) {
                 var receiverData = await axios.get(receiverURL);
                 var senderData = await axios.get(senderURL);
 
-                messagesData = messagesData.data;
+                messagesData = {
+                    ChatID: message.ChatID,
+                    Participants: message.Participants,
+                };
                 receiver = receiverData.data;
                 sender = senderData.data;
-            }
+                chatData = chat;
 
-            // console.log(`Receiver ${ReceiverClient} | Sender : ${UID}`);
-        }
-        data = {
-            ...messagesData,
-            Receiver: receiver,
-            Sender: sender,
-        };
-        const mergedDataString = JSON.stringify(data, null, 2);
-        setChats(JSON.parse(mergedDataString));
-        return JSON.parse(mergedDataString);
-    };
-    async function getMessages() {
-        await get(child(databaseRef, "Messages/")).then(async (messages) => {
-            if (messages.exists()) {
-                const snapMessages = messages.val();
-                for (const key in snapMessages) {
-                    const eachMessages = snapMessages[key];
-                    const snapChats = eachMessages.Messages;
-                    setChats(snapChats);
-                }
+                // console.log(messagesData);
+                data = {
+                    ...messagesData,
+                    Chats: chatData,
+                    Receiver: receiver,
+                    Sender: sender,
+                };
+                console.log("Data");
+                console.log(data);
+                setParticipants(data);
+                // console.log(`Receiver ${ReceiverClient} | Sender : ${UID}`);
             }
         });
-    }
+    };
+    // async function getMessages() {
+    //     await get(child(databaseRef, "Messages/")).then(async (messages) => {
+    //         if (messages.exists()) {
+    //             const snapMessages = messages.val();
+    //             for (const key in snapMessages) {
+    //                 const eachMessages = snapMessages[key];
+    //                 const snapChats = eachMessages.Messages;
+    //                 setChats(snapChats);
+    //             }
+    //         }
+    //     });
+    // }
     const isFocused = useIsFocused();
     useEffect(() => {
+        console.log(isFocused);
         if (isFocused == true) {
             onRefresh();
+            // getParticipants().then((data) => {
+            //     console.log("data");
+            //     console.log(data);
+            //     setChats(data);
+            // });
 
-            async function fetch() {
-                getParticipants().then((data) => {
-                    console.log("data");
-                    console.log(data);
-                    setChats(data);
-                });
-            }
-            fetch();
             console.log(chats);
         }
-    }, []);
+    }, [isFocused]);
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = () => {
         setRefreshing(true);
         console.log("Refresh");
+        // console.log(UserInfo);
         UserInfo().then((user) => {
             setUserInfo(user);
         });
 
-        // console.log(chats);
+        getParticipants().then((data) => {
+            console.log(data);
+            getParticipantsData(data).then((pData) => {
+                console.log(participants);
+            });
+        });
+
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
-    }, []);
+    };
     return (
         <></>
         // <View automaticallyAdjustContentInset={true}>
