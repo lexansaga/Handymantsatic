@@ -102,13 +102,13 @@ export default function AdminReports({ navigation, route }) {
         return response.data;
     };
     return (
-        <View>
+        <View style={{ marginTop: -20 }}>
             <Spinner
                 title={spinnerTitle}
                 description={"Please wait while uploading image..."}
                 isOpen={isSpinnerShow}
             />
-            <Header userProfile={profileLink} />
+            <Header userProfile={profileLink} isAdmin={true} />
 
             <Image
                 source={{

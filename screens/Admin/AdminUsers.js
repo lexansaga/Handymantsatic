@@ -119,13 +119,13 @@ export default function AdminUsers({ navigation, route }) {
         return response.data;
     };
     return (
-        <View>
+        <View style={{ marginTop: -20 }}>
             <Spinner
                 title={spinnerTitle}
                 description={"Please wait while uploading image..."}
                 isOpen={isSpinnerShow}
             />
-            <Header userProfile={profileLink} />
+            <Header userProfile={profileLink} isAdmin={true} />
 
             <Image
                 source={{
@@ -226,14 +226,26 @@ export default function AdminUsers({ navigation, route }) {
                         )}
 
                         {isServiceProvider ? (
-                            <View style={styles.InfoGroup}>
-                                <Text style={styles.InfoTitle}>Rate</Text>
-                                <Text style={styles.InfoContent}>
-                                    {IsNullOrEmpty(Rate)
-                                        ? "Not set"
-                                        : PriceFormat(Rate)}
-                                </Text>
-                            </View>
+                            <>
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Service Offered
+                                    </Text>
+                                    <Text style={styles.InfoContent}>
+                                        {IsNullOrEmpty(ServiceOffered)
+                                            ? "Not set"
+                                            : ServiceOffered}
+                                    </Text>
+                                </View>
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>Rate</Text>
+                                    <Text style={styles.InfoContent}>
+                                        {IsNullOrEmpty(Rate)
+                                            ? "Not set"
+                                            : PriceFormat(Rate)}
+                                    </Text>
+                                </View>
+                            </>
                         ) : (
                             <></>
                         )}
@@ -355,16 +367,6 @@ export default function AdminUsers({ navigation, route }) {
                             </View>
                         </View>
                     </View>
-                    {/* <View style={style.Section}>
-                        <PrimaryButton
-                            title={"Hire John"}
-                            onPress={() => {
-                                navigation.navigate("Client Hire Form", {
-                                    key: "value",
-                                });
-                            }}
-                        />
-                    </View> */}
                 </ScrollView>
             </View>
         </View>

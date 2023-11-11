@@ -71,8 +71,9 @@ export default function AdminHome({ navigation, route }) {
     }, []);
 
     return (
-        <View>
-            <Header profile={Profile} />
+        <View style={{ marginTop: -20 }}>
+            <StatusBar style="auto" />
+            <Header profile={Profile} isAdmin={true} />
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -113,7 +114,12 @@ export default function AdminHome({ navigation, route }) {
                                                     {user.Name}
                                                 </Text>
                                                 <Text style={style.UserType}>
-                                                    {user.Type}
+                                                    {user.Type}{" "}
+                                                    {!IsNullOrEmpty(
+                                                        user.ServiceOffered
+                                                    )
+                                                        ? ` | ${user.ServiceOffered}`
+                                                        : ""}
                                                 </Text>
                                             </View>
                                         </View>
