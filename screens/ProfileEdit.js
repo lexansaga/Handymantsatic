@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
     View,
     ScrollView,
@@ -14,23 +14,30 @@ import Header from "../components/Header";
 import ClientHome, { ClientServiceFeed } from "./Client/ClientHome";
 import style from "../styles/style";
 import {
+    UserInfo,
     auth,
     database,
     databaseRef,
     ref,
     child,
     get,
-    UserInfo,
     push,
     update,
     storage,
     sendPasswordResetEmail,
+    UserInfoAxios,
 } from "../config/firebase.config";
 
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile, IsNullOrEmpty, NumberFormat } from "./Utils";
+import {
+    DefaultProfile,
+    IsNullOrEmpty,
+    IsNullOrEmptyFallback,
+    NumberFormat,
+    NumberFormatNotFormatted,
+} from "./Utils";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -43,8 +50,11 @@ import Spinner from "../components/Spinner";
 import Input from "../components/Input";
 import SecondaryButton from "../components/SecondaryButton";
 import { add } from "react-native-reanimated";
+import AppAlert from "../components/AppAlert";
 export default function ProfileEdit({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
+
+    const userInfoRef = useRef({});
     const {
         Email,
         Name,
@@ -57,7 +67,8 @@ export default function ProfileEdit({ navigation, route }) {
         JobDescription,
         ServiceOffered,
         Rate,
-    } = userInfo;
+    } = route.params.UserInfo;
+
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
     const [profileLink, setProfileLink] = useState("");
@@ -85,6 +96,7 @@ export default function ProfileEdit({ navigation, route }) {
         ? false
         : Type.includes("ServiceProvider");
     let isCLient = IsNullOrEmpty(Type) ? false : Type.includes("Client");
+
     const getCategory = async () => {
         var categoryData = [];
         await get(child(databaseRef, `Category`))
@@ -193,7 +205,8 @@ export default function ProfileEdit({ navigation, route }) {
             setImage(result.assets[0].uri);
         }
     };
-    useLayoutEffect(() => {
+
+    useEffect(() => {
         if (isFocused) {
             onRefresh();
             console.log("Focused");
@@ -207,25 +220,28 @@ export default function ProfileEdit({ navigation, route }) {
         }
     }, [isFocused]);
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = () => {
         setRefreshing(true);
-
-        UserInfo().then((user) => {
-            setUserInfo(user);
-        });
-        console.log(userInfo);
+        // UserInfoAxios()
+        //     .then((data) => {
+        //         setUserInfo(data);
+        //         console.log(userInfo);
+        //     })
+        //     .catch((error) => {
+        //         console.log("error " + error);
+        //     });
         getCategory();
         setName(Name);
         setRate(Rate);
-        setContact(Contact);
+        setContact(NumberFormatNotFormatted(Contact));
         setDescription(JobDescription);
         setValue(ServiceOffered);
         setAddress(Address);
-        console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
-    }, []);
+    };
+
     return (
         <View style={{ paddingBottom: 92 }}>
             <Spinner
@@ -308,7 +324,9 @@ export default function ProfileEdit({ navigation, route }) {
                             placeholder={"Contact (9123456789)"}
                             value={contact}
                             onChangeText={setContact}
+                            maxLength={10}
                             icon="phone"
+                            keyboardType={"numeric"}
                             isPassword={false}
                         />
 
@@ -357,41 +375,55 @@ export default function ProfileEdit({ navigation, route }) {
                             <PrimaryButton
                                 title={"Save"}
                                 onPress={() => {
+                                    if (contact.length < 10) {
+                                        ShowToast(
+                                            "Please provide you 10-digits number"
+                                        );
+                                        return;
+                                    }
                                     const number =
                                         NumberFormat(contact) !== false
                                             ? NumberFormat(contact)
                                             : "Not Set";
                                     if (isServiceProvider) {
                                         update(ref(database, `Users/${UID}/`), {
-                                            Name: IsNullOrEmpty(name)
-                                                ? name
-                                                : Name,
-                                            ServiceOffered: IsNullOrEmpty(value)
-                                                ? ""
-                                                : value,
-                                            JobDescription: IsNullOrEmpty(
-                                                description
-                                            )
-                                                ? ""
-                                                : description,
-                                            Rate: IsNullOrEmpty(rate)
-                                                ? ""
-                                                : rate,
-                                            Contact: IsNullOrEmpty(number)
-                                                ? ""
-                                                : number,
+                                            Name: IsNullOrEmptyFallback(
+                                                name,
+                                                Name
+                                            ),
+                                            ServiceOffered:
+                                                IsNullOrEmptyFallback(
+                                                    value,
+                                                    "Not Set"
+                                                ),
+                                            JobDescription:
+                                                IsNullOrEmptyFallback(
+                                                    description,
+                                                    "Not Set"
+                                                ),
+                                            Rate: IsNullOrEmptyFallback(
+                                                rate,
+                                                "Not Set"
+                                            ),
+                                            Contact: IsNullOrEmptyFallback(
+                                                number,
+                                                "Not Set"
+                                            ),
                                         });
                                     } else {
                                         update(ref(database, `Users/${UID}/`), {
-                                            Name: IsNullOrEmpty(name)
-                                                ? name
-                                                : Name,
-                                            Address: IsNullOrEmpty(address)
-                                                ? ""
-                                                : address,
-                                            Contact: IsNullOrEmpty(number)
-                                                ? ""
-                                                : number,
+                                            Name: IsNullOrEmptyFallback(
+                                                name,
+                                                Name
+                                            ),
+                                            Address: IsNullOrEmptyFallback(
+                                                address,
+                                                "Not Set"
+                                            ),
+                                            Contact: IsNullOrEmptyFallback(
+                                                number,
+                                                "Not Set"
+                                            ),
                                         });
                                     }
 
@@ -408,7 +440,7 @@ export default function ProfileEdit({ navigation, route }) {
                                             // Password reset email sent!
                                             // ..
                                             ShowToast(
-                                                "Please check mail to reset password!   "
+                                                "Please check mail to reset your password!"
                                             );
                                         })
                                         .catch((error) => {

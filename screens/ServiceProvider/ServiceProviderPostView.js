@@ -28,7 +28,12 @@ import {
     update,
     UserInfo,
 } from "../../config/firebase.config";
-import { PriceFormat } from "../Utils";
+import {
+    DialCall,
+    NumberFormatNotFormatted,
+    PriceFormat,
+    SendMessage,
+} from "../Utils";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { render } from "react-native-web";
 import ShowToast from "../../components/Toast";
@@ -37,9 +42,11 @@ export default function ServiceProviderPostView({ navigation, route }) {
     const [refreshing, setRefreshing] = React.useState(false);
 
     const [userInfo, setUserInfo] = useState({});
-    const { Email, Name, Password, Profile, Type, UID } = userInfo;
+    const { Email, Name, Password, Profile, Type, UID, Contact } = userInfo;
 
     const [job, setJob] = useState([]);
+
+    const [clientInfo, setClientInfo] = useState({});
 
     const { JobID } = route.params;
     // console.log(`${JobID} Loaded`);
@@ -63,9 +70,12 @@ export default function ServiceProviderPostView({ navigation, route }) {
     useEffect(() => {
         if (isFocused == true) {
             getJobs();
+            console.log(job.ClientID);
             UserInfo().then((user) => {
                 setUserInfo(user);
+                console.log(userInfo);
             });
+
             console.log("Job");
             console.log(job);
         }
@@ -94,10 +104,24 @@ export default function ServiceProviderPostView({ navigation, route }) {
                 <AppTitle
                     title={job.Name}
                     hasContact={true}
-                    dialNo={12345678901}
+                    PhoneOnPress={() => {
+                        UserInfo(job.ClientID).then((user) => {
+                            DialCall(
+                                parseInt(NumberFormatNotFormatted(user.Contact))
+                            );
+                        });
+                    }}
                     MessageOnPress={() => {
-                        navigation.navigate("Chat", {
-                            ReceiverID: job.ClientID,
+                        // navigation.navigate("Chat", {
+                        //     ReceiverID: job.ClientID,
+                        // });
+                        UserInfo(job.ClientID).then((user) => {
+                            SendMessage(
+                                parseInt(
+                                    NumberFormatNotFormatted(user.Contact)
+                                ),
+                                `Say Hi to ${job.Name}!`
+                            );
                         });
                     }}
                 />

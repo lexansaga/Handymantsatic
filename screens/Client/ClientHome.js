@@ -25,7 +25,12 @@ import {
     get,
     UserInfo,
 } from "../../config/firebase.config";
-import { DefaultProfile, IsNullOrEmpty, PriceFormat } from "../Utils";
+import {
+    DefaultProfile,
+    IsNullOrEmpty,
+    IsNullOrEmptyFallback,
+    PriceFormat,
+} from "../Utils";
 import { useNavigation } from "@react-navigation/native";
 export default function ClientHome({ navigation, route, props }) {
     const useNav = useNavigation();
@@ -153,7 +158,10 @@ export default function ClientHome({ navigation, route, props }) {
                             if (
                                 IsNullOrEmpty(workers) ||
                                 // IsNullOrEmpty(worker.ServiceOffered) ||
-                                worker.Type.includes("Client")
+                                IsNullOrEmptyFallback(
+                                    worker.Type,
+                                    "Client"
+                                ).includes("Client")
                             ) {
                                 return;
                             }

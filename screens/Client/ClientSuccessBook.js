@@ -31,7 +31,14 @@ import {
     UserInfo,
 } from "../../config/firebase.config";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile, PriceFormat, IDFormat, IsNullOrEmpty } from "../Utils";
+import {
+    DefaultProfile,
+    PriceFormat,
+    IDFormat,
+    IsNullOrEmpty,
+    DialCall,
+    SendMessage,
+} from "../Utils";
 export default function ClientSuccessBook({ navigation, route }) {
     const [name, contact, date, time, location] = useState("");
     const [dpOpen, dpSetOpen] = useState(false);
@@ -163,7 +170,7 @@ export default function ClientSuccessBook({ navigation, route }) {
                                 <View style={styles.KeepInTouchIconWrap}>
                                     <TouchableOpacity
                                         onPress={() => {
-                                            dialCall(
+                                            DialCall(
                                                 JobOrder.ServiceProvider.Contact
                                             );
                                         }}
@@ -215,22 +222,22 @@ export default function ClientSuccessBook({ navigation, route }) {
     );
 }
 
-const dialCall = (number) => {
-    let phoneNumber = "";
-    if (Platform.OS === "android") {
-        phoneNumber = `tel:${number}`;
-    } else {
-        phoneNumber = `telprompt:${number}`;
-    }
-    Linking.openURL(phoneNumber);
-};
-const SendMessage = (phoneNumber, message) => {
-    let url = `sms:${phoneNumber}${
-        Platform.OS === "ios" ? "&" : "?"
-    }body=${message}`;
+// const dialCall = (number) => {
+//     let phoneNumber = "";
+//     if (Platform.OS === "android") {
+//         phoneNumber = `tel:${number}`;
+//     } else {
+//         phoneNumber = `telprompt:${number}`;
+//     }
+//     Linking.openURL(phoneNumber);
+// };
+// const SendMessage = (phoneNumber, message) => {
+//     let url = `sms:${phoneNumber}${
+//         Platform.OS === "ios" ? "&" : "?"
+//     }body=${message}`;
 
-    Linking.openURL(url);
-};
+//     Linking.openURL(url);
+// };
 const styles = StyleSheet.create({
     CoverImage: {
         width: "100%",

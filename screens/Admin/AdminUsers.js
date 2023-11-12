@@ -251,7 +251,9 @@ export default function AdminUsers({ navigation, route }) {
                         )}
 
                         <View style={styles.InfoGroup}>
-                            <Text style={styles.InfoTitle}>Set Active</Text>
+                            <Text style={styles.InfoTitle}>
+                                Disable Account
+                            </Text>
                             <Switch
                                 trackColor={{
                                     false: "#767577",

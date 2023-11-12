@@ -137,7 +137,9 @@ export default function ClientHire({ navigation, route }) {
                         <TouchableOpacity
                             style={styles.editBtn}
                             onPress={() => {
-                                navigation.navigate("ProfileEdit");
+                                navigation.navigate("ProfileEdit", {
+                                    UserInfo: userInfo,
+                                });
                             }}
                         >
                             <Feather name={"edit"} size={18} color="#333" />
@@ -153,16 +155,28 @@ export default function ClientHire({ navigation, route }) {
                             </Text>
                         </View>
                         {isServiceProvider ? (
-                            <View style={styles.InfoGroup}>
-                                <Text style={styles.InfoTitle}>
-                                    Cover Letter
-                                </Text>
-                                <Text style={styles.InfoContent}>
-                                    {IsNullOrEmpty(JobDescription)
-                                        ? "Not set"
-                                        : JobDescription}
-                                </Text>
-                            </View>
+                            <>
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Cover Letter
+                                    </Text>
+                                    <Text style={styles.InfoContent}>
+                                        {IsNullOrEmpty(JobDescription)
+                                            ? "Not set"
+                                            : JobDescription}
+                                    </Text>
+                                </View>
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Service Offered
+                                    </Text>
+                                    <Text style={styles.InfoContent}>
+                                        {IsNullOrEmpty(ServiceOffered)
+                                            ? "Not set"
+                                            : ServiceOffered}
+                                    </Text>
+                                </View>
+                            </>
                         ) : (
                             <></>
                         )}

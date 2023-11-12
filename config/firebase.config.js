@@ -29,6 +29,7 @@ import {
 } from "firebase/database";
 import { getStorage, uploadBytes } from "firebase/storage";
 import { useState } from "react";
+import { GetDataAxios, IsNullOrEmptyFallback } from "../screens/Utils";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -44,6 +45,9 @@ const firebaseConfig = {
     appId: "1:523036321778:web:5fdc9c5d82c5f8778ead6b",
     measurementId: "G-3E9E09B653",
 };
+
+const firebaseBaseUrl =
+    "https://handymantastic-80f66-default-rtdb.firebaseio.com/";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -70,7 +74,7 @@ async function getDataOnce(path) {
     return data;
 }
 async function UserInfo(id) {
-    const currentUserUID = id ? id : auth.currentUser.uid;
+    const currentUserUID = IsNullOrEmptyFallback(id, auth.currentUser.uid);
     // console.error(currentUserUID);
     return await get(child(databaseRef, `Users/${currentUserUID}/`)).then(
         (snapshot) => {
@@ -81,8 +85,12 @@ async function UserInfo(id) {
     );
 }
 
-const firebaseBaseUrl =
-    "https://handymantastic-80f66-default-rtdb.firebaseio.com/";
+async function UserInfoAxios(id) {
+    const currentUserUID = IsNullOrEmptyFallback(id, auth.currentUser.uid);
+    return await GetDataAxios(
+        `${firebaseBaseUrl}/Users/${currentUserUID}.json`
+    );
+}
 export {
     app,
     auth,
@@ -107,6 +115,7 @@ export {
     orderBy,
     getDataOnce,
     UserInfo,
+    UserInfoAxios,
     storage,
     firebaseBaseUrl,
 };

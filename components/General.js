@@ -1,8 +1,14 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { DialCall } from "../screens/Utils";
 
-export const AppTitle = ({ title, hasContact, dialNo, MessageOnPress }) => {
+export const AppTitle = ({
+    title,
+    hasContact,
+    PhoneOnPress,
+    MessageOnPress,
+}) => {
     return (
         <View style={style.HeaderTitle}>
             <Text style={hasContact ? style.Title : style.NoIconTitle}>
@@ -17,15 +23,12 @@ export const AppTitle = ({ title, hasContact, dialNo, MessageOnPress }) => {
                           }
                 }
             >
-                <TouchableOpacity>
+                <TouchableOpacity onPress={PhoneOnPress}>
                     <Feather
                         name={"phone-call"}
                         size={25}
                         color="#fff"
                         style={style.KeepInTouchIcon}
-                        onPress={() => {
-                            this.dialCall(dialNo);
-                        }}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={MessageOnPress}>
