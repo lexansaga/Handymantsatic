@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, Image, View, Picker } from "react-native";
+import { StyleSheet, Text, Image, View, Picker, Alert } from "react-native";
 import PrimaryButton from "../components/PrimaryButton";
 import styles from "../styles/style.js";
 import Input from "../components/Input.js";
@@ -17,7 +17,7 @@ import {
     ref,
     set,
 } from "../config/firebase.config";
-import {} from "firebase/auth";
+import { sendEmailVerification } from "firebase/auth";
 
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 export default function Signup({ navigation }) {
@@ -56,11 +56,39 @@ export default function Signup({ navigation }) {
             .then(async (userCredential) => {
                 // Signed in
                 const user = userCredential.user;
-                ShowToast("Sign Up Success!");
-                navigation.navigate("Signin", { key: "value" });
+
                 var uid = user.uid;
                 console.log(uid);
-
+                set(ref(database, `Users/${uid}`), {
+                    UID: uid,
+                    Name: name,
+                    Email: email,
+                    Password: password,
+                    Type: value,
+                });
+                ShowToast("Account created successfully.");
+                sendEmailVerification(auth.currentUser).then(() => {
+                    ShowToast("Please check mail and verify to log in");
+                    Alert.alert(
+                        "Verify Email",
+                        "Please verify your email to login! \n Check you mail box and follow the link. \n \n Once verified you can now login directly!",
+                        [
+                            {
+                                text: "Got",
+                                onPress: () => {
+                                    //Accept - Yes
+                                    ShowToast("Sign Up Success!");
+                                    navigation.navigate("Signin", {
+                                        key: "value",
+                                    });
+                                },
+                            },
+                        ],
+                        {
+                            cancelable: false,
+                        }
+                    );
+                });
                 // Add a new document in collection "cities"
                 // await setDoc(
                 //     doc(firestore, "User", `${uid}`),
@@ -73,14 +101,6 @@ export default function Signup({ navigation }) {
                 //     { merge: true }
                 // );
 
-                set(ref(database, `Users/${uid}`), {
-                    UID: uid,
-                    Name: name,
-                    Email: email,
-                    Password: password,
-                    Type: value,
-                });
-                ShowToast("Account created successfully.");
                 // ...
             })
             .catch((error) => {

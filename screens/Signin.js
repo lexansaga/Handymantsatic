@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, Image, View } from "react-native";
+import { StyleSheet, Text, Image, View, Alert } from "react-native";
 import PrimaryButton from "../components/PrimaryButton";
 import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
@@ -22,6 +22,8 @@ import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
 } from "../config/firebase.config";
+import { getAuth, sendEmailVerification } from "firebase/auth";
+import AppAlert from "../components/AppAlert.js";
 
 // import { } from "firebase/firestore";
 export default function Signin({ navigation }) {
@@ -36,6 +38,8 @@ export default function Signin({ navigation }) {
                 // console.log(user);
                 if (user) {
                     const uid = user.uid;
+                    const isVerified = user.emailVerified;
+
                     await get(child(databaseRef, `Users/${uid}/`))
                         .then((snapshot) => {
                             if (snapshot.exists()) {
@@ -44,28 +48,58 @@ export default function Signin({ navigation }) {
                                 var name = snap.Name;
                                 var profile = snap.Profile;
                                 var type = String(snap.Type);
-                                var isActive = snap.IsActive;
-                                if (isActive == false || isActive == "false") {
-                                    // ShowToast("This account is now disabled!");
+                                var isDisable = snap.IsDisable;
+                                if (isDisable == true || isDisable == "true") {
+                                    ShowToast("This account is now disabled!");
                                     return;
                                 } else {
-                                    console.log(email);
-                                    if (type.includes("Client")) {
-                                        navigation.replace("Home", {
-                                            UID: uid,
-                                            Email: email,
-                                            Name: name,
-                                            Type: type,
-                                            Profile: profile,
-                                        });
+                                    if (isVerified === true) {
+                                        console.log(
+                                            `isVerified ${isVerified} : ${
+                                                isVerified === true
+                                            }`
+                                        );
+                                        if (type.includes("Client")) {
+                                            navigation.replace("Home", {
+                                                UID: uid,
+                                                Email: email,
+                                                Name: name,
+                                                Type: type,
+                                                Profile: profile,
+                                            });
+                                        } else {
+                                            navigation.replace("Home", {
+                                                UID: uid,
+                                                Email: email,
+                                                Name: name,
+                                                Type: type,
+                                                Profile: profile,
+                                            });
+                                        }
                                     } else {
-                                        navigation.replace("Home", {
-                                            UID: uid,
-                                            Email: email,
-                                            Name: name,
-                                            Type: type,
-                                            Profile: profile,
-                                        });
+                                        Alert.alert(
+                                            "Verify Email",
+                                            "Please verify your email to login! \n Check you mail box and follow the link. \n \n Once verified you can now login directly!",
+                                            [
+                                                {
+                                                    text: "No",
+                                                    onPress: () => {},
+                                                    style: "cancel",
+                                                },
+                                                {
+                                                    text: "Send Email",
+                                                    onPress: () => {
+                                                        //Accept - Yes
+                                                        sendEmailVerification(
+                                                            auth.currentUser
+                                                        ).then(() => {});
+                                                    },
+                                                },
+                                            ],
+                                            {
+                                                cancelable: false,
+                                            }
+                                        );
                                     }
                                 }
                             } else {
@@ -98,7 +132,10 @@ export default function Signin({ navigation }) {
         signInWithEmailAndPassword(auth, email, password)
             .then(async (userCredential) => {
                 // Signed in
+
                 const user = userCredential.user;
+                const isVerified = user.emailVerified;
+
                 ShowToast("Login Success!");
 
                 setEmail("");
@@ -113,29 +150,59 @@ export default function Signin({ navigation }) {
                             var name = snap.Name;
                             var profile = snap.Profile;
                             var type = String(snap.Type);
-                            var isActive = snap.IsActive;
-                            console.log(`IsActive? ${isActive}`);
-                            if (isActive == false || isActive == "false") {
+                            var isDisable = snap.IsDisable;
+                            console.log(`IsActive? ${isDisable}`);
+                            if (isDisable === true || isDisable == "true") {
                                 ShowToast("This account is now disabled!");
                                 return;
                             } else {
-                                console.log("Now logged in");
-                                if (type.includes("Client")) {
-                                    navigation.replace("Home", {
-                                        UID: uid,
-                                        Email: email,
-                                        Name: name,
-                                        Type: type,
-                                        Profile: profile,
-                                    });
+                                if (isVerified === true) {
+                                    console.log(
+                                        `This verified ${isVerified} : ${
+                                            isVerified === true
+                                        }`
+                                    );
+                                    if (type.includes("Client")) {
+                                        navigation.replace("Home", {
+                                            UID: uid,
+                                            Email: email,
+                                            Name: name,
+                                            Type: type,
+                                            Profile: profile,
+                                        });
+                                    } else {
+                                        navigation.replace("Home", {
+                                            UID: uid,
+                                            Email: email,
+                                            Name: name,
+                                            Type: type,
+                                            Profile: profile,
+                                        });
+                                    }
                                 } else {
-                                    navigation.replace("Home", {
-                                        UID: uid,
-                                        Email: email,
-                                        Name: name,
-                                        Type: type,
-                                        Profile: profile,
-                                    });
+                                    Alert.alert(
+                                        "Verify Email",
+                                        "Please verify your email to login! \n Check you mail box and follow the link. \n \n Once verified you can now login directly!",
+                                        [
+                                            {
+                                                text: "No",
+                                                onPress: () => {},
+                                                style: "cancel",
+                                            },
+                                            {
+                                                text: "Send Email",
+                                                onPress: () => {
+                                                    //Accept - Yes
+                                                    sendEmailVerification(
+                                                        auth.currentUser
+                                                    ).then(() => {});
+                                                },
+                                            },
+                                        ],
+                                        {
+                                            cancelable: false,
+                                        }
+                                    );
                                 }
                             }
                         } else {

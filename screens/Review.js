@@ -128,7 +128,7 @@ export default function Review({ navigation, route }) {
                             >
                                 {serviceProviderInfo.Name}
                             </Text>{" "}
-                            service?
+                            ?
                         </Text>
                         <View style={styles.StarRate}>
                             <StarRating

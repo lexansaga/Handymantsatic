@@ -19,11 +19,11 @@ export default function App({ route }) {
     var isLoggedIn = true;
     return (
         <NavigationContainer independent={true}>
-            {/* <View style={style.watermark}>
+            <View style={style.watermark}>
                 <Text style={style.watermarkText}>
                     This Project is Created by Alexander Saga
                 </Text>
-            </View> */}
+            </View>
 
             {/* <MainStack /> */}
             <Drawer.Navigator>

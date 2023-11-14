@@ -32,7 +32,12 @@ import StarRating from "../../components/StarRating";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile, IsNullOrEmpty, PriceFormat } from "../Utils";
+import {
+    DefaultProfile,
+    GetDataAxios,
+    IsNullOrEmpty,
+    PriceFormat,
+} from "../Utils";
 import { Feather } from "@expo/vector-icons";
 
 import * as ImagePicker from "expo-image-picker";
@@ -46,6 +51,11 @@ import Spinner from "../../components/Spinner";
 import { Toast } from "reactstrap";
 import AppAlert from "../../components/AppAlert";
 export default function AdminUsers({ navigation, route }) {
+    const ID = route.params.ID;
+    const Type = route.params.Type;
+    const Data = route.params.Data;
+    console.log(ID);
+
     const [userInfo, setUserInfo] = useState({});
     const {
         Email,
@@ -67,21 +77,18 @@ export default function AdminUsers({ navigation, route }) {
     const [spinnerTitle, setSpinnerTitle] = useState("");
     const [isSpinnerShow, setSpinnerShow] = useState(false);
     const [reviews, setReviews] = useState({});
-    const [isUserActive, setIsUserActive] = useState(
-        IsActive ? IsActive : false
-    );
+    const [isDisable, setIsDisable] = useState(isDisable ? isDisable : false);
     const toggleIsUserActive = () => {
-        setIsUserActive(!isUserActive);
+        setIsDisable(!isDisable);
         update(child(databaseRef, `Users/${UID}/`), {
-            IsActive: !isUserActive,
+            IsDisable: !isDisable,
         });
         // console.log(isUserActive);
     };
+    console.log("Account Disable? " + isDisable);
 
     const [image, setImage] = useState(null);
 
-    const ID = route.params.ID;
-    const Type = route.params.Type;
     console.log(`This type ${ID}`);
 
     let isServiceProvider = IsNullOrEmpty(Type)
@@ -98,9 +105,9 @@ export default function AdminUsers({ navigation, route }) {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        UserInfo(ID).then((user) => {
+        GetDataAxios(`${firebaseBaseUrl}/Users/${ID}.json`).then((user) => {
             setUserInfo(user);
-            setIsUserActive(user.IsActive);
+            setIsDisable(user.IsDisable);
             getClientReviews(user.UID).then((data) => {
                 setReviews(data);
             });
@@ -259,12 +266,10 @@ export default function AdminUsers({ navigation, route }) {
                                     false: "#767577",
                                     true: "#81b0ff",
                                 }}
-                                thumbColor={
-                                    isUserActive ? "#f5dd4b" : "#f4f3f4"
-                                }
+                                thumbColor={isDisable ? "#f5dd4b" : "#f4f3f4"}
                                 ios_backgroundColor="#3e3e3e"
                                 onValueChange={toggleIsUserActive}
-                                value={isUserActive}
+                                value={isDisable}
                             />
                         </View>
 

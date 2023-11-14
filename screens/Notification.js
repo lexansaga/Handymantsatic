@@ -26,21 +26,19 @@ export default Notification = ({ navigation, route }) => {
     const [notifications, setNotification] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const getNotification = async () => {
-        await get(child(databaseRef, `Notification/General/`)).then(
-            (notification) => {
-                let snapNotif = notification.val();
-                let Notification = [];
-                Object.values(snapNotif).map(async (notification) => {
-                    Notification.push({
-                        ID: notification.ID,
-                        Title: notification.Title,
-                        Message: notification.Message,
-                        forWho: notification.forWho,
-                    });
+        await get(child(databaseRef, `Notification/`)).then((notification) => {
+            let snapNotif = notification.val();
+            let Notification = [];
+            Object.values(snapNotif).map(async (notification) => {
+                Notification.push({
+                    ID: notification.ID,
+                    Title: notification.Title,
+                    Message: notification.Message,
+                    forWho: notification.forWho,
                 });
-                setNotification(Notification);
-            }
-        );
+            });
+            setNotification(Notification);
+        });
     };
     const isFocused = useIsFocused();
     useEffect(() => {
@@ -76,8 +74,12 @@ export default Notification = ({ navigation, route }) => {
             >
                 <View style={style.NotificationWrap}>
                     {Object.values(notifications).map((notification) => {
-                        console.log(`${Type} : ${notification.forWho}`);
-                        if (!Type.includes(notification.forWho)) {
+                        // console.log(`${UID.includes(notification.forWho)}`);
+                        if (
+                            !Type.includes(notification.forWho) &&
+                            !UID.includes(notification.forWho) &&
+                            !notification.forWho.includes("Global")
+                        ) {
                             return;
                         }
                         return (
@@ -113,6 +115,7 @@ const style = StyleSheet.create({
     },
     NotificationWrap: {
         display: "flex",
+        flexDirection: "column-reverse",
         alignItems: "center",
         gap: 8,
         marginTop: 18,

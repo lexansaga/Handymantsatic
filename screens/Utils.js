@@ -25,31 +25,18 @@ function IDFormat(value) {
     return "#" + value.replace(/[^a-zA-Z]/g, "").slice(-6);
 }
 
-async function PushNotification(uid, title, message, forWho) {
-    var save = await push(
-        ref(
-            database,
-            `Notification/${IsNullOrEmpty(uid) ? `General` : `${uid}`}/`
-        ),
-        {
-            Title: title,
-            Message: message,
-            forWho: IsNullOrEmpty(forWho) ? "" : forWho,
-            IsRead: false,
-        }
-    );
+async function PushNotification(title, message, forWho, data) {
+    var save = await push(ref(database, `Notification/`), {
+        Title: title,
+        Message: message,
+        forWho: IsNullOrEmptyFallback(forWho, ""),
+        IsRead: false,
+        ...data,
+    });
     var saveKey = save.key;
-    await update(
-        ref(
-            database,
-            `Notification/${
-                IsNullOrEmpty(uid) ? `General/${saveKey}` : `${uid}/${saveKey}`
-            }/`
-        ),
-        {
-            ID: saveKey,
-        }
-    );
+    await update(ref(database, `Notification/${saveKey}/`), {
+        ID: saveKey,
+    });
 }
 
 function NumberFormat(phoneNumber) {

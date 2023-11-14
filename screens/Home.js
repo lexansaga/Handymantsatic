@@ -17,6 +17,7 @@ import ServiceProviderPostAJob from "./ServiceProvider/ServiceProviderPostAJob";
 import AdminHome from "./Admin/AdminHome";
 import AdminUsers from "./Admin/AdminUsers";
 import AdminReports from "./Admin/AdminReports";
+import AdminNotification from "./Admin/AdminNotification";
 
 import Signin from "./Signin";
 import Signup from "./Signup";
@@ -68,6 +69,11 @@ const AdminNavigator = () => {
                 name="Home"
                 initialParams={globalRoute.params}
                 component={AdminStackNavigator}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="Notification"
+                initialParams={globalRoute.params}
+                component={AdminNotification}
             ></Drawer.Screen>
             <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>
@@ -225,11 +231,11 @@ const ClientDrawerNavigator = () => {
                 component={ClientStackNavigator}
             ></Drawer.Screen>
 
-            <Drawer.Screen
+            {/* <Drawer.Screen
                 name="Messages"
                 initialParams={globalRoute.params}
                 component={ChatList}
-            ></Drawer.Screen>
+            ></Drawer.Screen> */}
 
             <Drawer.Screen
                 name="Feed"

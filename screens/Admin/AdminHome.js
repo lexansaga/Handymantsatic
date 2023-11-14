@@ -116,11 +116,13 @@ export default function AdminHome({ navigation, route }) {
                                     return (
                                         <TouchableOpacity
                                             onPress={() => {
+                                                // console.log(user);
                                                 navigation.navigate(
                                                     "AdminUsers",
                                                     {
                                                         ID: user.UID,
                                                         Type: user.Type,
+                                                        Data: user,
                                                     }
                                                 );
                                             }}
@@ -228,7 +230,6 @@ const style = StyleSheet.create({
     },
     AdminSearch: {
         position: "relative",
-        height: 100,
         verticalAlign: "top",
         maxHeight: 100,
         width: "100%",
