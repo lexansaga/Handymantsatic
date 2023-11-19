@@ -112,10 +112,14 @@ export default function TaskActive({ navigation, route }) {
         if (isFocused) {
             onRefresh();
             console.log("Focused");
-            UserInfo().then((user) => {
-                setUserInfo(user);
-                // console.log(userInfo);
-            });
+            UserInfo()
+                .then((user) => {
+                    setUserInfo(user);
+                    // console.log(userInfo);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         }
     }, [isFocused]);
 
@@ -123,7 +127,6 @@ export default function TaskActive({ navigation, route }) {
         setRefreshing(true);
         getJobOrder();
         console.log("Refresh");
-
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
@@ -157,18 +160,22 @@ export default function TaskActive({ navigation, route }) {
                                 iType,
                             } = "";
                             if (isServiceProvider) {
-                                iUID = data.Client.UID;
-                                iName = data.Client.Name;
-                                iProfile = data.Client.Profile;
-                                iWhatIsLooking = "Client";
-                                iType = data.Client.Type;
+                                if (!IsNullOrEmpty(data.Client)) {
+                                    iUID = data.Client.UID;
+                                    iName = data.Client.Name;
+                                    iProfile = data.Client.Profile;
+                                    iWhatIsLooking = "Client";
+                                    iType = data.Client.Type;
+                                }
                             } else {
-                                iUID = data.ServiceProvider.UID;
-                                iName = data.ServiceProvider.Name;
-                                iProfile = data.ServiceProvider.Profile;
-                                iWhatIsLooking =
-                                    data.ServiceProvider.ServiceOffered;
-                                iType = data.ServiceProvider.Type;
+                                if (!IsNullOrEmpty(data.ServiceProvider)) {
+                                    iUID = data.ServiceProvider.UID;
+                                    iName = data.ServiceProvider.Name;
+                                    iProfile = data.ServiceProvider.Profile;
+                                    iWhatIsLooking =
+                                        data.ServiceProvider.ServiceOffered;
+                                    iType = data.ServiceProvider.Type;
+                                }
                             }
                             if (
                                 !status

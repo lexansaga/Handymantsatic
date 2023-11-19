@@ -119,6 +119,8 @@ export default function Signup({ navigation }) {
                 source={require("../assets/logo.png")}
                 style={pageStyles.image}
             />
+            <Text style={pageStyles.pageTitle}>Handymantastic</Text>
+
             <Text style={pageStyles.pageTitle}>SIGN UP</Text>
             <View style={pageStyles.InputWrapper}>
                 <DropDownPicker

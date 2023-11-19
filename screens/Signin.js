@@ -228,23 +228,32 @@ export default function Signin({ navigation }) {
                 source={require("../assets/logo.png")}
                 style={pageStyles.image}
             />
+            <Text style={pageStyles.pageTitle}>Handymantastic</Text>
             <Text style={pageStyles.pageTitle}>Sign in</Text>
-            <Input
-                style={pageStyles.gap}
-                placeholder={"Username"}
-                value={email}
-                onChangeText={setEmail}
-                icon="user"
-                keyboardType="email-address"
-            />
-            <Input
-                style={pageStyles.gap}
-                placeholder={"Password"}
-                value={password}
-                onChangeText={setPassword}
-                icon="lock"
-                isPassword={true}
-            />
+            <View
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8,
+                }}
+            >
+                <Input
+                    style={pageStyles.gap}
+                    placeholder={"Username"}
+                    value={email}
+                    onChangeText={setEmail}
+                    icon="user"
+                    keyboardType="email-address"
+                />
+                <Input
+                    style={pageStyles.gap}
+                    placeholder={"Password"}
+                    value={password}
+                    onChangeText={setPassword}
+                    icon="lock"
+                    isPassword={true}
+                />
+            </View>
             <Text
                 style={[pageStyles.forgotPass, pageStyles.gap]}
                 onPress={() => {

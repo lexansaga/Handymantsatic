@@ -239,7 +239,6 @@ const style = StyleSheet.create({
         fontSize: 15,
         borderRadius: 50,
         minHeight: 50,
-        height: 50,
         marginTop: "auto",
         marginBottom: 20,
         fontFamily: "Roboto",

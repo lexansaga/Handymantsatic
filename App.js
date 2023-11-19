@@ -19,12 +19,6 @@ export default function App({ route }) {
     var isLoggedIn = true;
     return (
         <NavigationContainer independent={true}>
-            <View style={style.watermark}>
-                <Text style={style.watermarkText}>
-                    This Project is Created by Alexander Saga
-                </Text>
-            </View>
-
             {/* <MainStack /> */}
             <Drawer.Navigator>
                 {/* This screen can be accessible even if when user is not authenticated */}
