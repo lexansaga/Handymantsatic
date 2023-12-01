@@ -36,6 +36,7 @@ import {
     DefaultProfile,
     GetDataAxios,
     IsNullOrEmpty,
+    IsNullOrEmptyFallback,
     PriceFormat,
 } from "../Utils";
 import { Feather } from "@expo/vector-icons";
@@ -50,10 +51,13 @@ import ShowToast from "../../components/Toast";
 import Spinner from "../../components/Spinner";
 import { Toast } from "reactstrap";
 import AppAlert from "../../components/AppAlert";
+import CustomModal from "../../components/CustomModal";
 export default function AdminUsers({ navigation, route }) {
     const ID = route.params.ID;
     const Type = route.params.Type;
     const Data = route.params.Data;
+    const Documents = route.params.Documents;
+    console.log(route.params);
     console.log(ID);
 
     const [userInfo, setUserInfo] = useState({});
@@ -70,6 +74,27 @@ export default function AdminUsers({ navigation, route }) {
         Address,
         IsActive,
     } = userInfo;
+
+    const { ValidID, NBI, Certificate1, Certificate2, Face } =
+        IsNullOrEmptyFallback(Documents, {});
+
+    const [validID, setValidID] = useState("");
+    const [nbi, setNBI] = useState("");
+    const [certificate1, setCertificate1] = useState("");
+    const [certificate2, setCertificate2] = useState("");
+    const [face, setFace] = useState("");
+
+    const [isModalShown, setIsModalShown] = useState(false);
+    const [modalImage, setModalImage] = useState("");
+    const [modalVisible, setModalVisible] = useState(false);
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
     const [profileLink, setProfileLink] = useState("");
@@ -85,6 +110,9 @@ export default function AdminUsers({ navigation, route }) {
         });
         // console.log(isUserActive);
     };
+    var blankImage =
+        "https://firebasestorage.googleapis.com/v0/b/handymantastic-80f66.appspot.com/o/Assets%2FDocument%2Fblank-doc.png?alt=media&token=45edf5d4-0a30-4107-8622-bf41ccb8746e";
+
     console.log("Account Disable? " + isDisable);
 
     const [image, setImage] = useState(null);
@@ -113,6 +141,12 @@ export default function AdminUsers({ navigation, route }) {
             });
         });
 
+        setValidID(IsNullOrEmptyFallback(ValidID, blankImage));
+        setNBI(IsNullOrEmptyFallback(NBI, blankImage));
+        setCertificate1(IsNullOrEmptyFallback(Certificate1, blankImage));
+        setCertificate2(IsNullOrEmptyFallback(Certificate2, blankImage));
+        setFace(IsNullOrEmptyFallback(Face, blankImage));
+
         console.log("Refresh");
         setTimeout(() => {
             setRefreshing(false);
@@ -134,6 +168,22 @@ export default function AdminUsers({ navigation, route }) {
             />
             <Header userProfile={profileLink} isAdmin={true} />
 
+            <CustomModal
+                visible={modalVisible}
+                closeModal={closeModal}
+                modalContent={
+                    <Image
+                        source={{
+                            uri: modalImage,
+                        }}
+                        style={{
+                            height: "100%",
+                            width: "100%",
+                            resizeMode: "contain",
+                        }}
+                    />
+                }
+            />
             <Image
                 source={{
                     uri: Profile ? Profile : DefaultProfile,
@@ -271,6 +321,154 @@ export default function AdminUsers({ navigation, route }) {
                                 onValueChange={toggleIsUserActive}
                                 value={isDisable}
                             />
+                        </View>
+
+                        <View
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 8,
+                                marginTop: 28,
+                            }}
+                        >
+                            <View style={styles.DocumentSection}>
+                                <Text
+                                    style={[
+                                        style.SectionTitle,
+                                        { textAlign: "left" },
+                                    ]}
+                                >
+                                    Goverment ID
+                                </Text>
+                                <View style={styles.DocumentImageWrap}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            console.log("Long Press");
+                                            setModalImage(validID);
+                                            openModal();
+                                            console.log(isModalShown);
+                                        }}
+                                    >
+                                        <View style={styles.ImageWrap}>
+                                            <Image
+                                                source={{
+                                                    uri: validID,
+                                                }}
+                                                style={styles.DocumentImage}
+                                            />
+                                            <Text style={styles.DocumentLabel}>
+                                                Valid ID
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            console.log("Long Press");
+                                            setModalImage(nbi);
+                                            openModal();
+                                            console.log(isModalShown);
+                                        }}
+                                    >
+                                        <View style={styles.ImageWrap}>
+                                            <Image
+                                                source={{
+                                                    uri: nbi,
+                                                }}
+                                                style={styles.DocumentImage}
+                                            />
+                                            <Text style={styles.DocumentLabel}>
+                                                NBI
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            <View style={styles.DocumentSection}>
+                                <Text
+                                    style={[
+                                        style.SectionTitle,
+                                        { textAlign: "left" },
+                                    ]}
+                                >
+                                    Skills Certification
+                                </Text>
+                                <View style={styles.DocumentImageWrap}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            console.log("Long Press");
+                                            setModalImage(certificate1);
+                                            openModal();
+                                            console.log(isModalShown);
+                                        }}
+                                    >
+                                        <View style={styles.ImageWrap}>
+                                            <Image
+                                                source={{
+                                                    uri: certificate1,
+                                                }}
+                                                style={styles.DocumentImage}
+                                            />
+                                            <Text style={styles.DocumentLabel}>
+                                                Certificate
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            console.log("Long Press");
+                                            setModalImage(certificate2);
+                                            openModal();
+                                            console.log(isModalShown);
+                                        }}
+                                    >
+                                        <View style={styles.ImageWrap}>
+                                            <Image
+                                                source={{
+                                                    uri: certificate2,
+                                                }}
+                                                style={styles.DocumentImage}
+                                            />
+                                            <Text style={styles.DocumentLabel}>
+                                                Certificate
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            <View style={styles.DocumentSection}>
+                                <Text
+                                    style={[
+                                        style.SectionTitle,
+                                        { textAlign: "left" },
+                                    ]}
+                                >
+                                    Facial Verification
+                                </Text>
+                                <View style={styles.DocumentImageWrap}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            console.log("Long Press");
+                                            setModalImage(face);
+                                            openModal();
+                                            console.log(isModalShown);
+                                        }}
+                                    >
+                                        <View style={styles.ImageWrap}>
+                                            <Image
+                                                source={{
+                                                    uri: face,
+                                                }}
+                                                style={styles.DocumentImage}
+                                            />
+                                            <Text style={styles.DocumentLabel}>
+                                                Face
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>
 
                         <View style={styles.ReviewWrap}>
@@ -486,5 +684,32 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         gap: 4,
+    },
+    DocumentSection: {
+        marginBottom: 20,
+    },
+    DocumentImageWrap: {
+        display: "flex",
+        flexDirection: "row",
+        gap: 8,
+    },
+    DocumentImage: {
+        height: 120,
+        width: 120,
+        resizeMode: "contain",
+    },
+    DocumentLabel: {
+        textAlign: "center",
+        fontSize: 18,
+        marginTop: 12,
+        maxWidth: 120,
+    },
+    CertificateName: {
+        marginTop: 12,
+        backgroundColor: "#dedede",
+        color: "#000",
+        paddingHorizontal: 8,
+        paddingVertical: 12,
+        borderRadius: 10,
     },
 });

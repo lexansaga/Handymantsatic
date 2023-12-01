@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         paddingVertical: 18,
         paddingHorizontal: 28,
         alignSelf: "center",
-        width: "100%",
+        // width: "fi ",
     },
     btnPrimary: {
         backgroundColor: "#7EB58D",

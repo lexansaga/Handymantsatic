@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { StyleSheet, View, Text, RefreshControl } from "react-native";
+import { StyleSheet, View, Text, RefreshControl, Image } from "react-native";
 import {
     IDFormat,
     PriceFormat,
@@ -18,6 +18,7 @@ import {
     UserInfo,
     push,
     update,
+    UserInfoAxios,
 } from "../../config/firebase.config";
 
 import { ClientFeed } from "../ServiceProvider/ServiceProviderHome";
@@ -27,10 +28,34 @@ import SecondaryButton from "../../components/SecondaryButton";
 import { useIsFocused } from "@react-navigation/native";
 
 import { Feather } from "@expo/vector-icons";
+import CustomModal from "../../components/CustomModal";
 export default function TaskActive({ navigation, route }) {
     const [userInfo, setUserInfo] = useState({});
+    const [serverInfo, setServerInfo] = useState({});
     const { Email, Name, Password, Profile, Type, UID } = userInfo;
     const [JobOrder, setJobOrder] = useState([]);
+
+    const [isModalShown, setIsModalShown] = useState(false);
+
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [modalImage, setModalImage] = useState("");
+
+    const { BankName, BankAccountName, BankAccountNo, GcashNo, MayaNo } =
+        IsNullOrEmptyFallback(serverInfo.PaymentInformation, {});
+
+    const openModal = (id) => {
+        UserInfoAxios(id).then((data) => {
+            setServerInfo(data);
+            console.log(data);
+        });
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
     let count = 0;
     const [refreshing, setRefreshing] = useState(false);
     let forView = true;
@@ -134,6 +159,101 @@ export default function TaskActive({ navigation, route }) {
     return (
         <View style={style.MainWrapper}>
             <Header profile={Profile} />
+
+            <CustomModal
+                visible={modalVisible}
+                closeModal={closeModal}
+                modalContent={
+                    <View style={style.PaymentWrap}>
+                        <Text
+                            style={{
+                                fontWeight: 700,
+                                fontFamily: "Roboto",
+                                fontSize: 18,
+                                textTransform: "uppercase",
+                                marginBottom: 10,
+                                textAlign: "center",
+                            }}
+                        >
+                            Pay now using and use this accounts!
+                        </Text>
+
+                        <View style={style.InfoGroup}>
+                            <Text style={style.InfoTitle}>Bank Account</Text>
+                            <Text selectable={true} style={style.InfoContent}>
+                                {IsNullOrEmptyFallback(BankName, "Not Set")}
+                            </Text>
+                        </View>
+
+                        <View style={style.InfoGroup}>
+                            <Text style={style.InfoTitle}>
+                                Bank Account Name
+                            </Text>
+                            <Text selectable={true} style={style.InfoContent}>
+                                {IsNullOrEmptyFallback(
+                                    BankAccountName,
+                                    "Not Set"
+                                )}
+                            </Text>
+                        </View>
+
+                        <View style={style.InfoGroup}>
+                            <Text style={style.InfoTitle}>
+                                Bank Account Number
+                            </Text>
+                            <Text selectable={true} style={style.InfoContent}>
+                                {IsNullOrEmptyFallback(
+                                    BankAccountNo,
+                                    "Not Set"
+                                )}
+                            </Text>
+                        </View>
+
+                        <View style={style.InfoGroup}>
+                            <Text style={style.InfoTitle}>Gcash Number</Text>
+                            <Text selectable={true} style={style.InfoContent}>
+                                {IsNullOrEmptyFallback(GcashNo, "Not Set")}
+                            </Text>
+                        </View>
+
+                        <View style={style.InfoGroup}>
+                            <Text style={style.InfoTitle}>Paymaya Number</Text>
+                            <Text selectable={true} style={style.InfoContent}>
+                                {IsNullOrEmptyFallback(MayaNo, "Not Set")}
+                            </Text>
+                        </View>
+
+                        <View
+                            style={[
+                                style.btnActionWrap,
+                                {
+                                    marginTop: 48,
+                                    flexDirection: "column",
+                                    gap: 15,
+                                },
+                            ]}
+                        >
+                            <PrimaryButton
+                                title={"Transaction Paid"}
+                                onPress={() => {
+                                    PushNotification(
+                                        `Payment Received!`,
+                                        `${Name} just paid you using one of your account. Please check before leaving the premises`,
+                                        serverInfo.UID
+                                    );
+                                    closeModal();
+                                }}
+                            />
+                            <SecondaryButton
+                                title={"Proceed Cash on Hand"}
+                                onPress={() => {
+                                    closeModal();
+                                }}
+                            />
+                        </View>
+                    </View>
+                }
+            />
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -218,6 +338,15 @@ export default function TaskActive({ navigation, route }) {
                                                         : "Accept Offer"
                                                 }
                                                 onPress={() => {
+                                                    if (
+                                                        isCLient &&
+                                                        status
+                                                            .toLowerCase()
+                                                            .includes("active")
+                                                    ) {
+                                                        openModal(iUID);
+                                                    }
+
                                                     update(
                                                         ref(
                                                             database,
@@ -403,7 +532,8 @@ const style = StyleSheet.create({
     },
     btnActionWrap: {
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
+        justifyContent: "center",
         gap: 4,
         marginTop: 15,
         paddingBottom: 18,
@@ -411,5 +541,25 @@ const style = StyleSheet.create({
     },
     forViewBtnActionWrap: {
         display: "none",
+    },
+    InfoGroup: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderColor: "#dedede",
+    },
+    InfoTitle: {
+        fontSize: 17,
+        fontWeight: 600,
+    },
+
+    InfoContent: {
+        fontSize: 15,
+        fontWeight: 400,
+    },
+    PaymentWrap: {
+        marginTop: 48,
     },
 });

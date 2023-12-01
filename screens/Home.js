@@ -18,6 +18,7 @@ import AdminHome from "./Admin/AdminHome";
 import AdminUsers from "./Admin/AdminUsers";
 import AdminReports from "./Admin/AdminReports";
 import AdminNotification from "./Admin/AdminNotification";
+import AdminVerification from "./Admin/AdminVerification";
 
 import Signin from "./Signin";
 import Signup from "./Signup";
@@ -74,6 +75,11 @@ const AdminNavigator = () => {
                 name="Notification"
                 initialParams={globalRoute.params}
                 component={AdminNotification}
+            ></Drawer.Screen>
+            <Drawer.Screen
+                name="Verify User"
+                initialParams={globalRoute.params}
+                component={AdminVerification}
             ></Drawer.Screen>
             <Drawer.Screen name="Logout" component={Logout}></Drawer.Screen>
         </Drawer.Navigator>

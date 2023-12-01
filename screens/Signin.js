@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useIsFocused } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, Image, View, Alert } from "react-native";
 import PrimaryButton from "../components/PrimaryButton";
@@ -6,7 +7,7 @@ import SecondaryButton from "../components/SecondaryButton";
 import ShowToast from "../components/Toast";
 import Input from "../components/Input.js";
 import styles from "../styles/style.js";
-import { IsNullOrEmpty, IsTextEmpty } from "./Utils";
+import { IsNullOrEmpty, IsNullOrEmptyFallback, IsTextEmpty } from "./Utils";
 import {
     app,
     firestore,
@@ -32,41 +33,54 @@ export default function Signin({ navigation }) {
     // const auth = getAuth(app);
 
     // const firestore = getFirestore(app);
+    const isFocused = useIsFocused();
     useEffect(() => {
+        if (!isFocused) {
+            return;
+        }
         const hasUser = () => {
             onAuthStateChanged(auth, async (user) => {
                 // console.log(user);
                 if (user) {
                     const uid = user.uid;
                     const isVerified = user.emailVerified;
-
+                    //     Login();
                     await get(child(databaseRef, `Users/${uid}/`))
                         .then((snapshot) => {
                             if (snapshot.exists()) {
                                 var snap = snapshot.val();
                                 var email = snap.Email;
+                                var password = snap.Password;
                                 var name = snap.Name;
                                 var profile = snap.Profile;
                                 var type = String(snap.Type);
-                                var isDisable = snap.IsDisable;
-                                if (isDisable == true || isDisable == "true") {
-                                    ShowToast("This account is now disabled!");
-                                    return;
-                                } else {
-                                    if (isVerified === true) {
+                                var isDisable = IsNullOrEmptyFallback(
+                                    snap.IsDisable,
+                                    false
+                                );
+                                var Documents = snap.Documents;
+
+                                if (type.includes("Client")) {
+                                    console.log("Cli");
+                                    if (isVerified == true) {
                                         console.log(
-                                            `isVerified ${isVerified} : ${
-                                                isVerified === true
-                                            }`
+                                            `Cli Verified ${isDisable}`
                                         );
-                                        if (type.includes("Client")) {
-                                            navigation.replace("Home", {
-                                                UID: uid,
-                                                Email: email,
-                                                Name: name,
-                                                Type: type,
-                                                Profile: profile,
-                                            });
+                                        if (isDisable == true) {
+                                            Alert.alert(
+                                                "Disabled Account!",
+                                                "Your account is currently disabled! Please mail handymantastic01@gmail.com",
+                                                [
+                                                    {
+                                                        text: "Okay",
+                                                        onPress: () => {},
+                                                        style: "cancel",
+                                                    },
+                                                ],
+                                                {
+                                                    cancelable: false,
+                                                }
+                                            );
                                         } else {
                                             navigation.replace("Home", {
                                                 UID: uid,
@@ -89,7 +103,6 @@ export default function Signin({ navigation }) {
                                                 {
                                                     text: "Send Email",
                                                     onPress: () => {
-                                                        //Accept - Yes
                                                         sendEmailVerification(
                                                             auth.currentUser
                                                         ).then(() => {});
@@ -100,6 +113,103 @@ export default function Signin({ navigation }) {
                                                 cancelable: false,
                                             }
                                         );
+                                    }
+                                } else {
+                                    console.log("Serv pro");
+                                    if (isVerified == true) {
+                                        console.log("Serv pro Verified");
+                                        if (isDisable == true) {
+                                            Alert.alert(
+                                                "Verify Email",
+                                                "Please verify your account! \n Submit necessary documents!",
+                                                [
+                                                    {
+                                                        text: "No",
+                                                        onPress: () => {},
+                                                        style: "cancel",
+                                                    },
+                                                    {
+                                                        text: "Verify Account",
+                                                        onPress: () => {
+                                                            //Accept - Yes
+                                                            navigation.navigate(
+                                                                "Verification",
+                                                                {
+                                                                    UID: uid,
+                                                                    Email: email,
+                                                                    Name: name,
+                                                                    Type: type,
+                                                                    Profile:
+                                                                        profile,
+                                                                    Documents:
+                                                                        Documents,
+                                                                }
+                                                            );
+                                                        },
+                                                    },
+                                                ],
+                                                {
+                                                    cancelable: false,
+                                                }
+                                            );
+                                        } else {
+                                            navigation.replace("Home", {
+                                                UID: uid,
+                                                Email: email,
+                                                Name: name,
+                                                Type: type,
+                                                Profile: profile,
+                                            });
+                                        }
+                                    } else {
+                                        console.log(
+                                            `Serv pro Not Verified ${isDisable} ${
+                                                isDisable == true
+                                            } ${isDisable != "false"}`
+                                        );
+                                        if (isDisable == true) {
+                                            Alert.alert(
+                                                "Verify Email",
+                                                "Please verify your account! \n Submit necessary documents!",
+                                                [
+                                                    {
+                                                        text: "No",
+                                                        onPress: () => {},
+                                                        style: "cancel",
+                                                    },
+                                                    {
+                                                        text: "Verify Account",
+                                                        onPress: () => {
+                                                            //Accept - Yes
+                                                            navigation.navigate(
+                                                                "Verification",
+                                                                {
+                                                                    UID: uid,
+                                                                    Email: email,
+                                                                    Name: name,
+                                                                    Type: type,
+                                                                    Profile:
+                                                                        profile,
+                                                                    Documents:
+                                                                        Documents,
+                                                                }
+                                                            );
+                                                        },
+                                                    },
+                                                ],
+                                                {
+                                                    cancelable: false,
+                                                }
+                                            );
+                                        } else {
+                                            navigation.replace("Home", {
+                                                UID: uid,
+                                                Email: email,
+                                                Name: name,
+                                                Type: type,
+                                                Profile: profile,
+                                            });
+                                        }
                                     }
                                 }
                             } else {
@@ -141,7 +251,7 @@ export default function Signin({ navigation }) {
                 setEmail("");
                 setPassword("");
                 var uid = user.uid;
-
+                console.log(uid);
                 await get(child(databaseRef, `Users/${uid}/`))
                     .then((snapshot) => {
                         if (snapshot.exists()) {
@@ -150,26 +260,38 @@ export default function Signin({ navigation }) {
                             var name = snap.Name;
                             var profile = snap.Profile;
                             var type = String(snap.Type);
-                            var isDisable = snap.IsDisable;
-                            console.log(`IsActive? ${isDisable}`);
-                            if (isDisable === true || isDisable == "true") {
-                                ShowToast("This account is now disabled!");
-                                return;
-                            } else {
-                                if (isVerified === true) {
-                                    console.log(
-                                        `This verified ${isVerified} : ${
-                                            isVerified === true
-                                        }`
-                                    );
-                                    if (type.includes("Client")) {
-                                        navigation.replace("Home", {
-                                            UID: uid,
-                                            Email: email,
-                                            Name: name,
-                                            Type: type,
-                                            Profile: profile,
-                                        });
+                            var isDisable = IsNullOrEmptyFallback(
+                                snap.IsDisable,
+                                false
+                            );
+
+                            var Documents = snap.Documents;
+                            console.log(`Is Disable ${snap.IsDisable}`);
+
+                            console.log(
+                                `This verified ${isVerified} : ${
+                                    isVerified === true
+                                }`
+                            );
+                            if (type.includes("Client")) {
+                                console.log("Cli");
+                                if (isVerified == true) {
+                                    console.log(`Cli Verified ${isDisable}`);
+                                    if (isDisable == true) {
+                                        Alert.alert(
+                                            "Disabled Account!",
+                                            "Your account is currently disabled! Please mail handymantastic01@gmail.com",
+                                            [
+                                                {
+                                                    text: "Okay",
+                                                    onPress: () => {},
+                                                    style: "cancel",
+                                                },
+                                            ],
+                                            {
+                                                cancelable: false,
+                                            }
+                                        );
                                     } else {
                                         navigation.replace("Home", {
                                             UID: uid,
@@ -192,7 +314,6 @@ export default function Signin({ navigation }) {
                                             {
                                                 text: "Send Email",
                                                 onPress: () => {
-                                                    //Accept - Yes
                                                     sendEmailVerification(
                                                         auth.currentUser
                                                     ).then(() => {});
@@ -203,6 +324,102 @@ export default function Signin({ navigation }) {
                                             cancelable: false,
                                         }
                                     );
+                                }
+                            } else {
+                                console.log("Serv pro");
+                                if (isVerified == true) {
+                                    if (isDisable == true) {
+                                        Alert.alert(
+                                            "Verify Email",
+                                            "Please verify your account! \n Submit necessary documents!",
+                                            [
+                                                {
+                                                    text: "No",
+                                                    onPress: () => {},
+                                                    style: "cancel",
+                                                },
+                                                {
+                                                    text: "Verify Account",
+                                                    onPress: () => {
+                                                        //Accept - Yes
+                                                        navigation.navigate(
+                                                            "Verification",
+                                                            {
+                                                                UID: uid,
+                                                                Email: email,
+                                                                Name: name,
+                                                                Type: type,
+                                                                Profile:
+                                                                    profile,
+                                                                Documents:
+                                                                    Documents,
+                                                            }
+                                                        );
+                                                    },
+                                                },
+                                            ],
+                                            {
+                                                cancelable: false,
+                                            }
+                                        );
+                                    } else {
+                                        navigation.replace("Home", {
+                                            UID: uid,
+                                            Email: email,
+                                            Name: name,
+                                            Type: type,
+                                            Profile: profile,
+                                        });
+                                    }
+                                } else {
+                                    console.log(
+                                        `Serv pro Not Verified ${isDisable} ${
+                                            isDisable == true
+                                        } ${isDisable != "false"}`
+                                    );
+                                    if (isDisable == true) {
+                                        Alert.alert(
+                                            "Verify Email",
+                                            "Please verify your account! \n Submit necessary documents!",
+                                            [
+                                                {
+                                                    text: "No",
+                                                    onPress: () => {},
+                                                    style: "cancel",
+                                                },
+                                                {
+                                                    text: "Verify Account",
+                                                    onPress: () => {
+                                                        //Accept - Yes
+                                                        navigation.navigate(
+                                                            "Verification",
+                                                            {
+                                                                UID: uid,
+                                                                Email: email,
+                                                                Name: name,
+                                                                Type: type,
+                                                                Profile:
+                                                                    profile,
+                                                                Documents:
+                                                                    Documents,
+                                                            }
+                                                        );
+                                                    },
+                                                },
+                                            ],
+                                            {
+                                                cancelable: false,
+                                            }
+                                        );
+                                    } else {
+                                        navigation.replace("Home", {
+                                            UID: uid,
+                                            Email: email,
+                                            Name: name,
+                                            Type: type,
+                                            Profile: profile,
+                                        });
+                                    }
                                 }
                             }
                         } else {

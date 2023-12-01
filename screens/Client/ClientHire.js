@@ -30,7 +30,12 @@ import axios from "axios";
 import { vw, vh, vmin, vmax } from "react-native-expo-viewport-units";
 import PrimaryButton from "../../components/PrimaryButton";
 import { useIsFocused } from "@react-navigation/native";
-import { DefaultProfile, IsNullOrEmpty, PriceFormat } from "../Utils";
+import {
+    DefaultProfile,
+    IsNullOrEmpty,
+    IsNullOrEmptyFallback,
+    PriceFormat,
+} from "../Utils";
 import { Feather } from "@expo/vector-icons";
 
 import * as ImagePicker from "expo-image-picker";
@@ -57,6 +62,10 @@ export default function ClientHire({ navigation, route }) {
         ServiceOffered,
         Address,
     } = userInfo;
+
+    const { BankName, BankAccountName, BankAccountNo, GcashNo, MayaNo } =
+        IsNullOrEmptyFallback(userInfo.PaymentInformation, {});
+
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
     const [profileLink, setProfileLink] = useState("");
@@ -237,7 +246,90 @@ export default function ClientHire({ navigation, route }) {
                                 source={require("../../assets/blank.jpg")}
                             />
                         </View> */}
+                        {isServiceProvider ? (
+                            <View style={styles.PaymentWrap}>
+                                <Text style={style.SectionTitle}>
+                                    Payment Information
+                                </Text>
 
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Bank Account
+                                    </Text>
+                                    <Text
+                                        selectable={true}
+                                        style={styles.InfoContent}
+                                    >
+                                        {IsNullOrEmptyFallback(
+                                            BankName,
+                                            "Not Set"
+                                        )}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Bank Account Name
+                                    </Text>
+                                    <Text
+                                        selectable={true}
+                                        style={styles.InfoContent}
+                                    >
+                                        {IsNullOrEmptyFallback(
+                                            BankAccountName,
+                                            "Not Set"
+                                        )}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Bank Account Number
+                                    </Text>
+                                    <Text
+                                        selectable={true}
+                                        style={styles.InfoContent}
+                                    >
+                                        {IsNullOrEmptyFallback(
+                                            BankAccountNo,
+                                            "Not Set"
+                                        )}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Gcash Number
+                                    </Text>
+                                    <Text
+                                        selectable={true}
+                                        style={styles.InfoContent}
+                                    >
+                                        {IsNullOrEmptyFallback(
+                                            GcashNo,
+                                            "Not Set"
+                                        )}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.InfoGroup}>
+                                    <Text style={styles.InfoTitle}>
+                                        Paymaya Number
+                                    </Text>
+                                    <Text
+                                        selectable={true}
+                                        style={styles.InfoContent}
+                                    >
+                                        {IsNullOrEmptyFallback(
+                                            MayaNo,
+                                            "Not Set"
+                                        )}
+                                    </Text>
+                                </View>
+                            </View>
+                        ) : (
+                            <></>
+                        )}
                         <View style={styles.ReviewWrap}>
                             <Text style={style.SectionTitle}>Reviews</Text>
                             <View style={styles.ReviewItemWrap}>
@@ -352,6 +444,7 @@ const styles = StyleSheet.create({
     },
     ReviewWrap: {
         marginTop: 28,
+        marginBottom: 48,
     },
     ReviewItemWrap: {
         marginTop: 18,
@@ -371,5 +464,9 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         gap: 4,
+    },
+
+    PaymentWrap: {
+        marginTop: 48,
     },
 });

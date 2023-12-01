@@ -59,26 +59,57 @@ export default function Signup({ navigation }) {
 
                 var uid = user.uid;
                 console.log(uid);
-                set(ref(database, `Users/${uid}`), {
-                    UID: uid,
-                    Name: name,
-                    Email: email,
-                    Password: password,
-                    Type: value,
-                });
+
                 ShowToast("Account created successfully.");
-                sendEmailVerification(auth.currentUser).then(() => {
-                    ShowToast("Please check mail and verify to log in");
+                if (value.includes("Client")) {
+                    set(ref(database, `Users/${uid}`), {
+                        UID: uid,
+                        Name: name,
+                        Email: email,
+                        Password: password,
+                        Type: value,
+                    });
+                    sendEmailVerification(auth.currentUser).then(() => {
+                        ShowToast("Please check mail and verify to log in");
+                        Alert.alert(
+                            "Verify Email",
+                            "Please verify your email to login! \n Check you mail box and follow the link. \n \n Once verified you can now login directly!",
+                            [
+                                {
+                                    text: "Got it",
+                                    onPress: () => {
+                                        //Accept - Yes
+                                        ShowToast("Sign Up Success!");
+                                        navigation.navigate("Signin", {
+                                            key: "value",
+                                        });
+                                    },
+                                },
+                            ],
+                            {
+                                cancelable: false,
+                            }
+                        );
+                    });
+                } else {
+                    set(ref(database, `Users/${uid}`), {
+                        UID: uid,
+                        Name: name,
+                        Email: email,
+                        Password: password,
+                        Type: value,
+                        IsDisable: true,
+                    });
                     Alert.alert(
-                        "Verify Email",
-                        "Please verify your email to login! \n Check you mail box and follow the link. \n \n Once verified you can now login directly!",
+                        "Verify Account",
+                        "Please verify your Account before using it's full potential",
                         [
                             {
-                                text: "Got",
+                                text: "Got it",
                                 onPress: () => {
                                     //Accept - Yes
                                     ShowToast("Sign Up Success!");
-                                    navigation.navigate("Signin", {
+                                    navigation.navigate("Verification", {
                                         key: "value",
                                     });
                                 },
@@ -88,7 +119,8 @@ export default function Signup({ navigation }) {
                             cancelable: false,
                         }
                     );
-                });
+                }
+
                 // Add a new document in collection "cities"
                 // await setDoc(
                 //     doc(firestore, "User", `${uid}`),

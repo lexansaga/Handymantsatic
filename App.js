@@ -6,6 +6,7 @@ import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
 import ForgotPassword from "./screens/ForgotPassword";
 import OneTimePin from "./screens/OneTimePin";
+import Verification from "./screens/Verification";
 
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -60,6 +61,16 @@ const MainStack = () => {
                 name="Signup"
                 component={Signup}
                 options={{ title: "Signup" }}
+            />
+            <Stack.Screen
+                name="Verification"
+                component={Verification}
+                options={{
+                    title: "Verification",
+                    header: () => {
+                        null;
+                    },
+                }}
             />
             <Stack.Screen
                 name="ForgotPassword"

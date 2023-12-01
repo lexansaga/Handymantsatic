@@ -69,6 +69,9 @@ export default function ProfileEdit({ navigation, route }) {
         Rate,
     } = route.params.UserInfo;
 
+    const { BankName, BankAccountName, BankAccountNo, GcashNo, MayaNo } =
+        IsNullOrEmptyFallback(route.params.UserInfo.PaymentInformation, {});
+
     const [refreshing, setRefreshing] = useState(false);
     const isFocused = useIsFocused();
     const [profileLink, setProfileLink] = useState("");
@@ -89,6 +92,12 @@ export default function ProfileEdit({ navigation, route }) {
     const [rate, setRate] = useState("");
     const [contact, setContact] = useState("");
     const [description, setDescription] = useState("");
+    const [gcash, setGcash] = useState("");
+    const [paymaya, setPaymaya] = useState("");
+
+    const [bankName, setBankName] = useState("");
+    const [bankAccountName, setBankAccountName] = useState("");
+    const [bankAccountNo, setBankAccountNo] = useState("");
 
     const [address, setAddress] = useState("");
 
@@ -222,14 +231,6 @@ export default function ProfileEdit({ navigation, route }) {
 
     const onRefresh = () => {
         setRefreshing(true);
-        // UserInfoAxios()
-        //     .then((data) => {
-        //         setUserInfo(data);
-        //         console.log(userInfo);
-        //     })
-        //     .catch((error) => {
-        //         console.log("error " + error);
-        //     });
         getCategory();
         setName(Name);
         setRate(Rate);
@@ -237,6 +238,14 @@ export default function ProfileEdit({ navigation, route }) {
         setDescription(JobDescription);
         setValue(ServiceOffered);
         setAddress(Address);
+
+        setBankName(BankName);
+        setBankAccountName(BankAccountName);
+        setBankAccountNo(BankAccountNo);
+
+        setGcash(GcashNo);
+        setPaymaya(MayaNo);
+
         setTimeout(() => {
             setRefreshing(false);
         }, 2000);
@@ -357,16 +366,105 @@ export default function ProfileEdit({ navigation, route }) {
                             <></>
                         )}
                         {isServiceProvider ? (
-                            <Input
-                                style={styles.input}
-                                placeholder={"Description"}
-                                value={description}
-                                onChangeText={setDescription}
-                                icon="book-open"
-                                numberOfLines={4}
-                                isPassword={false}
-                                multiline={true}
-                            />
+                            <>
+                                <Input
+                                    style={styles.input}
+                                    placeholder={"Description"}
+                                    value={description}
+                                    onChangeText={setDescription}
+                                    icon="book-open"
+                                    numberOfLines={4}
+                                    isPassword={false}
+                                    multiline={true}
+                                />
+                                <View style={styles.PageSection}>
+                                    <Text style={style.SectionTitle}>
+                                        Payment Information
+                                    </Text>
+
+                                    <Text style={style.SectionTitle}>
+                                        Bank Information
+                                    </Text>
+
+                                    <Text style={{ marginLeft: 10 }}>
+                                        Bank Name
+                                    </Text>
+                                    <Input
+                                        style={styles.input}
+                                        placeholder={"Bank Name"}
+                                        value={bankName}
+                                        onChangeText={setBankName}
+                                        icon="credit-card"
+                                        isPassword={false}
+                                    />
+
+                                    <Text
+                                        style={{ marginTop: 8, marginLeft: 10 }}
+                                    >
+                                        Account Name
+                                    </Text>
+                                    <Input
+                                        style={styles.input}
+                                        placeholder={"Account Name"}
+                                        value={bankAccountName}
+                                        onChangeText={setBankAccountName}
+                                        icon="credit-card"
+                                        isPassword={false}
+                                    />
+                                    <Text
+                                        style={{ marginTop: 8, marginLeft: 10 }}
+                                    >
+                                        Account Number
+                                    </Text>
+                                    <Input
+                                        style={styles.input}
+                                        placeholder={"Account No"}
+                                        value={bankAccountNo}
+                                        onChangeText={setBankAccountNo}
+                                        icon="credit-card"
+                                        isPassword={false}
+                                    />
+                                    <Text
+                                        style={[
+                                            style.SectionTitle,
+                                            {
+                                                marginTop: 28,
+                                                marginBottom: 8,
+                                            },
+                                        ]}
+                                    >
+                                        E-Wallet Information
+                                    </Text>
+
+                                    <Text
+                                        style={{ marginTop: 8, marginLeft: 10 }}
+                                    >
+                                        Gcash Number
+                                    </Text>
+                                    <Input
+                                        style={styles.input}
+                                        placeholder={"Gcash Number"}
+                                        value={gcash}
+                                        onChangeText={setGcash}
+                                        icon="coffee"
+                                        isPassword={false}
+                                    />
+
+                                    <Text
+                                        style={{ marginTop: 8, marginLeft: 10 }}
+                                    >
+                                        Paymaya Number
+                                    </Text>
+                                    <Input
+                                        style={styles.input}
+                                        placeholder={"Maya Number"}
+                                        value={paymaya}
+                                        onChangeText={setPaymaya}
+                                        icon="coffee"
+                                        isPassword={false}
+                                    />
+                                </View>
+                            </>
                         ) : (
                             <></>
                         )}
@@ -409,6 +507,30 @@ export default function ProfileEdit({ navigation, route }) {
                                                 number,
                                                 "Not Set"
                                             ),
+                                            PaymentInformation: {
+                                                BankName: IsNullOrEmptyFallback(
+                                                    bankName,
+                                                    "Not Set"
+                                                ),
+                                                BankAccountName:
+                                                    IsNullOrEmptyFallback(
+                                                        bankAccountName,
+                                                        "Not Set"
+                                                    ),
+                                                BankAccountNo:
+                                                    IsNullOrEmptyFallback(
+                                                        bankAccountNo,
+                                                        "Not Set"
+                                                    ),
+                                                GcashNo: IsNullOrEmptyFallback(
+                                                    gcash,
+                                                    "Not Set"
+                                                ),
+                                                MayaNo: IsNullOrEmptyFallback(
+                                                    paymaya,
+                                                    "Not Set"
+                                                ),
+                                            },
                                         });
                                     } else {
                                         update(ref(database, `Users/${UID}/`), {

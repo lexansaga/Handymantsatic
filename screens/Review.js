@@ -154,22 +154,24 @@ export default function Review({ navigation, route }) {
                         <PrimaryButton
                             title={"Submit"}
                             onPress={() => {
-                                push(
-                                    ref(
-                                        database,
-                                        `Reviews/${ServiceProviderID}/`
-                                    ),
-                                    {
-                                        ReviewerID: UID,
-                                        ToReviewer: serviceProviderInfo.UID,
-                                        Name: Name,
-                                        Review: review,
-                                        Rate: starRate,
-                                    }
-                                );
-                                ShowToast("Review submitted sucessfully!");
-                                setStarRate(0);
-                                setReview("");
+                                if (review.length >= 1) {
+                                    push(
+                                        ref(
+                                            database,
+                                            `Reviews/${ServiceProviderID}/`
+                                        ),
+                                        {
+                                            ReviewerID: UID,
+                                            ToReviewer: serviceProviderInfo.UID,
+                                            Name: Name,
+                                            Review: review,
+                                            Rate: starRate,
+                                        }
+                                    );
+                                    ShowToast("Review submitted sucessfully!");
+                                    setStarRate(0);
+                                    setReview("");
+                                }
                             }}
                         />
                     </View>

@@ -28,7 +28,7 @@ import { useNavigation } from "@react-navigation/native";
 import { DefaultProfile, IsNullOrEmpty, IsNullOrEmptyFallback } from "../Utils";
 import axios from "axios";
 
-export default function AdminHome({ navigation, route }) {
+export default function AdminVerification({ navigation, route }) {
     const [refreshing, setRefreshing] = React.useState(false);
     const [userInfo, setUserInfo] = useState({});
     const [users, setUsers] = useState({});
@@ -63,7 +63,17 @@ export default function AdminHome({ navigation, route }) {
         //     setUserInfo(user);
         // });
         getUsers().then((data) => {
-            setUsers(data);
+            const filteredServiceProviderWithDisableTrue = Object.entries(data)
+                .filter(([_, value]) => {
+                    return (
+                        value.Type === "ServiceProvider" &&
+                        value.hasOwnProperty("IsDisable") &&
+                        value.IsDisable === true
+                    );
+                })
+                .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
+            setUsers(filteredServiceProviderWithDisableTrue);
+            console.log(filteredServiceProviderWithDisable);
         });
         console.log(users);
         console.log("Refresh");
@@ -95,11 +105,14 @@ export default function AdminHome({ navigation, route }) {
                         value={search}
                         placeholder="Search User"
                     />
-                    <Text style={styles.SectionTitle}>Users</Text>
+                    <Text style={styles.SectionTitle}>Not Verified User</Text>
                     <View style={style.UserWrapper}>
                         {Object.values(users).map((user) => {
+                            console.log(user.IsDisable);
+
                             if (!IsNullOrEmpty(search)) {
                                 if (
+                                    !IsNullOrEmpty(user.IsDisable) ||
                                     IsNullOrEmptyFallback(user.Name, "No Name")
                                         .toLowerCase()
                                         .includes(search.toLowerCase()) ||
